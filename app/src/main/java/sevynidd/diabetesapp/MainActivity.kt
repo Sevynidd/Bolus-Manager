@@ -6,6 +6,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Calculate
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -16,9 +20,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
+import androidx.compose.ui.unit.dp
 import sevynidd.diabetesapp.ui.theme.DiabetesAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -36,7 +41,7 @@ class MainActivity : ComponentActivity() {
 @PreviewScreenSizes
 @Composable
 fun DiabetesAppApp() {
-    var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.HOME) }
+    var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.FACTORS) }
 
     NavigationSuiteScaffold(
         navigationSuiteItems = {
@@ -44,7 +49,7 @@ fun DiabetesAppApp() {
                 item(
                     icon = {
                         Icon(
-                            painterResource(it.icon),
+                            imageVector = it.icon,
                             contentDescription = it.label
                         )
                     },
@@ -56,35 +61,34 @@ fun DiabetesAppApp() {
         }
     ) {
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-            Greeting(
-                name = "Android",
-                modifier = Modifier.padding(innerPadding)
-            )
+            val contentModifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(16.dp)
+
+            when (currentDestination) {
+                AppDestinations.FACTORS -> FactorScreen(contentModifier)
+                AppDestinations.FAVORITES -> FavoritesScreen(contentModifier)
+                AppDestinations.SETTINGS -> SettingsScreen(contentModifier)
+            }
         }
     }
 }
 
 enum class AppDestinations(
     val label: String,
-    val icon: Int,
+    val icon: ImageVector,
 ) {
-    HOME("Home", R.drawable.ic_home),
-    FAVORITES("Favorites", R.drawable.ic_favorite),
-    PROFILE("Profile", R.drawable.ic_account_box),
+    FACTORS("Factors", Icons.Filled.Calculate),
+    FAVORITES("Favorites", Icons.Filled.Favorite),
+    SETTINGS("Settings", Icons.Filled.Settings),
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
 
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
     DiabetesAppTheme {
-        Greeting("Android")
+        FactorScreen()
     }
 }
