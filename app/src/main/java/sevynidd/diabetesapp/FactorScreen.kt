@@ -18,7 +18,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun FactorScreen(modifier: Modifier = Modifier) {
+fun FactorScreen(modifier: Modifier = Modifier, isEditMode: Boolean = false) {
     var factor1 by rememberSaveable { mutableStateOf("") }
     var factor2 by rememberSaveable { mutableStateOf("") }
     var factor3 by rememberSaveable { mutableStateOf("") }
@@ -30,46 +30,46 @@ fun FactorScreen(modifier: Modifier = Modifier) {
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text(
-            text = "Correction Factors",
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
         DoubleInputField(
             value = factor1,
             onValueChange = { factor1 = it },
-            description = "Morning correction factor (00:00 - 06:00)"
+            description = "Morning correction factor (00:00 - 06:00)",
+            enabled = isEditMode
         )
 
         DoubleInputField(
             value = factor2,
             onValueChange = { factor2 = it },
-            description = "Breakfast correction factor (06:00 - 10:00)"
+            description = "Breakfast correction factor (06:00 - 10:00)",
+            enabled = isEditMode
         )
 
         DoubleInputField(
             value = factor3,
             onValueChange = { factor3 = it },
-            description = "Lunch correction factor (10:00 - 14:00)"
+            description = "Lunch correction factor (10:00 - 14:00)",
+            enabled = isEditMode
         )
 
         DoubleInputField(
             value = factor4,
             onValueChange = { factor4 = it },
-            description = "Afternoon correction factor (14:00 - 18:00)"
+            description = "Afternoon correction factor (14:00 - 18:00)",
+            enabled = isEditMode
         )
 
         DoubleInputField(
             value = factor5,
             onValueChange = { factor5 = it },
-            description = "Dinner correction factor (18:00 - 22:00)"
+            description = "Dinner correction factor (18:00 - 22:00)",
+            enabled = isEditMode
         )
 
         DoubleInputField(
             value = factor6,
             onValueChange = { factor6 = it },
-            description = "Night correction factor (22:00 - 00:00)"
+            description = "Night correction factor (22:00 - 00:00)",
+            enabled = isEditMode
         )
     }
 }
@@ -79,6 +79,7 @@ private fun DoubleInputField(
     value: String,
     onValueChange: (String) -> Unit,
     description: String,
+    enabled: Boolean,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
@@ -99,10 +100,9 @@ private fun DoubleInputField(
             label = { Text("Factor") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             singleLine = true,
-            modifier = modifier.fillMaxWidth()
+            enabled = enabled,
+            modifier = Modifier.fillMaxWidth()
         )
     }
-
-
 }
 
