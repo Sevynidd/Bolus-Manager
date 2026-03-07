@@ -23,7 +23,11 @@ import androidx.compose.ui.unit.dp
 import java.util.Locale
 
 @Composable
-fun FactorScreen(modifier: Modifier = Modifier, isEditMode: Boolean = false) {
+fun FactorScreen(
+    modifier: Modifier = Modifier,
+    isEditMode: Boolean = false,
+    currentLanguage: AppLanguage = AppLanguage.System
+) {
     var factor1 by rememberSaveable { mutableStateOf("") }
     var factor2 by rememberSaveable { mutableStateOf("") }
     var factor3 by rememberSaveable { mutableStateOf("") }
@@ -39,49 +43,86 @@ fun FactorScreen(modifier: Modifier = Modifier, isEditMode: Boolean = false) {
         DoubleInputField(
             value = factor1,
             onValueChange = { factor1 = it },
-            description = "Morning correction factor (05:00 - 09:00)",
+            description = "${
+                translate(
+                    TranslationKey.FactorMorning,
+                    currentLanguage
+                )
+            } (05:00 - 09:00)",
+            label = translate(TranslationKey.LabelFactor, currentLanguage),
             enabled = isEditMode
         )
 
         DoubleInputField(
             value = factor2,
             onValueChange = { factor2 = it },
-            description = "Breakfast correction factor (09:00 - 12:00)",
+            description = "${
+                translate(
+                    TranslationKey.FactorBreakfast,
+                    currentLanguage
+                )
+            } (09:00 - 12:00)",
+            label = translate(TranslationKey.LabelFactor, currentLanguage),
             enabled = isEditMode
         )
 
         DoubleInputField(
             value = factor3,
             onValueChange = { factor3 = it },
-            description = "Lunch correction factor (12:00 - 15:00)",
+            description = "${
+                translate(
+                    TranslationKey.FactorLunch,
+                    currentLanguage
+                )
+            } (12:00 - 15:00)",
+            label = translate(TranslationKey.LabelFactor, currentLanguage),
             enabled = isEditMode
         )
 
         DoubleInputField(
             value = factor4,
             onValueChange = { factor4 = it },
-            description = "Afternoon correction factor (15:00 - 18:00)",
+            description = "${
+                translate(
+                    TranslationKey.FactorAfternoon,
+                    currentLanguage
+                )
+            } (15:00 - 18:00)",
+            label = translate(TranslationKey.LabelFactor, currentLanguage),
             enabled = isEditMode
         )
 
         DoubleInputField(
             value = factor5,
             onValueChange = { factor5 = it },
-            description = "Dinner correction factor (18:00 - 21:00)",
+            description = "${
+                translate(
+                    TranslationKey.FactorDinner,
+                    currentLanguage
+                )
+            } (18:00 - 21:00)",
+            label = translate(TranslationKey.LabelFactor, currentLanguage),
             enabled = isEditMode
         )
 
         DoubleInputField(
             value = factor6,
             onValueChange = { factor6 = it },
-            description = "Night correction factor (21:00 - 00:00)",
+            description = "${
+                translate(
+                    TranslationKey.FactorNight,
+                    currentLanguage
+                )
+            } (21:00 - 00:00)",
+            label = translate(TranslationKey.LabelFactor, currentLanguage),
             enabled = isEditMode
         )
 
         BasalRateInputField(
             value = basalRate,
             onValueChange = { basalRate = it },
-            description = "Basal rate (19:00)",
+            description = "${translate(TranslationKey.BasalRate, currentLanguage)} (19:00)",
+            label = translate(TranslationKey.LabelBasalRate, currentLanguage),
             enabled = isEditMode
         )
     }
@@ -92,6 +133,7 @@ private fun DoubleInputField(
     value: String,
     onValueChange: (String) -> Unit,
     description: String,
+    label: String,
     enabled: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -113,7 +155,7 @@ private fun DoubleInputField(
                     draftValue = newValue
                 }
             },
-            label = { Text("Factor") },
+            label = { Text(label) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             singleLine = true,
             enabled = enabled,
@@ -143,6 +185,7 @@ private fun BasalRateInputField(
     value: String,
     onValueChange: (String) -> Unit,
     description: String,
+    label: String,
     enabled: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -164,7 +207,7 @@ private fun BasalRateInputField(
                     draftValue = newValue
                 }
             },
-            label = { Text("Basal Rate") },
+            label = { Text(label) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             singleLine = true,
             enabled = enabled,

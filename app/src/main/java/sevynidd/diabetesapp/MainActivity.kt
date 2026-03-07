@@ -11,7 +11,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Percent
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -22,8 +21,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -31,6 +32,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import sevynidd.diabetesapp.ui.theme.ContrastLevel
 import sevynidd.diabetesapp.ui.theme.DiabetesAppTheme
 
@@ -38,11 +40,14 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContent {
-            var themeMode by rememberSaveable { mutableStateOf(ThemeMode.System) }
-            var contrastLevel by rememberSaveable { mutableStateOf(ContrastLevel.Normal) }
 
-            val darkTheme = when (themeMode) {
+        val appSettingsStore = AppSettingsStore(applicationContext)
+
+        setContent {
+            val settings by appSettingsStore.settingsFlow.collectAsState(initial = AppSettings())
+            val coroutineScope = rememberCoroutineScope()
+
+            val darkTheme = when (settings.themeMode) {
                 ThemeMode.System -> isSystemInDarkTheme()
                 ThemeMode.Light -> false
                 ThemeMode.Dark -> true
@@ -50,14 +55,22 @@ class MainActivity : ComponentActivity() {
 
             DiabetesAppTheme(
                 darkTheme = darkTheme,
-                dynamicColor = false, // Disable dynamic color to use contrast settings
-                contrastLevel = contrastLevel
+                dynamicColor = false,
+                contrastLevel = settings.contrastLevel
             ) {
-                DiabetesAppApp(
-                    themeMode = themeMode,
-                    contrastLevel = contrastLevel,
-                    onThemeModeChange = { themeMode = it },
-                    onContrastLevelChange = { contrastLevel = it }
+                DiabetesAppMainWindow(
+                    themeMode = settings.themeMode,
+                    contrastLevel = settings.contrastLevel,
+                    currentLanguage = settings.language,
+                    onThemeModeChange = { themeMode ->
+                        coroutineScope.launch { appSettingsStore.setThemeMode(themeMode) }
+                    },
+                    onContrastLevelChange = { contrastLevel ->
+                        coroutineScope.launch { appSettingsStore.setContrastLevel(contrastLevel) }
+                    },
+                    onLanguageChange = { language ->
+                        coroutineScope.launch { appSettingsStore.setLanguage(language) }
+                    }
                 )
             }
         }
@@ -67,11 +80,13 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @PreviewScreenSizes
 @Composable
-fun DiabetesAppApp(
+fun DiabetesAppMainWindow(
     themeMode: ThemeMode = ThemeMode.System,
     contrastLevel: ContrastLevel = ContrastLevel.Normal,
+    currentLanguage: AppLanguage = AppLanguage.System,
     onThemeModeChange: (ThemeMode) -> Unit = {},
-    onContrastLevelChange: (ContrastLevel) -> Unit = {}
+    onContrastLevelChange: (ContrastLevel) -> Unit = {},
+    onLanguageChange: (AppLanguage) -> Unit = {}
 ) {
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.FACTORS) }
     var isEditMode by rememberSaveable { mutableStateOf(false) }
@@ -83,14 +98,14 @@ fun DiabetesAppApp(
                     icon = {
                         Icon(
                             imageVector = it.icon,
-                            contentDescription = it.label
+                            contentDescription = null
                         )
                     },
-                    label = { Text(it.label) },
+                    label = { Text(destinationLabel(it, currentLanguage)) },
                     selected = it == currentDestination,
                     onClick = {
                         currentDestination = it
-                        isEditMode = false // Reset edit mode when changing screens
+                        isEditMode = false
                     }
                 )
             }
@@ -100,14 +115,17 @@ fun DiabetesAppApp(
             modifier = Modifier.fillMaxSize(),
             topBar = {
                 TopAppBar(
-                    title = { Text(currentDestination.label) },
+                    title = { Text(destinationLabel(currentDestination, currentLanguage)) },
                     actions = {
-                        // Show edit button only on Factors screen
                         if (currentDestination == AppDestinations.FACTORS) {
                             IconButton(onClick = { isEditMode = !isEditMode }) {
                                 Icon(
                                     imageVector = if (isEditMode) Icons.Filled.Check else Icons.Filled.Edit,
-                                    contentDescription = if (isEditMode) "Save" else "Edit"
+                                    contentDescription = if (isEditMode) {
+                                        translate(TranslationKey.ActionSave, currentLanguage)
+                                    } else {
+                                        translate(TranslationKey.ActionEdit, currentLanguage)
+                                    }
                                 )
                             }
                         }
@@ -121,14 +139,21 @@ fun DiabetesAppApp(
                 .padding(16.dp)
 
             when (currentDestination) {
-                AppDestinations.FACTORS -> FactorScreen(contentModifier, isEditMode)
+                AppDestinations.FACTORS -> FactorScreen(
+                    modifier = contentModifier,
+                    isEditMode = isEditMode,
+                    currentLanguage = currentLanguage
+                )
+
                 AppDestinations.CALCULATE -> CalculateScreen(contentModifier)
                 AppDestinations.SETTINGS -> SettingsScreen(
                     modifier = contentModifier,
                     currentThemeMode = themeMode,
                     currentContrastLevel = contrastLevel,
+                    currentLanguage = currentLanguage,
                     onThemeModeChange = onThemeModeChange,
-                    onContrastLevelChange = onContrastLevelChange
+                    onContrastLevelChange = onContrastLevelChange,
+                    onLanguageChange = onLanguageChange
                 )
             }
         }
@@ -136,12 +161,19 @@ fun DiabetesAppApp(
 }
 
 enum class AppDestinations(
-    val label: String,
     val icon: ImageVector,
 ) {
-    FACTORS("Factors", Icons.Filled.Percent),
-    CALCULATE("Calculate", Icons.Filled.Calculate),
-    SETTINGS("Settings", Icons.Filled.Settings),
+    FACTORS(Icons.Filled.Percent),
+    CALCULATE(Icons.Filled.Calculate),
+    SETTINGS(Icons.Filled.Settings),
+}
+
+private fun destinationLabel(destination: AppDestinations, language: AppLanguage): String {
+    return when (destination) {
+        AppDestinations.FACTORS -> translate(TranslationKey.DestinationFactors, language)
+        AppDestinations.CALCULATE -> translate(TranslationKey.DestinationCalculate, language)
+        AppDestinations.SETTINGS -> translate(TranslationKey.DestinationSettings, language)
+    }
 }
 
 
