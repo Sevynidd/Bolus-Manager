@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 @Composable
-fun FavoritesScreen(modifier: Modifier = Modifier) {
-    Text(text = "Favorites Screen", modifier = modifier)
+fun CalculateScreen(modifier: Modifier = Modifier) {
+    Text(text = "Calculate Screen", modifier = modifier)
 }
 

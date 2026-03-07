@@ -244,7 +244,6 @@ enum class ContrastLevel {
 @Composable
 fun DiabetesAppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     contrastLevel: ContrastLevel = ContrastLevel.Normal,
     content: @Composable () -> Unit

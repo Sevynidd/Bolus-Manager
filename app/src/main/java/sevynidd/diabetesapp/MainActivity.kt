@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Percent
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -121,7 +122,7 @@ fun DiabetesAppApp(
 
             when (currentDestination) {
                 AppDestinations.FACTORS -> FactorScreen(contentModifier, isEditMode)
-                AppDestinations.FAVORITES -> FavoritesScreen(contentModifier)
+                AppDestinations.CALCULATE -> CalculateScreen(contentModifier)
                 AppDestinations.SETTINGS -> SettingsScreen(
                     modifier = contentModifier,
                     currentThemeMode = themeMode,
@@ -138,8 +139,8 @@ enum class AppDestinations(
     val label: String,
     val icon: ImageVector,
 ) {
-    FACTORS("Factors", Icons.Filled.Calculate),
-    FAVORITES("Favorites", Icons.Filled.Favorite),
+    FACTORS("Factors", Icons.Filled.Percent),
+    CALCULATE("Calculate", Icons.Filled.Calculate),
     SETTINGS("Settings", Icons.Filled.Settings),
 }
 
