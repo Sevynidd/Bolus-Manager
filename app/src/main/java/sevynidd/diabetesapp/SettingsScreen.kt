@@ -18,9 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import sevynidd.diabetesapp.ui.theme.ContrastLevel
 
-enum class ThemeMode {
-    System, Light, Dark
-}
 
 @Composable
 fun SettingsScreen(
