@@ -1,9 +1,10 @@
 package sevynidd.diabetesapp.screens
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,12 +28,12 @@ import sevynidd.diabetesapp.localization.translate
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.navigation.ThemeMode
-import sevynidd.diabetesapp.settings.SettingsDestination
+import sevynidd.diabetesapp.navigation.SettingsDestination
+import sevynidd.diabetesapp.navigation.settingsDestinationTransition
 import sevynidd.diabetesapp.settings.SettingsScreen
 import sevynidd.diabetesapp.settings.ThemeSettingsScreen
 import sevynidd.diabetesapp.settings.LanguageSettingsScreen
 import sevynidd.diabetesapp.ui.theme.ContrastLevel
-import sevynidd.diabetesapp.ui.theme.DiabetesAppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @PreviewScreenSizes
@@ -85,7 +86,7 @@ fun DiabetesAppMainWindow(
                     navigationIcon = {
                         if (currentDestination == AppDestinations.SETTINGS && settingsDestination != SettingsDestination.Main) {
                             IconButton(onClick = { settingsDestination = SettingsDestination.Main }) {
-                                Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
+                                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                             }
                         }
                     },
@@ -120,32 +121,41 @@ fun DiabetesAppMainWindow(
 
                 AppDestinations.CALCULATE -> CalculateScreen(contentModifier)
                 AppDestinations.SETTINGS -> {
-                    when (settingsDestination) {
-                        SettingsDestination.Main -> SettingsScreen(
-                            modifier = contentModifier,
-                            currentLanguage = currentLanguage,
-                            onNavigateToTheme = { settingsDestination = SettingsDestination.Theme },
-                            onNavigateToLanguage = { settingsDestination = SettingsDestination.Language }
-                        )
-                        SettingsDestination.Theme -> ThemeSettingsScreen(
-                            modifier = contentModifier,
-                            currentThemeMode = themeMode,
-                            currentContrastLevel = contrastLevel,
-                            currentLanguage = currentLanguage,
-                            onThemeModeChange = onThemeModeChange,
-                            onContrastLevelChange = onContrastLevelChange,
-                            onBackClick = { settingsDestination = SettingsDestination.Main }
-                        )
-                        SettingsDestination.Language -> LanguageSettingsScreen(
-                            modifier = contentModifier,
-                            currentLanguage = currentLanguage,
-                            onLanguageChange = onLanguageChange,
-                            onBackClick = { settingsDestination = SettingsDestination.Main }
-                        )
+                    AnimatedContent(
+                        targetState = settingsDestination,
+                        label = "settings_navigation_animation",
+                        transitionSpec = {
+                            settingsDestinationTransition(initialState, targetState)
+                        }
+                    ) { destination ->
+                        when (destination) {
+                            SettingsDestination.Main -> SettingsScreen(
+                                modifier = contentModifier,
+                                currentLanguage = currentLanguage,
+                                onNavigateToTheme = { settingsDestination = SettingsDestination.Theme },
+                                onNavigateToLanguage = { settingsDestination = SettingsDestination.Language }
+                            )
+
+                            SettingsDestination.Theme -> ThemeSettingsScreen(
+                                modifier = contentModifier,
+                                currentThemeMode = themeMode,
+                                currentContrastLevel = contrastLevel,
+                                currentLanguage = currentLanguage,
+                                onThemeModeChange = onThemeModeChange,
+                                onContrastLevelChange = onContrastLevelChange,
+                                onBackClick = { settingsDestination = SettingsDestination.Main }
+                            )
+
+                            SettingsDestination.Language -> LanguageSettingsScreen(
+                                modifier = contentModifier,
+                                currentLanguage = currentLanguage,
+                                onLanguageChange = onLanguageChange,
+                                onBackClick = { settingsDestination = SettingsDestination.Main }
+                            )
+                        }
                     }
                 }
             }
         }
     }
 }
-

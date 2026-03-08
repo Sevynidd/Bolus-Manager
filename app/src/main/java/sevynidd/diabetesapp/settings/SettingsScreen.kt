@@ -33,53 +33,44 @@ fun SettingsScreen(
         modifier = modifier.verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Theme Settings Card
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { onNavigateToTheme() }
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = translate(TranslationKey.Appearance, currentLanguage),
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Icon(
-                    imageVector = Icons.Filled.ChevronRight,
-                    contentDescription = null
-                )
-            }
-        }
+        SettingsCardItem(
+            title = translate(TranslationKey.Appearance, currentLanguage),
+            onClick = onNavigateToTheme
+        )
 
-        // Language Settings Card
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { onNavigateToLanguage() }
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = translate(TranslationKey.Language, currentLanguage),
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Icon(
-                    imageVector = Icons.Filled.ChevronRight,
-                    contentDescription = null
-                )
-            }
-        }
+        SettingsCardItem(
+            title = translate(TranslationKey.Language, currentLanguage),
+            onClick = onNavigateToLanguage
+        )
     }
 }
 
+@Composable
+private fun SettingsCardItem(
+    title: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium
+            )
+            Icon(
+                imageVector = Icons.Filled.ChevronRight,
+                contentDescription = null
+            )
+        }
+    }
+}

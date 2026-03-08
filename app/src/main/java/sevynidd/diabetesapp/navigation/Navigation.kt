@@ -1,5 +1,11 @@
 package sevynidd.diabetesapp.navigation
 
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.Percent
@@ -25,3 +31,22 @@ fun destinationLabel(destination: AppDestinations, language: AppLanguage): Strin
     }
 }
 
+enum class SettingsDestination {
+    Main,
+    Theme,
+    Language
+}
+
+fun settingsDestinationTransition(
+    initialState: SettingsDestination,
+    targetState: SettingsDestination
+): ContentTransform {
+    val isForward = initialState == SettingsDestination.Main && targetState != SettingsDestination.Main
+    return if (isForward) {
+        (slideInHorizontally { fullWidth -> fullWidth } + fadeIn()) togetherWith
+            (slideOutHorizontally { fullWidth -> -fullWidth / 4 } + fadeOut())
+    } else {
+        (slideInHorizontally { fullWidth -> -fullWidth / 4 } + fadeIn()) togetherWith
+            (slideOutHorizontally { fullWidth -> fullWidth } + fadeOut())
+    }
+}
