@@ -1,4 +1,4 @@
-package sevynidd.diabetesapp
+package sevynidd.diabetesapp.localization
 
 import java.util.Locale
 
@@ -116,3 +116,4 @@ private fun resolveAppLanguage(language: AppLanguage): AppLanguage {
         AppLanguage.English
     }
 }
+

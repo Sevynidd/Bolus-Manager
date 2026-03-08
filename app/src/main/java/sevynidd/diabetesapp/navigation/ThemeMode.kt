@@ -1,4 +1,4 @@
-package sevynidd.diabetesapp
+package sevynidd.diabetesapp.navigation
 
 enum class ThemeMode {
     System, Light, Dark

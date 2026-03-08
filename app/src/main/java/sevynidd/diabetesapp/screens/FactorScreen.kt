@@ -1,4 +1,4 @@
-package sevynidd.diabetesapp
+package sevynidd.diabetesapp.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,6 +21,9 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import java.util.Locale
+import sevynidd.diabetesapp.localization.AppLanguage
+import sevynidd.diabetesapp.localization.translate
+import sevynidd.diabetesapp.localization.TranslationKey
 
 @Composable
 fun FactorScreen(
@@ -226,3 +229,4 @@ private fun BasalRateInputField(
         )
     }
 }
+

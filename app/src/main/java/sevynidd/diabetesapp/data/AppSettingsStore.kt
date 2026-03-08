@@ -1,4 +1,4 @@
-package sevynidd.diabetesapp
+package sevynidd.diabetesapp.data
 
 import android.content.Context
 import androidx.datastore.core.DataStore
@@ -9,6 +9,8 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import sevynidd.diabetesapp.navigation.ThemeMode
+import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.ui.theme.ContrastLevel
 
 private const val DATASTORE_NAME = "app_settings"
