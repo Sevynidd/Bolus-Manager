@@ -67,8 +67,7 @@ Das Projekt befindet sich in aktiver Entwicklung. Kernfunktionen für Faktor-Ein
 4. App auf Emulator oder Gerät starten
 
 ## Screenshot
-
-![App Screenshot Platzhalter](docs/app.png)
+<img src="docs/app.png" width="400">
 
 ## Geplante Erweiterungen
 
