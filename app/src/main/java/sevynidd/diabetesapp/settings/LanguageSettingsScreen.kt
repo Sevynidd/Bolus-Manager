@@ -65,6 +65,7 @@ private fun appLanguageLabel(targetLanguage: AppLanguage, currentLanguage: AppLa
     return when (targetLanguage) {
         AppLanguage.English -> translate(TranslationKey.LanguageEnglish, currentLanguage)
         AppLanguage.German -> translate(TranslationKey.LanguageGerman, currentLanguage)
+        AppLanguage.French -> translate(TranslationKey.LanguageFrench, currentLanguage)
         AppLanguage.System -> translate(
             TranslationKey.LanguageSystem,
             currentLanguage

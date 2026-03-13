@@ -5,7 +5,8 @@ import java.util.Locale
 enum class AppLanguage {
     System,
     English,
-    German
+    German,
+    French
 }
 
 enum class TranslationKey {
@@ -21,6 +22,7 @@ enum class TranslationKey {
     ContrastHigh,
     LanguageEnglish,
     LanguageGerman,
+    LanguageFrench,
     LanguageSystem,
     DestinationFactors,
     DestinationCalculate,
@@ -35,8 +37,7 @@ enum class TranslationKey {
     FactorLate,
     FactorNight,
     BasalRate,
-    LabelFactor,
-    LabelBasalRate
+    LabelFactor
 }
 
 fun translate(key: TranslationKey, language: AppLanguage): String {
@@ -55,6 +56,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ContrastHigh -> "High"
             TranslationKey.LanguageEnglish -> "English"
             TranslationKey.LanguageGerman -> "German"
+            TranslationKey.LanguageFrench -> "French"
             TranslationKey.LanguageSystem -> "System"
             TranslationKey.DestinationFactors -> "Factors"
             TranslationKey.DestinationCalculate -> "Calculate"
@@ -70,7 +72,6 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.FactorNight -> "Night"
             TranslationKey.BasalRate -> "Basal rate"
             TranslationKey.LabelFactor -> "Factor"
-            TranslationKey.LabelBasalRate -> "Basal rate"
         }
 
         AppLanguage.German -> when (key) {
@@ -86,6 +87,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ContrastHigh -> "Hoch"
             TranslationKey.LanguageEnglish -> "Englisch"
             TranslationKey.LanguageGerman -> "Deutsch"
+            TranslationKey.LanguageFrench -> "Französisch"
             TranslationKey.LanguageSystem -> "System"
             TranslationKey.DestinationFactors -> "Faktoren"
             TranslationKey.DestinationCalculate -> "Berechnen"
@@ -101,7 +103,37 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.FactorNight -> "Nacht"
             TranslationKey.BasalRate -> "Basisrate"
             TranslationKey.LabelFactor -> "Faktor"
-            TranslationKey.LabelBasalRate -> "Basisrate"
+        }
+
+        AppLanguage.French -> when (key) {
+            TranslationKey.Appearance -> "Apparence"
+            TranslationKey.ThemeMode -> "Mode Thème"
+            TranslationKey.ContrastLevel -> "Niveau de contraste"
+            TranslationKey.Language -> "Langue"
+            TranslationKey.ThemeSystem -> "Système"
+            TranslationKey.ThemeLight -> "Lumière"
+            TranslationKey.ThemeDark -> "Sombre"
+            TranslationKey.ContrastNormal -> "Normal"
+            TranslationKey.ContrastMedium -> "Moyen"
+            TranslationKey.ContrastHigh -> "Élevé"
+            TranslationKey.LanguageEnglish -> "Anglais"
+            TranslationKey.LanguageGerman -> "Allemand"
+            TranslationKey.LanguageFrench -> "Français"
+            TranslationKey.LanguageSystem -> "Système"
+            TranslationKey.DestinationFactors -> "Facteurs"
+            TranslationKey.DestinationCalculate -> "Calculer"
+            TranslationKey.DestinationSettings -> "Paramètres"
+            TranslationKey.ActionEdit -> "Modifier"
+            TranslationKey.ActionSave -> "Enregistrer"
+            TranslationKey.FactorMorning -> "Matin"
+            TranslationKey.FactorBreakfast -> "Petit-déjeuner"
+            TranslationKey.FactorLunch -> "Dejeuner"
+            TranslationKey.FactorAfternoon -> "Après-midi"
+            TranslationKey.FactorDinner -> "Diner"
+            TranslationKey.FactorLate -> "Tard"
+            TranslationKey.FactorNight -> "Nuit"
+            TranslationKey.BasalRate -> "Débit de base"
+            TranslationKey.LabelFactor -> "Facteur"
         }
 
         AppLanguage.System -> error("SystemDefault must be resolved before translating")
@@ -113,10 +145,10 @@ private fun resolveAppLanguage(language: AppLanguage): AppLanguage {
         return language
     }
 
-    return if (Locale.getDefault().language.equals("de", ignoreCase = true)) {
-        AppLanguage.German
-    } else {
-        AppLanguage.English
+    return when (Locale.getDefault().language.lowercase(Locale.ROOT)) {
+        "de" -> AppLanguage.German
+        "fr" -> AppLanguage.French
+        else -> AppLanguage.English
     }
 }
 

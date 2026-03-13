@@ -181,7 +181,7 @@ fun FactorScreen(
                 emitFactorsChanged()
             },
             description = "${translate(TranslationKey.BasalRate, currentLanguage)} (19:00)",
-            label = translate(TranslationKey.LabelBasalRate, currentLanguage),
+            label = translate(TranslationKey.BasalRate, currentLanguage),
             enabled = isEditMode
         )
     }
