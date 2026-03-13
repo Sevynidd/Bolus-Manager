@@ -6,7 +6,8 @@ enum class AppLanguage {
     System,
     English,
     German,
-    French
+    French,
+    Polish
 }
 
 enum class TranslationKey {
@@ -23,6 +24,7 @@ enum class TranslationKey {
     LanguageEnglish,
     LanguageGerman,
     LanguageFrench,
+    LanguagePolish,
     LanguageSystem,
     DestinationFactors,
     DestinationCalculate,
@@ -57,6 +59,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.LanguageEnglish -> "English"
             TranslationKey.LanguageGerman -> "German"
             TranslationKey.LanguageFrench -> "French"
+            TranslationKey.LanguagePolish -> "Polish"
             TranslationKey.LanguageSystem -> "System"
             TranslationKey.DestinationFactors -> "Factors"
             TranslationKey.DestinationCalculate -> "Calculate"
@@ -88,6 +91,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.LanguageEnglish -> "Englisch"
             TranslationKey.LanguageGerman -> "Deutsch"
             TranslationKey.LanguageFrench -> "Französisch"
+            TranslationKey.LanguagePolish -> "Polnisch"
             TranslationKey.LanguageSystem -> "System"
             TranslationKey.DestinationFactors -> "Faktoren"
             TranslationKey.DestinationCalculate -> "Berechnen"
@@ -119,6 +123,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.LanguageEnglish -> "Anglais"
             TranslationKey.LanguageGerman -> "Allemand"
             TranslationKey.LanguageFrench -> "Français"
+            TranslationKey.LanguagePolish -> "Polonais"
             TranslationKey.LanguageSystem -> "Système"
             TranslationKey.DestinationFactors -> "Facteurs"
             TranslationKey.DestinationCalculate -> "Calculer"
@@ -136,6 +141,38 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.LabelFactor -> "Facteur"
         }
 
+        AppLanguage.Polish -> when (key) {
+            TranslationKey.Appearance -> "Wygląd"
+            TranslationKey.ThemeMode -> "Tryb motywu"
+            TranslationKey.ContrastLevel -> "Poziom kontrastu"
+            TranslationKey.Language -> "Język"
+            TranslationKey.ThemeSystem -> "System"
+            TranslationKey.ThemeLight -> "Światło"
+            TranslationKey.ThemeDark -> "Ciemny"
+            TranslationKey.ContrastNormal -> "Normalny"
+            TranslationKey.ContrastMedium -> "Średni"
+            TranslationKey.ContrastHigh -> "Wysoki"
+            TranslationKey.LanguageEnglish -> "Angielski"
+            TranslationKey.LanguageGerman -> "Niemiecki"
+            TranslationKey.LanguageFrench -> "Francuski"
+            TranslationKey.LanguagePolish -> "Polski"
+            TranslationKey.LanguageSystem -> "System"
+            TranslationKey.DestinationFactors -> "Czynniki"
+            TranslationKey.DestinationCalculate -> "Oblicz"
+            TranslationKey.DestinationSettings -> "Ustawienia"
+            TranslationKey.ActionEdit -> "Edytuj"
+            TranslationKey.ActionSave -> "Zapisz"
+            TranslationKey.FactorMorning -> "Rano"
+            TranslationKey.FactorBreakfast -> "Śniadanie"
+            TranslationKey.FactorLunch -> "Obiad"
+            TranslationKey.FactorAfternoon -> "Popołudnie"
+            TranslationKey.FactorDinner -> "Kolacja"
+            TranslationKey.FactorLate -> "Późno"
+            TranslationKey.FactorNight -> "Noc"
+            TranslationKey.BasalRate -> "Wartość podstawowa"
+            TranslationKey.LabelFactor -> "Czynnik"
+        }
+
         AppLanguage.System -> error("SystemDefault must be resolved before translating")
     }
 }
@@ -148,7 +185,7 @@ private fun resolveAppLanguage(language: AppLanguage): AppLanguage {
     return when (Locale.getDefault().language.lowercase(Locale.ROOT)) {
         "de" -> AppLanguage.German
         "fr" -> AppLanguage.French
+        "pl" -> AppLanguage.Polish
         else -> AppLanguage.English
     }
 }
-
