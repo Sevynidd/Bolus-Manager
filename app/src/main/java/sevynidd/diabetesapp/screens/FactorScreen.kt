@@ -20,7 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import java.util.Locale
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.translate
 import sevynidd.diabetesapp.localization.TranslationKey
@@ -37,6 +36,7 @@ fun FactorScreen(
     var factor4 by rememberSaveable { mutableStateOf("") }
     var factor5 by rememberSaveable { mutableStateOf("") }
     var factor6 by rememberSaveable { mutableStateOf("") }
+    var factor7 by rememberSaveable { mutableStateOf("") }
     var basalRate by rememberSaveable { mutableStateOf("") }
 
     Column(
@@ -51,7 +51,7 @@ fun FactorScreen(
                     TranslationKey.FactorMorning,
                     currentLanguage
                 )
-            } (05:00 - 09:00)",
+            } (05:00 - 09:29)",
             label = translate(TranslationKey.LabelFactor, currentLanguage),
             enabled = isEditMode
         )
@@ -64,7 +64,7 @@ fun FactorScreen(
                     TranslationKey.FactorBreakfast,
                     currentLanguage
                 )
-            } (09:00 - 12:00)",
+            } (09:30 - 11:59)",
             label = translate(TranslationKey.LabelFactor, currentLanguage),
             enabled = isEditMode
         )
@@ -77,7 +77,7 @@ fun FactorScreen(
                     TranslationKey.FactorLunch,
                     currentLanguage
                 )
-            } (12:00 - 15:00)",
+            } (12:00 - 14:29)",
             label = translate(TranslationKey.LabelFactor, currentLanguage),
             enabled = isEditMode
         )
@@ -90,7 +90,7 @@ fun FactorScreen(
                     TranslationKey.FactorAfternoon,
                     currentLanguage
                 )
-            } (15:00 - 18:00)",
+            } (14:30 - 17:29)",
             label = translate(TranslationKey.LabelFactor, currentLanguage),
             enabled = isEditMode
         )
@@ -103,7 +103,7 @@ fun FactorScreen(
                     TranslationKey.FactorDinner,
                     currentLanguage
                 )
-            } (18:00 - 21:00)",
+            } (17:30 - 19:59)",
             label = translate(TranslationKey.LabelFactor, currentLanguage),
             enabled = isEditMode
         )
@@ -113,10 +113,23 @@ fun FactorScreen(
             onValueChange = { factor6 = it },
             description = "${
                 translate(
+                    TranslationKey.FactorLate,
+                    currentLanguage
+                )
+            } (20:00 - 22:59)",
+            label = translate(TranslationKey.LabelFactor, currentLanguage),
+            enabled = isEditMode
+        )
+
+        DoubleInputField(
+            value = factor7,
+            onValueChange = { factor7 = it },
+            description = "${
+                translate(
                     TranslationKey.FactorNight,
                     currentLanguage
                 )
-            } (21:00 - 00:00)",
+            } (23:00 - 04:59)",
             label = translate(TranslationKey.LabelFactor, currentLanguage),
             enabled = isEditMode
         )
@@ -153,9 +166,11 @@ private fun DoubleInputField(
         OutlinedTextField(
             value = draftValue,
             onValueChange = { newValue ->
+                val sanitizedValue = newValue.replace('.', ',')
+
                 // Allow free editing, normalize only when leaving the field.
-                if (newValue.isEmpty() || newValue.matches(Regex("^\\d*\\.?\\d*$"))) {
-                    draftValue = newValue
+                if (sanitizedValue.isEmpty() || sanitizedValue.matches(Regex("^\\d*,?\\d*$"))) {
+                    draftValue = sanitizedValue
                 }
             },
             label = { Text(label) },
@@ -166,12 +181,19 @@ private fun DoubleInputField(
                 .fillMaxWidth()
                 .onFocusChanged { focusState ->
                     if (wasFocused && !focusState.isFocused) {
-                        val normalized = draftValue.toDoubleOrNull()?.let { raw ->
+                        val normalized = draftValue
+                            .replace(',', '.')
+                            .toDoubleOrNull()
+                            ?.let { raw ->
                             val rounded = kotlin.math.ceil(raw / 0.25) * 0.25
                             if (rounded % 1.0 == 0.0) {
                                 rounded.toInt().toString()
                             } else {
-                                String.format(Locale.US, "%.2f", rounded).trimEnd('0').trimEnd('.')
+                                rounded
+                                    .toString()
+                                    .replace('.', ',')
+                                    .trimEnd('0')
+                                    .trimEnd(',')
                             }
                         } ?: ""
                         draftValue = normalized

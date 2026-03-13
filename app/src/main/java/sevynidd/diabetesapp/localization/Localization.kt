@@ -32,6 +32,7 @@ enum class TranslationKey {
     FactorLunch,
     FactorAfternoon,
     FactorDinner,
+    FactorLate,
     FactorNight,
     BasalRate,
     LabelFactor,
@@ -65,6 +66,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.FactorLunch -> "Lunch"
             TranslationKey.FactorAfternoon -> "Afternoon"
             TranslationKey.FactorDinner -> "Dinner"
+            TranslationKey.FactorLate -> "Late"
             TranslationKey.FactorNight -> "Night"
             TranslationKey.BasalRate -> "Basal rate"
             TranslationKey.LabelFactor -> "Factor"
@@ -95,6 +97,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.FactorLunch -> "Mittagessen"
             TranslationKey.FactorAfternoon -> "Nachmittag"
             TranslationKey.FactorDinner -> "Abendessen"
+            TranslationKey.FactorLate -> "Spätmahlzeit"
             TranslationKey.FactorNight -> "Nacht"
             TranslationKey.BasalRate -> "Basisrate"
             TranslationKey.LabelFactor -> "Faktor"
