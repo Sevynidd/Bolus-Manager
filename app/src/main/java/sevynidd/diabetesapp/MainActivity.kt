@@ -13,6 +13,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.coroutines.launch
 import sevynidd.diabetesapp.data.AppSettings
 import sevynidd.diabetesapp.data.AppSettingsStore
+import sevynidd.diabetesapp.data.database.DiabetesDatabase
+import sevynidd.diabetesapp.data.database.FactorsData
+import sevynidd.diabetesapp.data.database.FactorsRepository
 import sevynidd.diabetesapp.navigation.ThemeMode
 import sevynidd.diabetesapp.screens.DiabetesAppMainWindow
 import sevynidd.diabetesapp.screens.FactorScreen
@@ -24,9 +27,13 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         val appSettingsStore = AppSettingsStore(applicationContext)
+        val factorsRepository = FactorsRepository(
+            DiabetesDatabase.getInstance(applicationContext).factorProfileDao()
+        )
 
         setContent {
             val settings by appSettingsStore.settingsFlow.collectAsState(initial = AppSettings())
+            val factors by factorsRepository.factorsFlow.collectAsState(initial = FactorsData())
             val coroutineScope = rememberCoroutineScope()
 
             val darkTheme = when (settings.themeMode) {
@@ -52,6 +59,10 @@ class MainActivity : ComponentActivity() {
                     },
                     onLanguageChange = { language ->
                         coroutineScope.launch { appSettingsStore.setLanguage(language) }
+                    },
+                    factorData = factors,
+                    onFactorSaveRequested = { updatedFactors ->
+                        coroutineScope.launch { factorsRepository.saveFactors(updatedFactors) }
                     }
                 )
             }

@@ -1,5 +1,8 @@
 package sevynidd.diabetesapp.screens
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -15,13 +18,24 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
+import sevynidd.diabetesapp.data.database.FactorsData
 import sevynidd.diabetesapp.navigation.AppDestinations
 import sevynidd.diabetesapp.navigation.destinationLabel
 import sevynidd.diabetesapp.localization.translate
@@ -42,13 +56,72 @@ fun DiabetesAppMainWindow(
     themeMode: ThemeMode = ThemeMode.System,
     contrastLevel: ContrastLevel = ContrastLevel.Normal,
     currentLanguage: AppLanguage = AppLanguage.System,
+    factorData: FactorsData = FactorsData(),
     onThemeModeChange: (ThemeMode) -> Unit = {},
     onContrastLevelChange: (ContrastLevel) -> Unit = {},
-    onLanguageChange: (AppLanguage) -> Unit = {}
+    onLanguageChange: (AppLanguage) -> Unit = {},
+    onFactorSaveRequested: (FactorsData) -> Unit = {}
 ) {
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.FACTORS) }
-    var isEditMode by rememberSaveable { mutableStateOf(false) }
     var settingsDestination by rememberSaveable { mutableStateOf(SettingsDestination.Main) }
+    val factorEditorViewModel: FactorEditSessionViewModel = viewModel()
+    val factorEditorState = factorEditorViewModel.uiState
+    val context = LocalContext.current
+    val activity = remember(context) { context.findActivity() }
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    fun leaveFactorsEditMode(shouldSave: Boolean) {
+        factorEditorViewModel.leaveEditMode(shouldSave)
+    }
+
+    fun navigateTo(destination: AppDestinations) {
+        if (destination == currentDestination) return
+
+        if (currentDestination == AppDestinations.FACTORS) {
+            leaveFactorsEditMode(shouldSave = true)
+        }
+
+        currentDestination = destination
+    }
+
+    val requestBackgroundSave by rememberUpdatedState {
+        if (activity?.isChangingConfigurations == true) {
+            return@rememberUpdatedState
+        }
+
+        if (currentDestination == AppDestinations.FACTORS) {
+            leaveFactorsEditMode(shouldSave = true)
+        }
+    }
+
+    LaunchedEffect(factorData, factorEditorState.isEditMode, factorEditorState.pendingSave) {
+        factorEditorViewModel.syncPersistedFactors(factorData)
+    }
+
+    LaunchedEffect(
+        factorEditorState.isEditMode,
+        factorEditorState.pendingSave,
+        factorEditorState.factors
+    ) {
+        if (!factorEditorState.isEditMode && factorEditorState.pendingSave) {
+            withFrameNanos { }
+            factorEditorViewModel.consumePendingSave()?.let(onFactorSaveRequested)
+        }
+    }
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_STOP) {
+                requestBackgroundSave()
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     NavigationSuiteScaffold(
         navigationSuiteItems = {
@@ -63,8 +136,7 @@ fun DiabetesAppMainWindow(
                     label = { Text(destinationLabel(it, currentLanguage)) },
                     selected = it == currentDestination,
                     onClick = {
-                        currentDestination = it
-                        isEditMode = false
+                        navigateTo(it)
                     }
                 )
             }
@@ -92,10 +164,16 @@ fun DiabetesAppMainWindow(
                     },
                     actions = {
                         if (currentDestination == AppDestinations.FACTORS) {
-                            IconButton(onClick = { isEditMode = !isEditMode }) {
+                            IconButton(onClick = {
+                                if (factorEditorState.isEditMode) {
+                                    leaveFactorsEditMode(shouldSave = true)
+                                } else {
+                                    factorEditorViewModel.startEditing()
+                                }
+                            }) {
                                 Icon(
-                                    imageVector = if (isEditMode) Icons.Filled.Check else Icons.Filled.Edit,
-                                    contentDescription = if (isEditMode) {
+                                    imageVector = if (factorEditorState.isEditMode) Icons.Filled.Check else Icons.Filled.Edit,
+                                    contentDescription = if (factorEditorState.isEditMode) {
                                         translate(TranslationKey.ActionSave, currentLanguage)
                                     } else {
                                         translate(TranslationKey.ActionEdit, currentLanguage)
@@ -115,8 +193,10 @@ fun DiabetesAppMainWindow(
             when (currentDestination) {
                 AppDestinations.FACTORS -> FactorScreen(
                     modifier = contentModifier,
-                    isEditMode = isEditMode,
-                    currentLanguage = currentLanguage
+                    isEditMode = factorEditorState.isEditMode,
+                    currentLanguage = currentLanguage,
+                    factors = factorEditorState.factors,
+                    onFactorsChange = factorEditorViewModel::updateDraft
                 )
 
                 AppDestinations.CALCULATE -> CalculateScreen(contentModifier)
@@ -159,3 +239,12 @@ fun DiabetesAppMainWindow(
         }
     }
 }
+
+private tailrec fun Context.findActivity(): Activity? {
+    return when (this) {
+        is Activity -> this
+        is ContextWrapper -> baseContext.findActivity()
+        else -> null
+    }
+}
+

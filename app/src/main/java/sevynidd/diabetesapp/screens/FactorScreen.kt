@@ -11,6 +11,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -20,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import sevynidd.diabetesapp.data.database.FactorsData
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.translate
 import sevynidd.diabetesapp.localization.TranslationKey
@@ -28,24 +30,44 @@ import sevynidd.diabetesapp.localization.TranslationKey
 fun FactorScreen(
     modifier: Modifier = Modifier,
     isEditMode: Boolean = false,
-    currentLanguage: AppLanguage = AppLanguage.System
+    currentLanguage: AppLanguage = AppLanguage.System,
+    factors: FactorsData = FactorsData(),
+    onFactorsChange: (FactorsData) -> Unit = {}
 ) {
-    var factor1 by rememberSaveable { mutableStateOf("") }
-    var factor2 by rememberSaveable { mutableStateOf("") }
-    var factor3 by rememberSaveable { mutableStateOf("") }
-    var factor4 by rememberSaveable { mutableStateOf("") }
-    var factor5 by rememberSaveable { mutableStateOf("") }
-    var factor6 by rememberSaveable { mutableStateOf("") }
-    var factor7 by rememberSaveable { mutableStateOf("") }
-    var basalRate by rememberSaveable { mutableStateOf("") }
+    var morningFactor by rememberSaveable(factors.morningFactor) { mutableStateOf(factors.morningFactor) }
+    var breakfastFactor by rememberSaveable(factors.breakfastFactor) { mutableStateOf(factors.breakfastFactor) }
+    var lunchFactor by rememberSaveable(factors.lunchFactor) { mutableStateOf(factors.lunchFactor) }
+    var afternoonFactor by rememberSaveable(factors.afternoonFactor) { mutableStateOf(factors.afternoonFactor) }
+    var dinnerFactor by rememberSaveable(factors.dinnerFactor) { mutableStateOf(factors.dinnerFactor) }
+    var lateFactor by rememberSaveable(factors.lateFactor) { mutableStateOf(factors.lateFactor) }
+    var nightFactor by rememberSaveable(factors.nightFactor) { mutableStateOf(factors.nightFactor) }
+    var basalRate by rememberSaveable(factors.basalRate) { mutableStateOf(factors.basalRate) }
+
+    fun emitFactorsChanged() {
+        onFactorsChange(
+            FactorsData(
+                morningFactor = morningFactor,
+                breakfastFactor = breakfastFactor,
+                lunchFactor = lunchFactor,
+                afternoonFactor = afternoonFactor,
+                dinnerFactor = dinnerFactor,
+                lateFactor = lateFactor,
+                nightFactor = nightFactor,
+                basalRate = basalRate
+            )
+        )
+    }
 
     Column(
         modifier = modifier.verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         DoubleInputField(
-            value = factor1,
-            onValueChange = { factor1 = it },
+            value = morningFactor,
+            onValueChange = {
+                morningFactor = it
+                emitFactorsChanged()
+            },
             description = "${
                 translate(
                     TranslationKey.FactorMorning,
@@ -57,8 +79,11 @@ fun FactorScreen(
         )
 
         DoubleInputField(
-            value = factor2,
-            onValueChange = { factor2 = it },
+            value = breakfastFactor,
+            onValueChange = {
+                breakfastFactor = it
+                emitFactorsChanged()
+            },
             description = "${
                 translate(
                     TranslationKey.FactorBreakfast,
@@ -70,8 +95,11 @@ fun FactorScreen(
         )
 
         DoubleInputField(
-            value = factor3,
-            onValueChange = { factor3 = it },
+            value = lunchFactor,
+            onValueChange = {
+                lunchFactor = it
+                emitFactorsChanged()
+            },
             description = "${
                 translate(
                     TranslationKey.FactorLunch,
@@ -83,8 +111,11 @@ fun FactorScreen(
         )
 
         DoubleInputField(
-            value = factor4,
-            onValueChange = { factor4 = it },
+            value = afternoonFactor,
+            onValueChange = {
+                afternoonFactor = it
+                emitFactorsChanged()
+            },
             description = "${
                 translate(
                     TranslationKey.FactorAfternoon,
@@ -96,8 +127,11 @@ fun FactorScreen(
         )
 
         DoubleInputField(
-            value = factor5,
-            onValueChange = { factor5 = it },
+            value = dinnerFactor,
+            onValueChange = {
+                dinnerFactor = it
+                emitFactorsChanged()
+            },
             description = "${
                 translate(
                     TranslationKey.FactorDinner,
@@ -109,8 +143,11 @@ fun FactorScreen(
         )
 
         DoubleInputField(
-            value = factor6,
-            onValueChange = { factor6 = it },
+            value = lateFactor,
+            onValueChange = {
+                lateFactor = it
+                emitFactorsChanged()
+            },
             description = "${
                 translate(
                     TranslationKey.FactorLate,
@@ -122,8 +159,11 @@ fun FactorScreen(
         )
 
         DoubleInputField(
-            value = factor7,
-            onValueChange = { factor7 = it },
+            value = nightFactor,
+            onValueChange = {
+                nightFactor = it
+                emitFactorsChanged()
+            },
             description = "${
                 translate(
                     TranslationKey.FactorNight,
@@ -136,7 +176,10 @@ fun FactorScreen(
 
         BasalRateInputField(
             value = basalRate,
-            onValueChange = { basalRate = it },
+            onValueChange = {
+                basalRate = it
+                emitFactorsChanged()
+            },
             description = "${translate(TranslationKey.BasalRate, currentLanguage)} (19:00)",
             label = translate(TranslationKey.LabelBasalRate, currentLanguage),
             enabled = isEditMode
@@ -155,6 +198,7 @@ private fun DoubleInputField(
 ) {
     var draftValue by rememberSaveable(value) { mutableStateOf(value) }
     var wasFocused by remember { mutableStateOf(false) }
+    var wasEnabled by remember { mutableStateOf(enabled) }
 
     Column(modifier = modifier) {
         Text(
@@ -181,27 +225,22 @@ private fun DoubleInputField(
                 .fillMaxWidth()
                 .onFocusChanged { focusState ->
                     if (wasFocused && !focusState.isFocused) {
-                        val normalized = draftValue
-                            .replace(',', '.')
-                            .toDoubleOrNull()
-                            ?.let { raw ->
-                            val rounded = kotlin.math.ceil(raw / 0.25) * 0.25
-                            if (rounded % 1.0 == 0.0) {
-                                rounded.toInt().toString()
-                            } else {
-                                rounded
-                                    .toString()
-                                    .replace('.', ',')
-                                    .trimEnd('0')
-                                    .trimEnd(',')
-                            }
-                        } ?: ""
+                        val normalized = normalizeQuarterStepValue(draftValue)
                         draftValue = normalized
                         onValueChange(normalized)
                     }
                     wasFocused = focusState.isFocused
                 }
         )
+    }
+
+    LaunchedEffect(enabled) {
+        if (wasEnabled && !enabled) {
+            val normalized = normalizeQuarterStepValue(draftValue)
+            draftValue = normalized
+            onValueChange(normalized)
+        }
+        wasEnabled = enabled
     }
 }
 
@@ -216,6 +255,7 @@ private fun BasalRateInputField(
 ) {
     var draftValue by rememberSaveable(value) { mutableStateOf(value) }
     var wasFocused by remember { mutableStateOf(false) }
+    var wasEnabled by remember { mutableStateOf(enabled) }
 
     Column(modifier = modifier) {
         Text(
@@ -240,9 +280,7 @@ private fun BasalRateInputField(
                 .fillMaxWidth()
                 .onFocusChanged { focusState ->
                     if (wasFocused && !focusState.isFocused) {
-                        val normalized = draftValue.toIntOrNull()?.let { raw ->
-                            if (raw % 2 == 0) raw else raw + 1
-                        }?.toString() ?: ""
+                        val normalized = normalizeBasalRateValue(draftValue)
                         draftValue = normalized
                         onValueChange(normalized)
                     }
@@ -250,5 +288,39 @@ private fun BasalRateInputField(
                 }
         )
     }
+
+    LaunchedEffect(enabled) {
+        if (wasEnabled && !enabled) {
+            val normalized = normalizeBasalRateValue(draftValue)
+            draftValue = normalized
+            onValueChange(normalized)
+        }
+        wasEnabled = enabled
+    }
+}
+
+private fun normalizeQuarterStepValue(value: String): String {
+    return value
+        .replace(',', '.')
+        .toDoubleOrNull()
+        ?.let { raw ->
+            val rounded = kotlin.math.ceil(raw / 0.25) * 0.25
+            if (rounded % 1.0 == 0.0) {
+                rounded.toInt().toString()
+            } else {
+                rounded
+                    .toString()
+                    .replace('.', ',')
+                    .trimEnd('0')
+                    .trimEnd(',')
+            }
+        }
+        ?: ""
+}
+
+private fun normalizeBasalRateValue(value: String): String {
+    return value.toIntOrNull()?.let { raw ->
+        if (raw % 2 == 0) raw else raw + 1
+    }?.toString() ?: ""
 }
 
