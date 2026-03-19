@@ -18,7 +18,7 @@ import sevynidd.diabetesapp.data.database.FactorsData
 import sevynidd.diabetesapp.data.database.FactorsRepository
 import sevynidd.diabetesapp.navigation.ThemeMode
 import sevynidd.diabetesapp.screens.DiabetesAppMainWindow
-import sevynidd.diabetesapp.screens.FactorScreen
+import sevynidd.diabetesapp.screens.factors.FactorScreen
 import sevynidd.diabetesapp.ui.theme.DiabetesAppTheme
 
 class MainActivity : ComponentActivity() {

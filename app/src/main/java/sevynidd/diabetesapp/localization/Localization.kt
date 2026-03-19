@@ -39,7 +39,8 @@ enum class TranslationKey {
     FactorLate,
     FactorNight,
     BasalRate,
-    LabelFactor
+    LabelFactor,
+    ActionSchedule
 }
 
 fun translate(key: TranslationKey, language: AppLanguage): String {
@@ -75,6 +76,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.FactorNight -> "Night"
             TranslationKey.BasalRate -> "Basal rate"
             TranslationKey.LabelFactor -> "Factor"
+            TranslationKey.ActionSchedule -> "Schedule"
         }
 
         AppLanguage.German -> when (key) {
@@ -107,6 +109,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.FactorNight -> "Nacht"
             TranslationKey.BasalRate -> "Basisrate"
             TranslationKey.LabelFactor -> "Faktor"
+            TranslationKey.ActionSchedule -> "Zeitplanung"
         }
 
         AppLanguage.French -> when (key) {
@@ -139,6 +142,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.FactorNight -> "Nuit"
             TranslationKey.BasalRate -> "Débit de base"
             TranslationKey.LabelFactor -> "Facteur"
+            TranslationKey.ActionSchedule -> "Calendrier"
         }
 
         AppLanguage.Polish -> when (key) {
@@ -171,6 +175,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.FactorNight -> "Noc"
             TranslationKey.BasalRate -> "Wartość podstawowa"
             TranslationKey.LabelFactor -> "Czynnik"
+            TranslationKey.ActionSchedule -> "Planuj"
         }
 
         AppLanguage.System -> error("SystemDefault must be resolved before translating")

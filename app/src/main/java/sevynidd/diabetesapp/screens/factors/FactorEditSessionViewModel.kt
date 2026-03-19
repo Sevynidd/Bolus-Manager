@@ -1,4 +1,4 @@
-package sevynidd.diabetesapp.screens
+package sevynidd.diabetesapp.screens.factors
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf

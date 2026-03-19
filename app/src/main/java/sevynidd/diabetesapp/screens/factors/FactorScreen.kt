@@ -1,4 +1,4 @@
-package sevynidd.diabetesapp.screens
+package sevynidd.diabetesapp.screens.factors
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,6 +25,7 @@ import sevynidd.diabetesapp.data.database.FactorsData
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.translate
 import sevynidd.diabetesapp.localization.TranslationKey
+import kotlin.math.ceil
 
 @Composable
 fun FactorScreen(
@@ -304,7 +305,7 @@ private fun normalizeQuarterStepValue(value: String): String {
         .replace(',', '.')
         .toDoubleOrNull()
         ?.let { raw ->
-            val rounded = kotlin.math.ceil(raw / 0.25) * 0.25
+            val rounded = ceil(raw / 0.25) * 0.25
             if (rounded % 1.0 == 0.0) {
                 rounded.toInt().toString()
             } else {

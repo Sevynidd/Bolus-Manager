@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ChangeCircle
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -41,12 +42,17 @@ import sevynidd.diabetesapp.navigation.destinationLabel
 import sevynidd.diabetesapp.localization.translate
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.AppLanguage
+import sevynidd.diabetesapp.navigation.FactorsDestination
 import sevynidd.diabetesapp.navigation.ThemeMode
 import sevynidd.diabetesapp.navigation.SettingsDestination
+import sevynidd.diabetesapp.navigation.factorsDestinationTransition
 import sevynidd.diabetesapp.navigation.settingsDestinationTransition
-import sevynidd.diabetesapp.settings.SettingsScreen
-import sevynidd.diabetesapp.settings.ThemeSettingsScreen
-import sevynidd.diabetesapp.settings.LanguageSettingsScreen
+import sevynidd.diabetesapp.screens.factors.FactorEditSessionViewModel
+import sevynidd.diabetesapp.screens.factors.FactorScreen
+import sevynidd.diabetesapp.screens.factors.ScheduleFactorScreen
+import sevynidd.diabetesapp.screens.settings.SettingsScreen
+import sevynidd.diabetesapp.screens.settings.ThemeSettingsScreen
+import sevynidd.diabetesapp.screens.settings.LanguageSettingsScreen
 import sevynidd.diabetesapp.ui.theme.ContrastLevel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,6 +70,7 @@ fun DiabetesAppMainWindow(
 ) {
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.FACTORS) }
     var settingsDestination by rememberSaveable { mutableStateOf(SettingsDestination.Main) }
+    var factorsDestination by rememberSaveable { mutableStateOf(FactorsDestination.Main) }
     val factorEditorViewModel: FactorEditSessionViewModel = viewModel()
     val factorEditorState = factorEditorViewModel.uiState
     val context = LocalContext.current
@@ -145,25 +152,50 @@ fun DiabetesAppMainWindow(
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = {
-                val topBarTitle = when {
-                    currentDestination == AppDestinations.SETTINGS && settingsDestination == SettingsDestination.Theme ->
+                val topBarTitle = when (currentDestination) {
+                    AppDestinations.SETTINGS if settingsDestination == SettingsDestination.Theme ->
                         translate(TranslationKey.Appearance, currentLanguage)
-                    currentDestination == AppDestinations.SETTINGS && settingsDestination == SettingsDestination.Language ->
+
+                    AppDestinations.SETTINGS if settingsDestination == SettingsDestination.Language ->
                         translate(TranslationKey.Language, currentLanguage)
+
+                    AppDestinations.FACTORS if factorsDestination == FactorsDestination.EditSchedule ->
+                        translate(TranslationKey.ActionSchedule, currentLanguage)
+
                     else -> destinationLabel(currentDestination, currentLanguage)
                 }
 
                 TopAppBar(
                     title = { Text(topBarTitle) },
                     navigationIcon = {
-                        if (currentDestination == AppDestinations.SETTINGS && settingsDestination != SettingsDestination.Main) {
+                        if (currentDestination == AppDestinations.SETTINGS && settingsDestination != SettingsDestination.Main){
                             IconButton(onClick = { settingsDestination = SettingsDestination.Main }) {
+                                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                            }
+                        } else if (currentDestination == AppDestinations.FACTORS && factorsDestination == FactorsDestination.EditSchedule) {
+                            IconButton(onClick = { factorsDestination = FactorsDestination.Main }) {
                                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                             }
                         }
                     },
                     actions = {
-                        if (currentDestination == AppDestinations.FACTORS) {
+                        if ((currentDestination == AppDestinations.FACTORS) &&
+                                (factorsDestination == FactorsDestination.Main))
+                        {
+                            IconButton(onClick = {
+                                factorsDestination = if (factorsDestination == FactorsDestination.EditSchedule) {
+                                    FactorsDestination.Main
+                                } else {
+                                    FactorsDestination.EditSchedule
+                                }
+                            }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.ChangeCircle,
+                                    contentDescription = translate(TranslationKey.ActionSchedule, currentLanguage)
+                                )
+                            }
+
                             IconButton(onClick = {
                                 if (factorEditorState.isEditMode) {
                                     leaveFactorsEditMode(shouldSave = true)
@@ -191,14 +223,29 @@ fun DiabetesAppMainWindow(
                 .padding(16.dp)
 
             when (currentDestination) {
-                AppDestinations.FACTORS -> FactorScreen(
-                    modifier = contentModifier,
-                    isEditMode = factorEditorState.isEditMode,
-                    currentLanguage = currentLanguage,
-                    factors = factorEditorState.factors,
-                    onFactorsChange = factorEditorViewModel::updateDraft
-                )
+                AppDestinations.FACTORS -> {
+                    AnimatedContent(
+                        targetState = factorsDestination,
+                        label = "factors_navigation_animation",
+                        transitionSpec = {
+                            factorsDestinationTransition(initialState, targetState)
+                        }
+                    ) { destination ->
+                        when (destination) {
+                            FactorsDestination.Main -> FactorScreen(
+                                modifier = contentModifier,
+                                isEditMode = factorEditorState.isEditMode,
+                                currentLanguage = currentLanguage,
+                                factors = factorEditorState.factors,
+                                onFactorsChange = factorEditorViewModel::updateDraft
+                            )
 
+                            FactorsDestination.EditSchedule -> ScheduleFactorScreen(
+                                modifier = contentModifier
+                            )
+                        }
+                    }
+                }
                 AppDestinations.CALCULATE -> CalculateScreen(contentModifier)
                 AppDestinations.SETTINGS -> {
                     AnimatedContent(
