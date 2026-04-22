@@ -41,7 +41,17 @@ enum class TranslationKey {
     BasalRate,
     LabelFactor,
     ActionSchedule,
-    ScheduleAutoOrderHint
+    ScheduleAutoOrderHint,
+    BolusType,
+    BolusNormal,
+    BolusSplit,
+    BolusUnits,
+    BolusImmediatePercent,
+    BolusExtendedPercent,
+    BolusDurationMinutes,
+    Carbohydrates,
+    ActiveFactor,
+    CalculatedUnits
 }
 
 fun translate(key: TranslationKey, language: AppLanguage): String {
@@ -79,6 +89,16 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.LabelFactor -> "Factor"
             TranslationKey.ActionSchedule -> "Schedule"
             TranslationKey.ScheduleAutoOrderHint -> "Times are auto-corrected to keep the daily order."
+            TranslationKey.BolusType -> "Bolus type"
+            TranslationKey.BolusNormal -> "Normal"
+            TranslationKey.BolusSplit -> "Split bolus"
+            TranslationKey.BolusUnits -> "Bolus units"
+            TranslationKey.BolusImmediatePercent -> "Immediate share (%)"
+            TranslationKey.BolusExtendedPercent -> "Extended share (%)"
+            TranslationKey.BolusDurationMinutes -> "Duration (minutes)"
+            TranslationKey.Carbohydrates -> "Carbohydrates"
+            TranslationKey.ActiveFactor -> "Active factor"
+            TranslationKey.CalculatedUnits -> "Calculated units"
         }
 
         AppLanguage.German -> when (key) {
@@ -113,6 +133,16 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.LabelFactor -> "Faktor"
             TranslationKey.ActionSchedule -> "Zeitplanung"
             TranslationKey.ScheduleAutoOrderHint -> "Zeiten werden automatisch angepasst, damit die Tagesreihenfolge erhalten bleibt."
+            TranslationKey.BolusType -> "Bolus-Typ"
+            TranslationKey.BolusNormal -> "Normal"
+            TranslationKey.BolusSplit -> "Dualbolus"
+            TranslationKey.BolusUnits -> "Bolus-Einheiten"
+            TranslationKey.BolusImmediatePercent -> "Sofortanteil (%)"
+            TranslationKey.BolusExtendedPercent -> "Verzögerter Anteil (%)"
+            TranslationKey.BolusDurationMinutes -> "Dauer (Minuten)"
+            TranslationKey.Carbohydrates -> "Kohlenhydrate"
+            TranslationKey.ActiveFactor -> "Aktiver Faktor"
+            TranslationKey.CalculatedUnits -> "Berechnete Einheiten"
         }
 
         AppLanguage.French -> when (key) {
@@ -147,6 +177,16 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.LabelFactor -> "Facteur"
             TranslationKey.ActionSchedule -> "Calendrier"
             TranslationKey.ScheduleAutoOrderHint -> "Les heures sont corrigées automatiquement pour conserver l'ordre de la journée."
+            TranslationKey.BolusType -> "Type de bolus"
+            TranslationKey.BolusNormal -> "Normal"
+            TranslationKey.BolusSplit -> "Bolus fractionné"
+            TranslationKey.BolusUnits -> "Unités de bolus"
+            TranslationKey.BolusImmediatePercent -> "Part immédiate (%)"
+            TranslationKey.BolusExtendedPercent -> "Part prolongée (%)"
+            TranslationKey.BolusDurationMinutes -> "Durée (minutes)"
+            TranslationKey.Carbohydrates -> "Glucides"
+            TranslationKey.ActiveFactor -> "Facteur actif"
+            TranslationKey.CalculatedUnits -> "Unités calculées"
         }
 
         AppLanguage.Polish -> when (key) {
@@ -181,6 +221,16 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.LabelFactor -> "Czynnik"
             TranslationKey.ActionSchedule -> "Planuj"
             TranslationKey.ScheduleAutoOrderHint -> "Godziny są automatycznie korygowane, aby zachować kolejność w ciągu dnia."
+            TranslationKey.BolusType -> "Typ bolusa"
+            TranslationKey.BolusNormal -> "Normalny"
+            TranslationKey.BolusSplit -> "Bolus złożony"
+            TranslationKey.BolusUnits -> "Jednostki bolusa"
+            TranslationKey.BolusImmediatePercent -> "Część natychmiastowa (%)"
+            TranslationKey.BolusExtendedPercent -> "Część przedłużona (%)"
+            TranslationKey.BolusDurationMinutes -> "Czas trwania (minuty)"
+            TranslationKey.Carbohydrates -> "Węglowodany"
+            TranslationKey.ActiveFactor -> "Aktywny współczynnik"
+            TranslationKey.CalculatedUnits -> "Obliczone jednostki"
         }
 
         AppLanguage.System -> error("SystemDefault must be resolved before translating")

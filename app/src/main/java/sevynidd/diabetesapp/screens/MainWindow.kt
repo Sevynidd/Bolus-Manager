@@ -249,7 +249,11 @@ fun DiabetesAppMainWindow(
                         }
                     }
                 }
-                AppDestinations.CALCULATE -> CalculateScreen(contentModifier)
+                AppDestinations.CALCULATE -> CalculateScreen(
+                    modifier = contentModifier,
+                    currentLanguage = currentLanguage,
+                    factors = factorEditorState.factors
+                )
                 AppDestinations.SETTINGS -> {
                     AnimatedContent(
                         targetState = settingsDestination,
