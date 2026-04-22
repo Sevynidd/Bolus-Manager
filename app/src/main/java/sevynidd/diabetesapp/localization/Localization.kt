@@ -54,7 +54,8 @@ enum class TranslationKey {
     CalculatedUnits,
     BolusImmediateUnits,
     BolusExtendedUnits,
-    FutureFactor
+    FutureFactor,
+    BreadUnits
 }
 
 fun translate(key: TranslationKey, language: AppLanguage): String {
@@ -105,6 +106,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.BolusImmediateUnits -> "Immediate units"
             TranslationKey.BolusExtendedUnits -> "Extended units"
             TranslationKey.FutureFactor -> "Future factor"
+            TranslationKey.BreadUnits -> "Bread units"
         }
 
         AppLanguage.German -> when (key) {
@@ -152,6 +154,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.BolusImmediateUnits -> "Sofort-Einheiten"
             TranslationKey.BolusExtendedUnits -> "Verzögerte Einheiten"
             TranslationKey.FutureFactor -> "Zukünftiger Faktor"
+            TranslationKey.BreadUnits -> "Broteinheiten"
         }
 
         AppLanguage.French -> when (key) {
@@ -199,6 +202,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.BolusImmediateUnits -> "Unités immédiates"
             TranslationKey.BolusExtendedUnits -> "Unités prolongées"
             TranslationKey.FutureFactor -> "Facteur futur"
+            TranslationKey.BreadUnits -> "Unités de pain"
         }
 
         AppLanguage.Polish -> when (key) {
@@ -246,6 +250,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.BolusImmediateUnits -> "Jednostki natychmiastowe"
             TranslationKey.BolusExtendedUnits -> "Jednostki przedłużone"
             TranslationKey.FutureFactor -> "Przyszły współczynnik"
+            TranslationKey.BreadUnits -> "Wymienniki chlebowe"
         }
 
         AppLanguage.System -> error("SystemDefault must be resolved before translating")

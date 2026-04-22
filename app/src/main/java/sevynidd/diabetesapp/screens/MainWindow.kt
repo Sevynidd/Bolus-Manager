@@ -50,6 +50,7 @@ import sevynidd.diabetesapp.navigation.settingsDestinationTransition
 import sevynidd.diabetesapp.screens.factors.FactorEditSessionViewModel
 import sevynidd.diabetesapp.screens.factors.FactorScreen
 import sevynidd.diabetesapp.screens.factors.ScheduleFactorScreen
+import sevynidd.diabetesapp.screens.settings.BreadUnitsSettingsScreen
 import sevynidd.diabetesapp.screens.settings.SettingsScreen
 import sevynidd.diabetesapp.screens.settings.ThemeSettingsScreen
 import sevynidd.diabetesapp.screens.settings.LanguageSettingsScreen
@@ -62,10 +63,12 @@ fun DiabetesAppMainWindow(
     themeMode: ThemeMode = ThemeMode.System,
     contrastLevel: ContrastLevel = ContrastLevel.Normal,
     currentLanguage: AppLanguage = AppLanguage.System,
+    breadUnits: Double = 12.0,
     factorData: FactorsData = FactorsData(),
     onThemeModeChange: (ThemeMode) -> Unit = {},
     onContrastLevelChange: (ContrastLevel) -> Unit = {},
     onLanguageChange: (AppLanguage) -> Unit = {},
+    onBreadUnitsChange: (Double) -> Unit = {},
     onFactorSaveRequested: (FactorsData) -> Unit = {}
 ) {
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.FACTORS) }
@@ -158,6 +161,9 @@ fun DiabetesAppMainWindow(
 
                     AppDestinations.SETTINGS if settingsDestination == SettingsDestination.Language ->
                         translate(TranslationKey.Language, currentLanguage)
+
+                    AppDestinations.SETTINGS if settingsDestination == SettingsDestination.BreadUnits ->
+                        translate(TranslationKey.BreadUnits, currentLanguage)
 
                     AppDestinations.FACTORS if factorsDestination == FactorsDestination.EditSchedule ->
                         translate(TranslationKey.ActionSchedule, currentLanguage)
@@ -252,7 +258,8 @@ fun DiabetesAppMainWindow(
                 AppDestinations.CALCULATE -> CalculateScreen(
                     modifier = contentModifier,
                     currentLanguage = currentLanguage,
-                    factors = factorEditorState.factors
+                    factors = factorEditorState.factors,
+                    breadUnits = breadUnits
                 )
                 AppDestinations.SETTINGS -> {
                     AnimatedContent(
@@ -267,7 +274,8 @@ fun DiabetesAppMainWindow(
                                 modifier = contentModifier,
                                 currentLanguage = currentLanguage,
                                 onNavigateToTheme = { settingsDestination = SettingsDestination.Theme },
-                                onNavigateToLanguage = { settingsDestination = SettingsDestination.Language }
+                                onNavigateToLanguage = { settingsDestination = SettingsDestination.Language },
+                                onNavigateToBreadUnits = { settingsDestination = SettingsDestination.BreadUnits }
                             )
 
                             SettingsDestination.Theme -> ThemeSettingsScreen(
@@ -284,6 +292,14 @@ fun DiabetesAppMainWindow(
                                 modifier = contentModifier,
                                 currentLanguage = currentLanguage,
                                 onLanguageChange = onLanguageChange,
+                                onBackClick = { settingsDestination = SettingsDestination.Main }
+                            )
+
+                            SettingsDestination.BreadUnits -> BreadUnitsSettingsScreen(
+                                modifier = contentModifier,
+                                currentBreadUnits = breadUnits,
+                                currentLanguage = currentLanguage,
+                                onBreadUnitsChange = onBreadUnitsChange,
                                 onBackClick = { settingsDestination = SettingsDestination.Main }
                             )
                         }

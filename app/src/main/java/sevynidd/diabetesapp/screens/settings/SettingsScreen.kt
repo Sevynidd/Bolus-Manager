@@ -27,7 +27,8 @@ fun SettingsScreen(
     modifier: Modifier = Modifier,
     currentLanguage: AppLanguage = AppLanguage.System,
     onNavigateToTheme: () -> Unit = {},
-    onNavigateToLanguage: () -> Unit = {}
+    onNavigateToLanguage: () -> Unit = {},
+    onNavigateToBreadUnits: () -> Unit = {}
 ) {
     Column(
         modifier = modifier.verticalScroll(rememberScrollState()),
@@ -41,6 +42,11 @@ fun SettingsScreen(
         SettingsCardItem(
             title = translate(TranslationKey.Language, currentLanguage),
             onClick = onNavigateToLanguage
+        )
+
+        SettingsCardItem(
+            title = translate(TranslationKey.BreadUnits, currentLanguage),
+            onClick = onNavigateToBreadUnits
         )
     }
 }

@@ -34,7 +34,8 @@ fun destinationLabel(destination: AppDestinations, language: AppLanguage): Strin
 enum class SettingsDestination {
     Main,
     Theme,
-    Language
+    Language,
+    BreadUnits
 }
 
 enum class FactorsDestination {

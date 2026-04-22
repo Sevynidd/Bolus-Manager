@@ -27,7 +27,8 @@ private val Context.appSettingsDataStore: DataStore<Preferences> by preferencesD
 data class AppSettings(
     val themeMode: ThemeMode = ThemeMode.System,
     val contrastLevel: ContrastLevel = ContrastLevel.Normal,
-    val language: AppLanguage = AppLanguage.System
+    val language: AppLanguage = AppLanguage.System,
+    val breadUnits: Double = DEFAULT_BREAD_UNITS
 )
 
 class AppSettingsStore(private val context: Context) {
@@ -36,13 +37,15 @@ class AppSettingsStore(private val context: Context) {
         val CONTRAST_LEVEL = stringPreferencesKey("contrast_level")
         // Keep legacy key name so existing language value migrates seamlessly.
         val LANGUAGE = stringPreferencesKey(LEGACY_LANGUAGE_KEY)
+        val BREAD_UNITS = stringPreferencesKey("bread_units")
     }
 
     val settingsFlow: Flow<AppSettings> = context.appSettingsDataStore.data.map { preferences ->
         AppSettings(
             themeMode = preferences[Keys.THEME_MODE].toEnumOrDefault(ThemeMode.System),
             contrastLevel = preferences[Keys.CONTRAST_LEVEL].toEnumOrDefault(ContrastLevel.Normal),
-            language = preferences[Keys.LANGUAGE].toEnumOrDefault(AppLanguage.System)
+            language = preferences[Keys.LANGUAGE].toEnumOrDefault(AppLanguage.System),
+            breadUnits = preferences[Keys.BREAD_UNITS].toDoubleOrDefault(DEFAULT_BREAD_UNITS)
         )
     }
 
@@ -63,6 +66,12 @@ class AppSettingsStore(private val context: Context) {
             preferences[Keys.LANGUAGE] = language.name
         }
     }
+
+    suspend fun setBreadUnits(breadUnits: Double) {
+        context.appSettingsDataStore.edit { preferences ->
+            preferences[Keys.BREAD_UNITS] = breadUnits.toString()
+        }
+    }
 }
 
 private inline fun <reified T : Enum<T>> String?.toEnumOrDefault(defaultValue: T): T {
@@ -71,4 +80,10 @@ private inline fun <reified T : Enum<T>> String?.toEnumOrDefault(defaultValue: T
     }
     return enumValues<T>().firstOrNull { it.name == this } ?: defaultValue
 }
+
+private fun String?.toDoubleOrDefault(defaultValue: Double): Double {
+    return this?.toDoubleOrNull() ?: defaultValue
+}
+
+private const val DEFAULT_BREAD_UNITS = 12.0
 

@@ -51,6 +51,7 @@ class MainActivity : ComponentActivity() {
                     themeMode = settings.themeMode,
                     contrastLevel = settings.contrastLevel,
                     currentLanguage = settings.language,
+                    breadUnits = settings.breadUnits,
                     onThemeModeChange = { themeMode ->
                         coroutineScope.launch { appSettingsStore.setThemeMode(themeMode) }
                     },
@@ -59,6 +60,9 @@ class MainActivity : ComponentActivity() {
                     },
                     onLanguageChange = { language ->
                         coroutineScope.launch { appSettingsStore.setLanguage(language) }
+                    },
+                    onBreadUnitsChange = { breadUnits ->
+                        coroutineScope.launch { appSettingsStore.setBreadUnits(breadUnits) }
                     },
                     factorData = factors,
                     onFactorSaveRequested = { updatedFactors ->

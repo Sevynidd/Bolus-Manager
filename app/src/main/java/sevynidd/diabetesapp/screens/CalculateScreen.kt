@@ -35,7 +35,8 @@ enum class BolusMode {
 fun CalculateScreen(
     modifier: Modifier = Modifier,
     currentLanguage: AppLanguage = AppLanguage.System,
-    factors: FactorsData = FactorsData()
+    factors: FactorsData = FactorsData(),
+    breadUnits: Double = 12.0
 ) {
     var selectedMode by rememberSaveable { mutableStateOf(BolusMode.Normal) }
     var carbohydrates by rememberSaveable { mutableStateOf("") }
@@ -48,10 +49,11 @@ fun CalculateScreen(
     val activeFactorInfo = activeFactorForTime(factors, nowMinutes)
     val activeFactor = activeFactorInfo.factor
     val activeFactorText = activeFactorInfo.toDisplayText(currentLanguage)
+    val effectiveBreadUnits = breadUnits.takeIf { it > 0.0 } ?: 12.0
 
     val carbohydratesValue = carbohydrates.replace(',', '.').toDoubleOrNull()
     val calculatedUnits = if (carbohydratesValue != null && activeFactor != null) {
-        (carbohydratesValue / 12) * activeFactor
+        (carbohydratesValue / effectiveBreadUnits) * activeFactor
     } else {
         null
     }
@@ -78,12 +80,12 @@ fun CalculateScreen(
         null
     }
     val splitImmediateUnits = if (splitImmediateCarbohydrates != null && activeFactor != null) {
-        (splitImmediateCarbohydrates / 12) * activeFactor
+        (splitImmediateCarbohydrates / effectiveBreadUnits) * activeFactor
     } else {
         null
     }
     val splitRestUnits = if (splitRestCarbohydrates != null && futureFactor != null) {
-        (splitRestCarbohydrates / 12) * futureFactor
+        (splitRestCarbohydrates / effectiveBreadUnits) * futureFactor
     } else {
         null
     }
