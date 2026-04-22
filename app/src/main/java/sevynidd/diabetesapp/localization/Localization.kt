@@ -40,7 +40,8 @@ enum class TranslationKey {
     FactorNight,
     BasalRate,
     LabelFactor,
-    ActionSchedule
+    ActionSchedule,
+    ScheduleAutoOrderHint
 }
 
 fun translate(key: TranslationKey, language: AppLanguage): String {
@@ -77,6 +78,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.BasalRate -> "Basal rate"
             TranslationKey.LabelFactor -> "Factor"
             TranslationKey.ActionSchedule -> "Schedule"
+            TranslationKey.ScheduleAutoOrderHint -> "Times are auto-corrected to keep the daily order."
         }
 
         AppLanguage.German -> when (key) {
@@ -110,6 +112,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.BasalRate -> "Basisrate"
             TranslationKey.LabelFactor -> "Faktor"
             TranslationKey.ActionSchedule -> "Zeitplanung"
+            TranslationKey.ScheduleAutoOrderHint -> "Zeiten werden automatisch angepasst, damit die Tagesreihenfolge erhalten bleibt."
         }
 
         AppLanguage.French -> when (key) {
@@ -143,6 +146,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.BasalRate -> "Débit de base"
             TranslationKey.LabelFactor -> "Facteur"
             TranslationKey.ActionSchedule -> "Calendrier"
+            TranslationKey.ScheduleAutoOrderHint -> "Les heures sont corrigées automatiquement pour conserver l'ordre de la journée."
         }
 
         AppLanguage.Polish -> when (key) {
@@ -176,6 +180,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.BasalRate -> "Wartość podstawowa"
             TranslationKey.LabelFactor -> "Czynnik"
             TranslationKey.ActionSchedule -> "Planuj"
+            TranslationKey.ScheduleAutoOrderHint -> "Godziny są automatycznie korygowane, aby zachować kolejność w ciągu dnia."
         }
 
         AppLanguage.System -> error("SystemDefault must be resolved before translating")

@@ -24,6 +24,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import sevynidd.diabetesapp.data.database.FactorsData
@@ -66,18 +67,7 @@ fun ScheduleFactorScreen(
     val basalTimeMinutes = factors.basalTimeMinutes
 
     fun updateTime(slot: ScheduleTimeSlot, selectedMinutes: Int) {
-        onFactorsChange(
-            when (slot) {
-                ScheduleTimeSlot.Morning -> factors.copy(morningTimeMinutes = selectedMinutes)
-                ScheduleTimeSlot.Breakfast -> factors.copy(breakfastTimeMinutes = selectedMinutes)
-                ScheduleTimeSlot.Lunch -> factors.copy(lunchTimeMinutes = selectedMinutes)
-                ScheduleTimeSlot.Afternoon -> factors.copy(afternoonTimeMinutes = selectedMinutes)
-                ScheduleTimeSlot.Dinner -> factors.copy(dinnerTimeMinutes = selectedMinutes)
-                ScheduleTimeSlot.Late -> factors.copy(lateTimeMinutes = selectedMinutes)
-                ScheduleTimeSlot.Night -> factors.copy(nightTimeMinutes = selectedMinutes)
-                ScheduleTimeSlot.Basal -> factors.copy(basalTimeMinutes = selectedMinutes)
-            }
-        )
+        onFactorsChange(factors.withUpdatedTime(slot, selectedMinutes))
     }
 
     val pieDataPoints = remember(
@@ -140,9 +130,11 @@ fun ScheduleFactorScreen(
         modifier = modifier.verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
             AnimatedGapPieChart(
                 modifier = Modifier
                     .align(Alignment.Center)
@@ -150,6 +142,13 @@ fun ScheduleFactorScreen(
                 pieDataPoints = pieDataPoints
             )
         }
+
+        Text(
+            text = translate(TranslationKey.ScheduleAutoOrderHint, currentLanguage),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 24.dp)
+        )
 
         TimePickerField(
             description = translate(TranslationKey.FactorMorning, currentLanguage),
@@ -317,3 +316,77 @@ private fun formatTimeLabel(totalMinutes: Int): String {
     val minute = totalMinutes % 60
     return String.format(Locale.ROOT, "%02d:%02d", hour, minute)
 }
+
+private fun FactorsData.withUpdatedTime(slot: ScheduleTimeSlot, selectedMinutes: Int): FactorsData {
+    val clampedMinutes = selectedMinutes.coerceIn(0, MINUTES_PER_DAY - 1)
+
+    if (slot == ScheduleTimeSlot.Basal) {
+        return copy(basalTimeMinutes = clampedMinutes)
+    }
+
+    var morning = morningTimeMinutes
+    var breakfast = breakfastTimeMinutes
+    var lunch = lunchTimeMinutes
+    var afternoon = afternoonTimeMinutes
+    var dinner = dinnerTimeMinutes
+    var late = lateTimeMinutes
+    var night = nightTimeMinutes
+
+    when (slot) {
+        ScheduleTimeSlot.Morning -> morning = clampedMinutes
+        ScheduleTimeSlot.Breakfast -> breakfast = clampedMinutes
+        ScheduleTimeSlot.Lunch -> lunch = clampedMinutes
+        ScheduleTimeSlot.Afternoon -> afternoon = clampedMinutes
+        ScheduleTimeSlot.Dinner -> dinner = clampedMinutes
+        ScheduleTimeSlot.Late -> late = clampedMinutes
+        ScheduleTimeSlot.Night -> night = clampedMinutes
+        ScheduleTimeSlot.Basal -> return this
+    }
+
+    val normalized =
+        normalizeAscendingSchedule(morning, breakfast, lunch, afternoon, dinner, late, night)
+
+    return copy(
+        morningTimeMinutes = normalized[0],
+        breakfastTimeMinutes = normalized[1],
+        lunchTimeMinutes = normalized[2],
+        afternoonTimeMinutes = normalized[3],
+        dinnerTimeMinutes = normalized[4],
+        lateTimeMinutes = normalized[5],
+        nightTimeMinutes = normalized[6]
+    )
+}
+
+private fun normalizeAscendingSchedule(
+    morning: Int,
+    breakfast: Int,
+    lunch: Int,
+    afternoon: Int,
+    dinner: Int,
+    late: Int,
+    night: Int
+): IntArray {
+    val times = intArrayOf(morning, breakfast, lunch, afternoon, dinner, late, night)
+
+    times[0] = times[0].coerceIn(0, MINUTES_PER_DAY - 1)
+    for (index in 1 until times.size) {
+        times[index] = maxOf(times[index], times[index - 1] + 1)
+    }
+
+    if (times.last() >= MINUTES_PER_DAY) {
+        times[times.lastIndex] = MINUTES_PER_DAY - 1
+        for (index in times.lastIndex - 1 downTo 0) {
+            times[index] = minOf(times[index], times[index + 1] - 1)
+        }
+
+        times[0] = maxOf(times[0], 0)
+        for (index in 1 until times.size) {
+            times[index] = maxOf(times[index], times[index - 1] + 1)
+        }
+    }
+
+    return times
+}
+
+private const val MINUTES_PER_DAY = 24 * 60
+
