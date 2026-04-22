@@ -241,7 +241,10 @@ fun DiabetesAppMainWindow(
                             )
 
                             FactorsDestination.EditSchedule -> ScheduleFactorScreen(
-                                modifier = contentModifier
+                                modifier = contentModifier,
+                                currentLanguage = currentLanguage,
+                                factors = factorEditorState.factors,
+                                onFactorsChange = factorEditorViewModel::updateDraft
                             )
                         }
                     }
@@ -294,4 +297,3 @@ private tailrec fun Context.findActivity(): Activity? {
         else -> null
     }
 }
-

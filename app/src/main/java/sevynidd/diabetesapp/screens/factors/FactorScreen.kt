@@ -25,6 +25,7 @@ import sevynidd.diabetesapp.data.database.FactorsData
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.translate
 import sevynidd.diabetesapp.localization.TranslationKey
+import java.util.Locale
 import kotlin.math.ceil
 
 @Composable
@@ -54,10 +55,26 @@ fun FactorScreen(
                 dinnerFactor = dinnerFactor,
                 lateFactor = lateFactor,
                 nightFactor = nightFactor,
-                basalRate = basalRate
+                basalRate = basalRate,
+                morningTimeMinutes = factors.morningTimeMinutes,
+                breakfastTimeMinutes = factors.breakfastTimeMinutes,
+                lunchTimeMinutes = factors.lunchTimeMinutes,
+                afternoonTimeMinutes = factors.afternoonTimeMinutes,
+                dinnerTimeMinutes = factors.dinnerTimeMinutes,
+                lateTimeMinutes = factors.lateTimeMinutes,
+                nightTimeMinutes = factors.nightTimeMinutes,
+                basalTimeMinutes = factors.basalTimeMinutes
             )
         )
     }
+
+    val morningRange = buildTimeRange(factors.morningTimeMinutes, factors.breakfastTimeMinutes)
+    val breakfastRange = buildTimeRange(factors.breakfastTimeMinutes, factors.lunchTimeMinutes)
+    val lunchRange = buildTimeRange(factors.lunchTimeMinutes, factors.afternoonTimeMinutes)
+    val afternoonRange = buildTimeRange(factors.afternoonTimeMinutes, factors.dinnerTimeMinutes)
+    val dinnerRange = buildTimeRange(factors.dinnerTimeMinutes, factors.lateTimeMinutes)
+    val lateRange = buildTimeRange(factors.lateTimeMinutes, factors.nightTimeMinutes)
+    val nightRange = buildTimeRange(factors.nightTimeMinutes, factors.morningTimeMinutes)
 
     Column(
         modifier = modifier.verticalScroll(rememberScrollState()),
@@ -74,7 +91,7 @@ fun FactorScreen(
                     TranslationKey.FactorMorning,
                     currentLanguage
                 )
-            } (05:00 - 09:29)",
+            } ($morningRange)",
             label = translate(TranslationKey.LabelFactor, currentLanguage),
             enabled = isEditMode
         )
@@ -90,7 +107,7 @@ fun FactorScreen(
                     TranslationKey.FactorBreakfast,
                     currentLanguage
                 )
-            } (09:30 - 11:59)",
+            } ($breakfastRange)",
             label = translate(TranslationKey.LabelFactor, currentLanguage),
             enabled = isEditMode
         )
@@ -106,7 +123,7 @@ fun FactorScreen(
                     TranslationKey.FactorLunch,
                     currentLanguage
                 )
-            } (12:00 - 14:29)",
+            } ($lunchRange)",
             label = translate(TranslationKey.LabelFactor, currentLanguage),
             enabled = isEditMode
         )
@@ -122,7 +139,7 @@ fun FactorScreen(
                     TranslationKey.FactorAfternoon,
                     currentLanguage
                 )
-            } (14:30 - 17:29)",
+            } ($afternoonRange)",
             label = translate(TranslationKey.LabelFactor, currentLanguage),
             enabled = isEditMode
         )
@@ -138,7 +155,7 @@ fun FactorScreen(
                     TranslationKey.FactorDinner,
                     currentLanguage
                 )
-            } (17:30 - 19:59)",
+            } ($dinnerRange)",
             label = translate(TranslationKey.LabelFactor, currentLanguage),
             enabled = isEditMode
         )
@@ -154,7 +171,7 @@ fun FactorScreen(
                     TranslationKey.FactorLate,
                     currentLanguage
                 )
-            } (20:00 - 22:59)",
+            } ($lateRange)",
             label = translate(TranslationKey.LabelFactor, currentLanguage),
             enabled = isEditMode
         )
@@ -170,7 +187,7 @@ fun FactorScreen(
                     TranslationKey.FactorNight,
                     currentLanguage
                 )
-            } (23:00 - 04:59)",
+            } ($nightRange)",
             label = translate(TranslationKey.LabelFactor, currentLanguage),
             enabled = isEditMode
         )
@@ -181,12 +198,26 @@ fun FactorScreen(
                 basalRate = it
                 emitFactorsChanged()
             },
-            description = "${translate(TranslationKey.BasalRate, currentLanguage)} (19:00)",
+            description = "${translate(TranslationKey.BasalRate, currentLanguage)} (${formatTimeOfDay(factors.basalTimeMinutes)})",
             label = translate(TranslationKey.BasalRate, currentLanguage),
             enabled = isEditMode
         )
     }
 }
+
+private fun buildTimeRange(startMinutes: Int, nextStartMinutes: Int): String {
+    val endMinutes = ((nextStartMinutes - 1) + MINUTES_PER_DAY) % MINUTES_PER_DAY
+    return "${formatTimeOfDay(startMinutes)} - ${formatTimeOfDay(endMinutes)}"
+}
+
+private fun formatTimeOfDay(totalMinutes: Int): String {
+    val normalized = ((totalMinutes % MINUTES_PER_DAY) + MINUTES_PER_DAY) % MINUTES_PER_DAY
+    val hours = normalized / 60
+    val minutes = normalized % 60
+    return String.format(Locale.ROOT, "%02d:%02d", hours, minutes)
+}
+
+private const val MINUTES_PER_DAY = 24 * 60
 
 @Composable
 private fun DoubleInputField(

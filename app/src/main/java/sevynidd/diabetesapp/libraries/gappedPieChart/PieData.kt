@@ -3,7 +3,8 @@ package sevynidd.diabetesapp.libraries.gappedPieChart
 import androidx.compose.ui.graphics.Color
 
 data class PieData(
-    val value: Int,
+    val amount: Int,
     val color: Color,
-    val label: String = ""
+    val title: String = "",
+    val value: String = ""
 )

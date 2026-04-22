@@ -1,12 +1,16 @@
 package sevynidd.diabetesapp.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
 
 private val lightScheme = lightColorScheme(
@@ -241,6 +245,44 @@ enum class ContrastLevel {
     Normal, MediumContrast, HighContrast
 }
 
+private fun ColorScheme.withDynamicContrast(contrastLevel: ContrastLevel): ColorScheme {
+    if (contrastLevel == ContrastLevel.Normal) return this
+
+    val strength = when (contrastLevel) {
+        ContrastLevel.Normal -> 0f
+        ContrastLevel.MediumContrast -> 0.5f
+        ContrastLevel.HighContrast -> 1f
+    }
+
+    fun targetOnColor(background: Color): Color {
+        return if (background.luminance() > 0.5f) Color.Black else Color.White
+    }
+
+    fun adjustedOnColor(background: Color, currentOnColor: Color): Color {
+        return lerp(currentOnColor, targetOnColor(background), strength)
+    }
+
+    val contrastOutline = adjustedOnColor(surface, onSurface)
+    val contrastOutlineVariant = adjustedOnColor(surfaceVariant, onSurfaceVariant)
+
+    return copy(
+        onPrimary = adjustedOnColor(primary, onPrimary),
+        onPrimaryContainer = adjustedOnColor(primaryContainer, onPrimaryContainer),
+        onSecondary = adjustedOnColor(secondary, onSecondary),
+        onSecondaryContainer = adjustedOnColor(secondaryContainer, onSecondaryContainer),
+        onTertiary = adjustedOnColor(tertiary, onTertiary),
+        onTertiaryContainer = adjustedOnColor(tertiaryContainer, onTertiaryContainer),
+        onError = adjustedOnColor(error, onError),
+        onErrorContainer = adjustedOnColor(errorContainer, onErrorContainer),
+        onBackground = adjustedOnColor(background, onBackground),
+        onSurface = adjustedOnColor(surface, onSurface),
+        onSurfaceVariant = adjustedOnColor(surfaceVariant, onSurfaceVariant),
+        inverseOnSurface = adjustedOnColor(inverseSurface, inverseOnSurface),
+        outline = lerp(outline, contrastOutline, strength * 0.8f),
+        outlineVariant = lerp(outlineVariant, contrastOutlineVariant, strength * 0.8f),
+    )
+}
+
 @Composable
 fun DiabetesAppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -251,7 +293,9 @@ fun DiabetesAppTheme(
     val colorScheme = when {
         dynamicColor -> {
             val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            val dynamicScheme =
+                if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            dynamicScheme.withDynamicContrast(contrastLevel)
         }
 
         darkTheme -> when (contrastLevel) {

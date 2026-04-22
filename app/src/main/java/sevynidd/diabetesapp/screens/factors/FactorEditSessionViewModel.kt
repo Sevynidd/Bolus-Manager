@@ -72,7 +72,15 @@ private fun SavedStateHandle.restoreUiState(): FactorEditSessionUiState {
             dinnerFactor = get<String>(DINNER_FACTOR_KEY).orEmpty(),
             lateFactor = get<String>(LATE_FACTOR_KEY).orEmpty(),
             nightFactor = get<String>(NIGHT_FACTOR_KEY).orEmpty(),
-            basalRate = get<String>(BASAL_RATE_KEY).orEmpty()
+            basalRate = get<String>(BASAL_RATE_KEY).orEmpty(),
+            morningTimeMinutes = get<Int>(MORNING_TIME_KEY) ?: (5 * 60),
+            breakfastTimeMinutes = get<Int>(BREAKFAST_TIME_KEY) ?: (9 * 60),
+            lunchTimeMinutes = get<Int>(LUNCH_TIME_KEY) ?: (12 * 60),
+            afternoonTimeMinutes = get<Int>(AFTERNOON_TIME_KEY) ?: (14 * 60),
+            dinnerTimeMinutes = get<Int>(DINNER_TIME_KEY) ?: (17 * 60),
+            lateTimeMinutes = get<Int>(LATE_TIME_KEY) ?: (20 * 60),
+            nightTimeMinutes = get<Int>(NIGHT_TIME_KEY) ?: (23 * 60),
+            basalTimeMinutes = get<Int>(BASAL_TIME_KEY) ?: (19 * 60)
         ),
         isEditMode = get<Boolean>(IS_EDIT_MODE_KEY) ?: false,
         pendingSave = get<Boolean>(PENDING_SAVE_KEY) ?: false
@@ -88,6 +96,14 @@ private fun SavedStateHandle.persistUiState(state: FactorEditSessionUiState) {
     set(LATE_FACTOR_KEY, state.factors.lateFactor)
     set(NIGHT_FACTOR_KEY, state.factors.nightFactor)
     set(BASAL_RATE_KEY, state.factors.basalRate)
+    set(MORNING_TIME_KEY, state.factors.morningTimeMinutes)
+    set(BREAKFAST_TIME_KEY, state.factors.breakfastTimeMinutes)
+    set(LUNCH_TIME_KEY, state.factors.lunchTimeMinutes)
+    set(AFTERNOON_TIME_KEY, state.factors.afternoonTimeMinutes)
+    set(DINNER_TIME_KEY, state.factors.dinnerTimeMinutes)
+    set(LATE_TIME_KEY, state.factors.lateTimeMinutes)
+    set(NIGHT_TIME_KEY, state.factors.nightTimeMinutes)
+    set(BASAL_TIME_KEY, state.factors.basalTimeMinutes)
     set(IS_EDIT_MODE_KEY, state.isEditMode)
     set(PENDING_SAVE_KEY, state.pendingSave)
 }
@@ -100,6 +116,14 @@ private const val DINNER_FACTOR_KEY = "factor_editor_dinner"
 private const val LATE_FACTOR_KEY = "factor_editor_late"
 private const val NIGHT_FACTOR_KEY = "factor_editor_night"
 private const val BASAL_RATE_KEY = "factor_editor_basal_rate"
+private const val MORNING_TIME_KEY = "factor_editor_morning_time"
+private const val BREAKFAST_TIME_KEY = "factor_editor_breakfast_time"
+private const val LUNCH_TIME_KEY = "factor_editor_lunch_time"
+private const val AFTERNOON_TIME_KEY = "factor_editor_afternoon_time"
+private const val DINNER_TIME_KEY = "factor_editor_dinner_time"
+private const val LATE_TIME_KEY = "factor_editor_late_time"
+private const val NIGHT_TIME_KEY = "factor_editor_night_time"
+private const val BASAL_TIME_KEY = "factor_editor_basal_time"
 private const val IS_EDIT_MODE_KEY = "factor_editor_is_edit_mode"
 private const val PENDING_SAVE_KEY = "factor_editor_pending_save"
 

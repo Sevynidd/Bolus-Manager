@@ -6,33 +6,314 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import sevynidd.diabetesapp.data.database.FactorsData
 import sevynidd.diabetesapp.libraries.gappedPieChart.AnimatedGapPieChart
 import sevynidd.diabetesapp.libraries.gappedPieChart.PieData
+import sevynidd.diabetesapp.localization.AppLanguage
+import sevynidd.diabetesapp.localization.TranslationKey
+import sevynidd.diabetesapp.localization.translate
+import java.util.Locale
+import kotlin.math.max
 
+private enum class ScheduleTimeSlot {
+    Morning,
+    Breakfast,
+    Lunch,
+    Afternoon,
+    Dinner,
+    Late,
+    Night,
+    Basal
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ScheduleFactorScreen(modifier: Modifier = Modifier) {
+fun ScheduleFactorScreen(
+    modifier: Modifier = Modifier,
+    currentLanguage: AppLanguage = AppLanguage.System,
+    factors: FactorsData = FactorsData(),
+    onFactorsChange: (FactorsData) -> Unit = {}
+) {
+    var activePicker by rememberSaveable { mutableStateOf<ScheduleTimeSlot?>(null) }
+
+    val morningTimeMinutes = factors.morningTimeMinutes
+    val breakfastTimeMinutes = factors.breakfastTimeMinutes
+    val lunchTimeMinutes = factors.lunchTimeMinutes
+    val afternoonTimeMinutes = factors.afternoonTimeMinutes
+    val dinnerTimeMinutes = factors.dinnerTimeMinutes
+    val lateTimeMinutes = factors.lateTimeMinutes
+    val nightTimeMinutes = factors.nightTimeMinutes
+    val basalTimeMinutes = factors.basalTimeMinutes
+
+    fun updateTime(slot: ScheduleTimeSlot, selectedMinutes: Int) {
+        onFactorsChange(
+            when (slot) {
+                ScheduleTimeSlot.Morning -> factors.copy(morningTimeMinutes = selectedMinutes)
+                ScheduleTimeSlot.Breakfast -> factors.copy(breakfastTimeMinutes = selectedMinutes)
+                ScheduleTimeSlot.Lunch -> factors.copy(lunchTimeMinutes = selectedMinutes)
+                ScheduleTimeSlot.Afternoon -> factors.copy(afternoonTimeMinutes = selectedMinutes)
+                ScheduleTimeSlot.Dinner -> factors.copy(dinnerTimeMinutes = selectedMinutes)
+                ScheduleTimeSlot.Late -> factors.copy(lateTimeMinutes = selectedMinutes)
+                ScheduleTimeSlot.Night -> factors.copy(nightTimeMinutes = selectedMinutes)
+                ScheduleTimeSlot.Basal -> factors.copy(basalTimeMinutes = selectedMinutes)
+            }
+        )
+    }
+
+    val pieDataPoints = remember(
+        currentLanguage,
+        morningTimeMinutes,
+        breakfastTimeMinutes,
+        lunchTimeMinutes,
+        afternoonTimeMinutes,
+        dinnerTimeMinutes,
+        lateTimeMinutes,
+        nightTimeMinutes
+    ) {
+        listOf(
+            PieData(
+                max(1, morningTimeMinutes),
+                color = Color(0xFF9400D3),
+                title = translate(TranslationKey.FactorMorning, currentLanguage),
+                value = formatTimeLabel(morningTimeMinutes)
+            ),
+            PieData(
+                max(1, breakfastTimeMinutes),
+                color = Color(0xFF42A1D5),
+                title = translate(TranslationKey.FactorBreakfast, currentLanguage),
+                value = formatTimeLabel(breakfastTimeMinutes)
+            ),
+            PieData(
+                max(1, lunchTimeMinutes),
+                color = Color(0xFF8D9311),
+                title = translate(TranslationKey.FactorLunch, currentLanguage),
+                value = formatTimeLabel(lunchTimeMinutes)
+            ),
+            PieData(
+                max(1, afternoonTimeMinutes),
+                color = Color(0xFF009688),
+                title = translate(TranslationKey.FactorAfternoon, currentLanguage),
+                value = formatTimeLabel(afternoonTimeMinutes)
+            ),
+            PieData(
+                max(1, dinnerTimeMinutes),
+                color = Color(0xFFFF7F00),
+                title = translate(TranslationKey.FactorDinner, currentLanguage),
+                value = formatTimeLabel(dinnerTimeMinutes)
+            ),
+            PieData(
+                max(1, lateTimeMinutes),
+                color = Color(0xFFE91E63),
+                title = translate(TranslationKey.FactorLate, currentLanguage),
+                value = formatTimeLabel(lateTimeMinutes)
+            ),
+            PieData(
+                max(1, nightTimeMinutes),
+                color = Color(0xFF3949AB),
+                title = translate(TranslationKey.FactorNight, currentLanguage),
+                value = formatTimeLabel(nightTimeMinutes)
+            )
+        )
+    }
+
     Column(
-        modifier = modifier,
+        modifier = modifier.verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Box(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)) {
             AnimatedGapPieChart(
                 modifier = Modifier
                     .align(Alignment.Center)
                     .size(300.dp),
-                pieDataPoints = listOf(
-                    PieData(7, Color(0xFF9400D3), "1"),
-                    PieData( 10, color = Color(0xFF42A1D5), "2"),
-                    PieData( 12, color = Color(0xFF8D9311), "3"),
-                    PieData( 18, color = Color(0xFFFF7F00), "4"),
-                    PieData( 22, color = Color(0xFF47A4CF))
+                pieDataPoints = pieDataPoints
+            )
+        }
+
+        TimePickerField(
+            description = translate(TranslationKey.FactorMorning, currentLanguage),
+            timeLabel = formatTimeLabel(morningTimeMinutes),
+            onClick = { activePicker = ScheduleTimeSlot.Morning }
+        )
+
+        TimePickerField(
+            description = translate(TranslationKey.FactorBreakfast, currentLanguage),
+            timeLabel = formatTimeLabel(breakfastTimeMinutes),
+            onClick = { activePicker = ScheduleTimeSlot.Breakfast }
+        )
+
+        TimePickerField(
+            description = translate(TranslationKey.FactorLunch, currentLanguage),
+            timeLabel = formatTimeLabel(lunchTimeMinutes),
+            onClick = { activePicker = ScheduleTimeSlot.Lunch }
+        )
+
+        TimePickerField(
+            description = translate(TranslationKey.FactorAfternoon, currentLanguage),
+            timeLabel = formatTimeLabel(afternoonTimeMinutes),
+            onClick = { activePicker = ScheduleTimeSlot.Afternoon }
+        )
+
+        TimePickerField(
+            description = translate(TranslationKey.FactorDinner, currentLanguage),
+            timeLabel = formatTimeLabel(dinnerTimeMinutes),
+            onClick = { activePicker = ScheduleTimeSlot.Dinner }
+        )
+
+        TimePickerField(
+            description = translate(TranslationKey.FactorLate, currentLanguage),
+            timeLabel = formatTimeLabel(lateTimeMinutes),
+            onClick = { activePicker = ScheduleTimeSlot.Late }
+        )
+
+        TimePickerField(
+            description = translate(TranslationKey.FactorNight, currentLanguage),
+            timeLabel = formatTimeLabel(nightTimeMinutes),
+            onClick = { activePicker = ScheduleTimeSlot.Night }
+        )
+
+        TimePickerField(
+            description = translate(TranslationKey.BasalRate, currentLanguage),
+            timeLabel = formatTimeLabel(basalTimeMinutes),
+            onClick = { activePicker = ScheduleTimeSlot.Basal }
+        )
+    }
+
+    activePicker?.let { slot ->
+        val initialMinutes = when (slot) {
+            ScheduleTimeSlot.Morning -> morningTimeMinutes
+            ScheduleTimeSlot.Breakfast -> breakfastTimeMinutes
+            ScheduleTimeSlot.Lunch -> lunchTimeMinutes
+            ScheduleTimeSlot.Afternoon -> afternoonTimeMinutes
+            ScheduleTimeSlot.Dinner -> dinnerTimeMinutes
+            ScheduleTimeSlot.Late -> lateTimeMinutes
+            ScheduleTimeSlot.Night -> nightTimeMinutes
+            ScheduleTimeSlot.Basal -> basalTimeMinutes
+        }
+
+        val pickerState = rememberTimePickerState(
+            initialHour = (initialMinutes / 60) % 24,
+            initialMinute = initialMinutes % 60,
+            is24Hour = true
+        )
+
+        AlertDialog(
+            onDismissRequest = { activePicker = null },
+            title = {
+                Text(
+                    text = when (slot) {
+                        ScheduleTimeSlot.Morning -> translate(
+                            TranslationKey.FactorMorning,
+                            currentLanguage
+                        )
+
+                        ScheduleTimeSlot.Breakfast -> translate(
+                            TranslationKey.FactorBreakfast,
+                            currentLanguage
+                        )
+
+                        ScheduleTimeSlot.Lunch -> translate(
+                            TranslationKey.FactorLunch,
+                            currentLanguage
+                        )
+
+                        ScheduleTimeSlot.Afternoon -> translate(
+                            TranslationKey.FactorAfternoon,
+                            currentLanguage
+                        )
+
+                        ScheduleTimeSlot.Dinner -> translate(
+                            TranslationKey.FactorDinner,
+                            currentLanguage
+                        )
+
+                        ScheduleTimeSlot.Late -> translate(
+                            TranslationKey.FactorLate,
+                            currentLanguage
+                        )
+
+                        ScheduleTimeSlot.Night -> translate(
+                            TranslationKey.FactorNight,
+                            currentLanguage
+                        )
+
+                        ScheduleTimeSlot.Basal -> translate(
+                            TranslationKey.BasalRate,
+                            currentLanguage
+                        )
+                    }
                 )
+            },
+            text = { TimePicker(state = pickerState) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val selectedMinutes = (pickerState.hour * 60) + pickerState.minute
+                        updateTime(slot, selectedMinutes)
+                        activePicker = null
+                    }
+                ) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { activePicker = null }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+}
+
+@Composable
+private fun TimePickerField(
+    description: String,
+    timeLabel: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
+        Text(
+            text = description,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(bottom = 4.dp)
+        )
+        OutlinedButton(
+            onClick = onClick,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = timeLabel,
+                style = MaterialTheme.typography.bodyLarge
             )
         }
     }
+}
+
+private fun formatTimeLabel(totalMinutes: Int): String {
+    val hour = (totalMinutes / 60) % 24
+    val minute = totalMinutes % 60
+    return String.format(Locale.ROOT, "%02d:%02d", hour, minute)
 }

@@ -25,7 +25,15 @@ private fun FactorProfileEntity.toFactorsData(): FactorsData {
         dinnerFactor = dinnerFactor.toUiString(),
         lateFactor = lateFactor.toUiString(),
         nightFactor = nightFactor.toUiString(),
-        basalRate = basalRate?.toString().orEmpty()
+        basalRate = basalRate?.toString().orEmpty(),
+        morningTimeMinutes = morningTimeMinutes ?: (5 * 60),
+        breakfastTimeMinutes = breakfastTimeMinutes ?: (9 * 60),
+        lunchTimeMinutes = lunchTimeMinutes ?: (12 * 60),
+        afternoonTimeMinutes = afternoonTimeMinutes ?: (14 * 60),
+        dinnerTimeMinutes = dinnerTimeMinutes ?: (17 * 60),
+        lateTimeMinutes = lateTimeMinutes ?: (20 * 60),
+        nightTimeMinutes = nightTimeMinutes ?: (23 * 60),
+        basalTimeMinutes = basalTimeMinutes ?: (19 * 60)
     )
 }
 
@@ -39,7 +47,15 @@ private fun FactorsData.toEntity(): FactorProfileEntity {
         dinnerFactor = dinnerFactor.toDbDoubleOrNull(),
         lateFactor = lateFactor.toDbDoubleOrNull(),
         nightFactor = nightFactor.toDbDoubleOrNull(),
-        basalRate = basalRate.toIntOrNull()
+        basalRate = basalRate.toIntOrNull(),
+        morningTimeMinutes = morningTimeMinutes,
+        breakfastTimeMinutes = breakfastTimeMinutes,
+        lunchTimeMinutes = lunchTimeMinutes,
+        afternoonTimeMinutes = afternoonTimeMinutes,
+        dinnerTimeMinutes = dinnerTimeMinutes,
+        lateTimeMinutes = lateTimeMinutes,
+        nightTimeMinutes = nightTimeMinutes,
+        basalTimeMinutes = basalTimeMinutes
     )
 }
 
