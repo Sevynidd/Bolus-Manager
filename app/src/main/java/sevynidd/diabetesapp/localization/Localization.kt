@@ -51,7 +51,10 @@ enum class TranslationKey {
     BolusDurationMinutes,
     Carbohydrates,
     ActiveFactor,
-    CalculatedUnits
+    CalculatedUnits,
+    BolusImmediateUnits,
+    BolusExtendedUnits,
+    FutureFactor
 }
 
 fun translate(key: TranslationKey, language: AppLanguage): String {
@@ -99,6 +102,9 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.Carbohydrates -> "Carbohydrates"
             TranslationKey.ActiveFactor -> "Active factor"
             TranslationKey.CalculatedUnits -> "Calculated units"
+            TranslationKey.BolusImmediateUnits -> "Immediate units"
+            TranslationKey.BolusExtendedUnits -> "Extended units"
+            TranslationKey.FutureFactor -> "Future factor"
         }
 
         AppLanguage.German -> when (key) {
@@ -143,6 +149,9 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.Carbohydrates -> "Kohlenhydrate"
             TranslationKey.ActiveFactor -> "Aktiver Faktor"
             TranslationKey.CalculatedUnits -> "Berechnete Einheiten"
+            TranslationKey.BolusImmediateUnits -> "Sofort-Einheiten"
+            TranslationKey.BolusExtendedUnits -> "Verzögerte Einheiten"
+            TranslationKey.FutureFactor -> "Zukünftiger Faktor"
         }
 
         AppLanguage.French -> when (key) {
@@ -187,6 +196,9 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.Carbohydrates -> "Glucides"
             TranslationKey.ActiveFactor -> "Facteur actif"
             TranslationKey.CalculatedUnits -> "Unités calculées"
+            TranslationKey.BolusImmediateUnits -> "Unités immédiates"
+            TranslationKey.BolusExtendedUnits -> "Unités prolongées"
+            TranslationKey.FutureFactor -> "Facteur futur"
         }
 
         AppLanguage.Polish -> when (key) {
@@ -231,6 +243,9 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.Carbohydrates -> "Węglowodany"
             TranslationKey.ActiveFactor -> "Aktywny współczynnik"
             TranslationKey.CalculatedUnits -> "Obliczone jednostki"
+            TranslationKey.BolusImmediateUnits -> "Jednostki natychmiastowe"
+            TranslationKey.BolusExtendedUnits -> "Jednostki przedłużone"
+            TranslationKey.FutureFactor -> "Przyszły współczynnik"
         }
 
         AppLanguage.System -> error("SystemDefault must be resolved before translating")
