@@ -4,8 +4,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -35,10 +38,15 @@ fun BreadUnitsSettingsScreen(
     }
 
     Column(
-        modifier = modifier,
+        modifier = modifier.verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Card(modifier = Modifier.fillMaxWidth()) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+            )
+        ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
                     text = translate(TranslationKey.BreadUnits, currentLanguage),
@@ -49,7 +57,7 @@ fun BreadUnitsSettingsScreen(
                 OutlinedTextField(
                     value = draftValue,
                     onValueChange = { newValue ->
-                        if (newValue.isEmpty() || newValue.matches(Regex("^\\d*[.,]?\\d*$"))) {
+                        if (newValue.isEmpty() || newValue.matches(BreadUnitsInputRegex)) {
                             draftValue = newValue
                             newValue.replace(',', '.').toDoubleOrNull()?.takeIf { it > 0.0 }?.let(onBreadUnitsChange)
                         }
@@ -70,4 +78,6 @@ private fun Double.toBreadUnitsText(): String {
         .trimEnd('0')
         .trimEnd(',')
 }
+
+private val BreadUnitsInputRegex = Regex("^\\d*[.,]?\\d*$")
 

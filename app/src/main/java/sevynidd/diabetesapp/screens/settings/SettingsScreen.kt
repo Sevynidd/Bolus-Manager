@@ -11,6 +11,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -34,6 +35,11 @@ fun SettingsScreen(
         modifier = modifier.verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        Text(
+            text = translate(TranslationKey.DestinationSettings, currentLanguage),
+            style = MaterialTheme.typography.titleMedium
+        )
+
         SettingsCardItem(
             title = translate(TranslationKey.Appearance, currentLanguage),
             onClick = onNavigateToTheme
@@ -60,7 +66,10 @@ private fun SettingsCardItem(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .clickable(onClick = onClick),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        )
     ) {
         Row(
             modifier = Modifier
@@ -71,7 +80,7 @@ private fun SettingsCardItem(
         ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleSmall
             )
             Icon(
                 imageVector = Icons.Filled.ChevronRight,

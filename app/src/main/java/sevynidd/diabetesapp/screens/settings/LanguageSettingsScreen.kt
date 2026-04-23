@@ -6,7 +6,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
@@ -15,8 +18,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import sevynidd.diabetesapp.localization.AppLanguage
-import sevynidd.diabetesapp.localization.translate
 import sevynidd.diabetesapp.localization.TranslationKey
+import sevynidd.diabetesapp.localization.translate
 
 @Composable
 fun LanguageSettingsScreen(
@@ -26,11 +29,15 @@ fun LanguageSettingsScreen(
     onBackClick: () -> Unit = {}
 ) {
     Column(
-        modifier = modifier,
+        modifier = modifier.verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Language Section
-        Card(modifier = Modifier.fillMaxWidth()) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+            )
+        ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
                     text = translate(TranslationKey.Language, currentLanguage),
@@ -38,7 +45,7 @@ fun LanguageSettingsScreen(
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
 
-                AppLanguage.entries.forEach { language ->
+                AppLanguage.entries.forEachIndexed { index, language ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -52,6 +59,7 @@ fun LanguageSettingsScreen(
                         )
                         Text(
                             text = appLanguageLabel(language, currentLanguage),
+                            style = MaterialTheme.typography.bodyLarge,
                             modifier = Modifier.padding(start = 8.dp)
                         )
                     }
