@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -20,8 +21,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import sevynidd.diabetesapp.data.model.FactorsData
 import sevynidd.diabetesapp.localization.AppLanguage
@@ -29,6 +36,12 @@ import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
 import java.util.Locale
 import kotlin.math.ceil
+
+private data class FactorItem(
+    val value: String,
+    val onChange: (String) -> Unit,
+    val description: String
+)
 
 @Composable
 fun FactorScreen(
@@ -79,7 +92,7 @@ fun FactorScreen(
     val nightRange = buildTimeRange(factors.nightTimeMinutes, factors.morningTimeMinutes)
 
     val factorItems = listOf(
-        Triple(
+        FactorItem(
             morningFactor,
             { value: String ->
                 morningFactor = value
@@ -87,7 +100,7 @@ fun FactorScreen(
             },
             "${translate(TranslationKey.FactorMorning, currentLanguage)} ($morningRange)"
         ),
-        Triple(
+        FactorItem(
             breakfastFactor,
             { value: String ->
                 breakfastFactor = value
@@ -95,7 +108,7 @@ fun FactorScreen(
             },
             "${translate(TranslationKey.FactorBreakfast, currentLanguage)} ($breakfastRange)"
         ),
-        Triple(
+        FactorItem(
             lunchFactor,
             { value: String ->
                 lunchFactor = value
@@ -103,7 +116,7 @@ fun FactorScreen(
             },
             "${translate(TranslationKey.FactorLunch, currentLanguage)} ($lunchRange)"
         ),
-        Triple(
+        FactorItem(
             afternoonFactor,
             { value: String ->
                 afternoonFactor = value
@@ -111,7 +124,7 @@ fun FactorScreen(
             },
             "${translate(TranslationKey.FactorAfternoon, currentLanguage)} ($afternoonRange)"
         ),
-        Triple(
+        FactorItem(
             dinnerFactor,
             { value: String ->
                 dinnerFactor = value
@@ -119,7 +132,7 @@ fun FactorScreen(
             },
             "${translate(TranslationKey.FactorDinner, currentLanguage)} ($dinnerRange)"
         ),
-        Triple(
+        FactorItem(
             lateFactor,
             { value: String ->
                 lateFactor = value
@@ -127,7 +140,7 @@ fun FactorScreen(
             },
             "${translate(TranslationKey.FactorLate, currentLanguage)} ($lateRange)"
         ),
-        Triple(
+        FactorItem(
             nightFactor,
             { value: String ->
                 nightFactor = value
@@ -156,11 +169,11 @@ fun FactorScreen(
                 modifier = Modifier.padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                factorItems.forEachIndexed { _, (value, onChange, description) ->
+                factorItems.forEach { item ->
                     DoubleInputField(
-                        value = value,
-                        onValueChange = onChange,
-                        description = description,
+                        value = item.value,
+                        onValueChange = item.onChange,
+                        description = item.description,
                         label = translate(TranslationKey.LabelFactor, currentLanguage),
                         enabled = isEditMode
                     )
@@ -222,12 +235,14 @@ private val IntegerInputRegex = Regex("^\\d+$")
 @Composable
 private fun NormalizeOnDisable(
     enabled: Boolean,
+    focusManager: FocusManager,
     onDisabled: () -> Unit
 ) {
     var wasEnabled by remember { mutableStateOf(enabled) }
 
     LaunchedEffect(enabled) {
         if (wasEnabled && !enabled) {
+            focusManager.clearFocus(force = true)
             onDisabled()
         }
         wasEnabled = enabled
@@ -243,8 +258,17 @@ private fun DoubleInputField(
     enabled: Boolean,
     modifier: Modifier = Modifier
 ) {
-    var draftValue by rememberSaveable(value) { mutableStateOf(value) }
+    var draftValue by rememberSaveable(value, stateSaver = TextFieldValue.Saver) {
+        mutableStateOf(TextFieldValue(text = value, selection = TextRange(value.length)))
+    }
     var wasFocused by remember { mutableStateOf(false) }
+    val focusManager = LocalFocusManager.current
+
+    fun applyNormalization() {
+        val normalized = normalizeQuarterStepValue(draftValue.text)
+        draftValue = TextFieldValue(text = normalized, selection = TextRange(normalized.length))
+        onValueChange(normalized)
+    }
 
     Column(modifier = modifier) {
         Text(
@@ -256,34 +280,39 @@ private fun DoubleInputField(
         OutlinedTextField(
             value = draftValue,
             onValueChange = { newValue ->
-                val sanitizedValue = newValue.replace('.', ',')
+                val sanitizedValue = newValue.text.replace('.', ',')
 
                 // Allow free editing, normalize only when leaving the field.
                 if (sanitizedValue.isEmpty() || sanitizedValue.matches(DecimalInputRegex)) {
-                    draftValue = sanitizedValue
+                    draftValue = newValue.copy(text = sanitizedValue)
                 }
             },
             label = { Text(label) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Decimal,
+                imeAction = ImeAction.Next
+            ),
+            keyboardActions = KeyboardActions(
+                onNext = { focusManager.moveFocus(FocusDirection.Down) }
+            ),
             singleLine = true,
             enabled = enabled,
             modifier = Modifier
                 .fillMaxWidth()
                 .onFocusChanged { focusState ->
-                    if (wasFocused && !focusState.isFocused) {
-                        val normalized = normalizeQuarterStepValue(draftValue)
-                        draftValue = normalized
-                        onValueChange(normalized)
+                    if (!wasFocused && focusState.isFocused) {
+                        draftValue = draftValue.copy(selection = TextRange(draftValue.text.length))
+                    }
+                    if (enabled && wasFocused && !focusState.isFocused) {
+                        applyNormalization()
                     }
                     wasFocused = focusState.isFocused
                 }
         )
     }
 
-    NormalizeOnDisable(enabled = enabled) {
-            val normalized = normalizeQuarterStepValue(draftValue)
-            draftValue = normalized
-            onValueChange(normalized)
+    NormalizeOnDisable(enabled = enabled, focusManager = focusManager) {
+        applyNormalization()
     }
 }
 
@@ -296,8 +325,17 @@ private fun BasalRateInputField(
     enabled: Boolean,
     modifier: Modifier = Modifier
 ) {
-    var draftValue by rememberSaveable(value) { mutableStateOf(value) }
+    var draftValue by rememberSaveable(value, stateSaver = TextFieldValue.Saver) {
+        mutableStateOf(TextFieldValue(text = value, selection = TextRange(value.length)))
+    }
     var wasFocused by remember { mutableStateOf(false) }
+    val focusManager = LocalFocusManager.current
+
+    fun applyNormalization() {
+        val normalized = normalizeBasalRateValue(draftValue.text)
+        draftValue = TextFieldValue(text = normalized, selection = TextRange(normalized.length))
+        onValueChange(normalized)
+    }
 
     Column(modifier = modifier) {
         Text(
@@ -310,31 +348,36 @@ private fun BasalRateInputField(
             value = draftValue,
             onValueChange = { newValue ->
                 // Allow free editing, normalize only when leaving the field.
-                if (newValue.isEmpty() || newValue.matches(IntegerInputRegex)) {
+                if (newValue.text.isEmpty() || newValue.text.matches(IntegerInputRegex)) {
                     draftValue = newValue
                 }
             },
             label = { Text(label) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = { focusManager.clearFocus(force = true) }
+            ),
             singleLine = true,
             enabled = enabled,
             modifier = Modifier
                 .fillMaxWidth()
                 .onFocusChanged { focusState ->
-                    if (wasFocused && !focusState.isFocused) {
-                        val normalized = normalizeBasalRateValue(draftValue)
-                        draftValue = normalized
-                        onValueChange(normalized)
+                    if (!wasFocused && focusState.isFocused) {
+                        draftValue = draftValue.copy(selection = TextRange(draftValue.text.length))
+                    }
+                    if (enabled && wasFocused && !focusState.isFocused) {
+                        applyNormalization()
                     }
                     wasFocused = focusState.isFocused
                 }
         )
     }
 
-    NormalizeOnDisable(enabled = enabled) {
-            val normalized = normalizeBasalRateValue(draftValue)
-            draftValue = normalized
-            onValueChange(normalized)
+    NormalizeOnDisable(enabled = enabled, focusManager = focusManager) {
+        applyNormalization()
     }
 }
 
