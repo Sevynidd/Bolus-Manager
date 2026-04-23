@@ -9,7 +9,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -26,8 +25,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import sevynidd.diabetesapp.data.model.FactorsData
 import sevynidd.diabetesapp.localization.AppLanguage
-import sevynidd.diabetesapp.localization.translate
 import sevynidd.diabetesapp.localization.TranslationKey
+import sevynidd.diabetesapp.localization.translate
 import java.util.Locale
 import kotlin.math.ceil
 
@@ -157,7 +156,7 @@ fun FactorScreen(
                 modifier = Modifier.padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                factorItems.forEachIndexed { index, (value, onChange, description) ->
+                factorItems.forEachIndexed { _, (value, onChange, description) ->
                     DoubleInputField(
                         value = value,
                         onValueChange = onChange,
@@ -165,10 +164,6 @@ fun FactorScreen(
                         label = translate(TranslationKey.LabelFactor, currentLanguage),
                         enabled = isEditMode
                     )
-
-                    if (index != factorItems.lastIndex) {
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                    }
                 }
             }
         }
@@ -194,7 +189,12 @@ fun FactorScreen(
                         basalRate = it
                         emitFactorsChanged()
                     },
-                    description = "${translate(TranslationKey.BasalRate, currentLanguage)} (${formatTimeOfDay(factors.basalTimeMinutes)})",
+                    description = "${
+                        translate(
+                            TranslationKey.BasalRate,
+                            currentLanguage
+                        )
+                    } (${formatTimeOfDay(factors.basalTimeMinutes)})",
                     label = translate(TranslationKey.BasalRate, currentLanguage),
                     enabled = isEditMode
                 )
@@ -216,6 +216,23 @@ private fun formatTimeOfDay(totalMinutes: Int): String {
 }
 
 private const val MINUTES_PER_DAY = 24 * 60
+private val DecimalInputRegex = Regex("^\\d*,?\\d*$")
+private val IntegerInputRegex = Regex("^\\d+$")
+
+@Composable
+private fun NormalizeOnDisable(
+    enabled: Boolean,
+    onDisabled: () -> Unit
+) {
+    var wasEnabled by remember { mutableStateOf(enabled) }
+
+    LaunchedEffect(enabled) {
+        if (wasEnabled && !enabled) {
+            onDisabled()
+        }
+        wasEnabled = enabled
+    }
+}
 
 @Composable
 private fun DoubleInputField(
@@ -228,7 +245,6 @@ private fun DoubleInputField(
 ) {
     var draftValue by rememberSaveable(value) { mutableStateOf(value) }
     var wasFocused by remember { mutableStateOf(false) }
-    var wasEnabled by remember { mutableStateOf(enabled) }
 
     Column(modifier = modifier) {
         Text(
@@ -243,7 +259,7 @@ private fun DoubleInputField(
                 val sanitizedValue = newValue.replace('.', ',')
 
                 // Allow free editing, normalize only when leaving the field.
-                if (sanitizedValue.isEmpty() || sanitizedValue.matches(Regex("^\\d*,?\\d*$"))) {
+                if (sanitizedValue.isEmpty() || sanitizedValue.matches(DecimalInputRegex)) {
                     draftValue = sanitizedValue
                 }
             },
@@ -264,13 +280,10 @@ private fun DoubleInputField(
         )
     }
 
-    LaunchedEffect(enabled) {
-        if (wasEnabled && !enabled) {
+    NormalizeOnDisable(enabled = enabled) {
             val normalized = normalizeQuarterStepValue(draftValue)
             draftValue = normalized
             onValueChange(normalized)
-        }
-        wasEnabled = enabled
     }
 }
 
@@ -285,7 +298,6 @@ private fun BasalRateInputField(
 ) {
     var draftValue by rememberSaveable(value) { mutableStateOf(value) }
     var wasFocused by remember { mutableStateOf(false) }
-    var wasEnabled by remember { mutableStateOf(enabled) }
 
     Column(modifier = modifier) {
         Text(
@@ -298,7 +310,7 @@ private fun BasalRateInputField(
             value = draftValue,
             onValueChange = { newValue ->
                 // Allow free editing, normalize only when leaving the field.
-                if (newValue.isEmpty() || newValue.matches(Regex("^\\d+$"))) {
+                if (newValue.isEmpty() || newValue.matches(IntegerInputRegex)) {
                     draftValue = newValue
                 }
             },
@@ -319,13 +331,10 @@ private fun BasalRateInputField(
         )
     }
 
-    LaunchedEffect(enabled) {
-        if (wasEnabled && !enabled) {
+    NormalizeOnDisable(enabled = enabled) {
             val normalized = normalizeBasalRateValue(draftValue)
             draftValue = normalized
             onValueChange(normalized)
-        }
-        wasEnabled = enabled
     }
 }
 
