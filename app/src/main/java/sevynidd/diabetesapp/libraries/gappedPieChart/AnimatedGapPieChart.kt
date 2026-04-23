@@ -29,7 +29,7 @@ import kotlin.math.min
 import kotlin.math.sin
 
 private val LabelArcPadding = 32.dp
-private val ChartTopPadding = 16.dp
+private val ChartTopPadding = 8.dp
 
 data class ArcData(
     val animation: Animatable<Float, AnimationVector1D>,

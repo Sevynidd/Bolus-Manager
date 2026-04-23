@@ -13,6 +13,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.coroutines.launch
 import sevynidd.diabetesapp.data.AppSettings
 import sevynidd.diabetesapp.data.AppSettingsStore
+import sevynidd.diabetesapp.data.database.BolusTemplatesRepository
 import sevynidd.diabetesapp.data.database.DiabetesDatabase
 import sevynidd.diabetesapp.data.database.FactorsData
 import sevynidd.diabetesapp.data.database.FactorsRepository
@@ -30,10 +31,14 @@ class MainActivity : ComponentActivity() {
         val factorsRepository = FactorsRepository(
             DiabetesDatabase.getInstance(applicationContext).factorProfileDao()
         )
+        val templatesRepository = BolusTemplatesRepository(
+            DiabetesDatabase.getInstance(applicationContext).bolusTemplateDao()
+        )
 
         setContent {
             val settings by appSettingsStore.settingsFlow.collectAsState(initial = AppSettings())
             val factors by factorsRepository.factorsFlow.collectAsState(initial = FactorsData())
+            val templates by templatesRepository.templatesFlow.collectAsState(initial = emptyList())
             val coroutineScope = rememberCoroutineScope()
 
             val darkTheme = when (settings.themeMode) {
@@ -67,6 +72,23 @@ class MainActivity : ComponentActivity() {
                     factorData = factors,
                     onFactorSaveRequested = { updatedFactors ->
                         coroutineScope.launch { factorsRepository.saveFactors(updatedFactors) }
+                    },
+                    templates = templates,
+                    onTemplateAddRequested = { name, emoji, carbohydrates ->
+                        templatesRepository.addTemplate(name, emoji, carbohydrates)
+                    },
+                    onTemplateUpdateRequested = { template ->
+                        templatesRepository.updateTemplate(template)
+                    },
+                    onTemplateDeleteRequested = { template ->
+                        coroutineScope.launch {
+                            templatesRepository.deleteTemplate(template)
+                        }
+                    },
+                    onTemplateMarkUsedRequested = { templateId ->
+                        coroutineScope.launch {
+                            templatesRepository.markTemplateUsed(templateId)
+                        }
                     }
                 )
             }

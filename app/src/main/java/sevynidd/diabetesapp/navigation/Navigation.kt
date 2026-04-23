@@ -43,6 +43,11 @@ enum class FactorsDestination {
     EditSchedule
 }
 
+enum class CalculateDestination {
+    Main,
+    Templates
+}
+
 fun settingsDestinationTransition(
     initialState: SettingsDestination,
     targetState: SettingsDestination
@@ -68,5 +73,19 @@ fun factorsDestinationTransition(
     } else {
         (slideInHorizontally { fullWidth -> -fullWidth / 4 } + fadeIn()) togetherWith
                 (slideOutHorizontally { fullWidth -> fullWidth } + fadeOut())
+    }
+}
+
+fun calculateDestinationTransition(
+    initialState: CalculateDestination,
+    targetState: CalculateDestination
+): ContentTransform {
+    val isForward = initialState == CalculateDestination.Main && targetState != CalculateDestination.Main
+    return if (isForward) {
+        (slideInHorizontally { fullWidth -> fullWidth } + fadeIn()) togetherWith
+            (slideOutHorizontally { fullWidth -> -fullWidth / 4 } + fadeOut())
+    } else {
+        (slideInHorizontally { fullWidth -> -fullWidth / 4 } + fadeIn()) togetherWith
+            (slideOutHorizontally { fullWidth -> fullWidth } + fadeOut())
     }
 }

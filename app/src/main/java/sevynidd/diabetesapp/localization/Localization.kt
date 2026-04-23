@@ -31,6 +31,10 @@ enum class TranslationKey {
     DestinationSettings,
     ActionEdit,
     ActionSave,
+    ActionCancel,
+    ActionClose,
+    ActionTemplates,
+    ActionDelete,
     FactorMorning,
     FactorBreakfast,
     FactorLunch,
@@ -55,7 +59,19 @@ enum class TranslationKey {
     BolusImmediateUnits,
     BolusExtendedUnits,
     FutureFactor,
-    BreadUnits
+    BreadUnits,
+    TemplatesTitle,
+    TemplateAdd,
+    TemplateEdit,
+    TemplateDelete,
+    TemplateName,
+    TemplateEmojiOptional,
+    TemplateEmoji,
+    TemplateEmpty,
+    TemplateSortRecent,
+    TemplateSortAlphabetical,
+    TemplateApplyToBothModes,
+    TemplateDuplicateNameError
 }
 
 fun translate(key: TranslationKey, language: AppLanguage): String {
@@ -82,6 +98,10 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.DestinationSettings -> "Settings"
             TranslationKey.ActionEdit -> "Edit"
             TranslationKey.ActionSave -> "Save"
+            TranslationKey.ActionCancel -> "Cancel"
+            TranslationKey.ActionClose -> "Close"
+            TranslationKey.ActionTemplates -> "Templates"
+            TranslationKey.ActionDelete -> "Delete"
             TranslationKey.FactorMorning -> "Morning"
             TranslationKey.FactorBreakfast -> "Breakfast"
             TranslationKey.FactorLunch -> "Lunch"
@@ -107,6 +127,18 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.BolusExtendedUnits -> "Extended units"
             TranslationKey.FutureFactor -> "Future factor"
             TranslationKey.BreadUnits -> "Bread units"
+            TranslationKey.TemplatesTitle -> "Templates"
+            TranslationKey.TemplateAdd -> "Add template"
+            TranslationKey.TemplateEdit -> "Edit template"
+            TranslationKey.TemplateDelete -> "Delete template"
+            TranslationKey.TemplateName -> "Name"
+            TranslationKey.TemplateEmojiOptional -> "Emoji (optional)"
+            TranslationKey.TemplateEmpty -> "No templates yet"
+            TranslationKey.TemplateEmoji -> "Emoji"
+            TranslationKey.TemplateSortRecent -> "Recently used"
+            TranslationKey.TemplateSortAlphabetical -> "Alphabetical"
+            TranslationKey.TemplateApplyToBothModes -> "Apply to both modes"
+            TranslationKey.TemplateDuplicateNameError -> "A template with this name already exists"
         }
 
         AppLanguage.German -> when (key) {
@@ -130,6 +162,10 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.DestinationSettings -> "Einstellungen"
             TranslationKey.ActionEdit -> "Bearbeiten"
             TranslationKey.ActionSave -> "Speichern"
+            TranslationKey.ActionCancel -> "Abbrechen"
+            TranslationKey.ActionClose -> "Schließen"
+            TranslationKey.ActionTemplates -> "Vorlagen"
+            TranslationKey.ActionDelete -> "Löschen"
             TranslationKey.FactorMorning -> "Morgen"
             TranslationKey.FactorBreakfast -> "Frühstück"
             TranslationKey.FactorLunch -> "Mittagessen"
@@ -143,7 +179,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ScheduleAutoOrderHint -> "Zeiten werden automatisch angepasst, damit die Tagesreihenfolge erhalten bleibt."
             TranslationKey.BolusType -> "Bolus-Typ"
             TranslationKey.BolusNormal -> "Normal"
-            TranslationKey.BolusSplit -> "Dualbolus"
+            TranslationKey.BolusSplit -> "Gesplitteter Bolus"
             TranslationKey.BolusUnits -> "Bolus-Einheiten"
             TranslationKey.BolusImmediatePercent -> "Sofortanteil (%)"
             TranslationKey.BolusExtendedPercent -> "Verzögerter Anteil (%)"
@@ -155,6 +191,18 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.BolusExtendedUnits -> "Verzögerte Einheiten"
             TranslationKey.FutureFactor -> "Zukünftiger Faktor"
             TranslationKey.BreadUnits -> "Broteinheiten"
+            TranslationKey.TemplatesTitle -> "Vorlagen"
+            TranslationKey.TemplateAdd -> "Vorlage hinzufügen"
+            TranslationKey.TemplateEdit -> "Vorlage bearbeiten"
+            TranslationKey.TemplateDelete -> "Vorlage löschen"
+            TranslationKey.TemplateName -> "Name"
+            TranslationKey.TemplateEmojiOptional -> "Emoji (optional)"
+            TranslationKey.TemplateEmpty -> "Noch keine Vorlagen"
+            TranslationKey.TemplateEmoji -> "Emoji"
+            TranslationKey.TemplateSortRecent -> "Zuletzt verwendet"
+            TranslationKey.TemplateSortAlphabetical -> "Alphabetisch"
+            TranslationKey.TemplateApplyToBothModes -> "Auf beide Modi anwenden"
+            TranslationKey.TemplateDuplicateNameError -> "Eine Vorlage mit diesem Namen existiert bereits"
         }
 
         AppLanguage.French -> when (key) {
@@ -178,6 +226,10 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.DestinationSettings -> "Paramètres"
             TranslationKey.ActionEdit -> "Modifier"
             TranslationKey.ActionSave -> "Enregistrer"
+            TranslationKey.ActionCancel -> "Annuler"
+            TranslationKey.ActionClose -> "Fermer"
+            TranslationKey.ActionTemplates -> "Modeles"
+            TranslationKey.ActionDelete -> "Supprimer"
             TranslationKey.FactorMorning -> "Matin"
             TranslationKey.FactorBreakfast -> "Petit-déjeuner"
             TranslationKey.FactorLunch -> "Dejeuner"
@@ -203,6 +255,18 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.BolusExtendedUnits -> "Unités prolongées"
             TranslationKey.FutureFactor -> "Facteur futur"
             TranslationKey.BreadUnits -> "Unités de pain"
+            TranslationKey.TemplatesTitle -> "Modeles"
+            TranslationKey.TemplateAdd -> "Ajouter un modele"
+            TranslationKey.TemplateEdit -> "Modifier le modele"
+            TranslationKey.TemplateDelete -> "Supprimer le modele"
+            TranslationKey.TemplateName -> "Nom"
+            TranslationKey.TemplateEmojiOptional -> "Emoji (optionnel)"
+            TranslationKey.TemplateEmpty -> "Aucun modele"
+            TranslationKey.TemplateEmoji -> "Emoji"
+            TranslationKey.TemplateSortRecent -> "Recemment utilises"
+            TranslationKey.TemplateSortAlphabetical -> "Alphabetique"
+            TranslationKey.TemplateApplyToBothModes -> "Appliquer aux deux modes"
+            TranslationKey.TemplateDuplicateNameError -> "Un modele avec ce nom existe deja"
         }
 
         AppLanguage.Polish -> when (key) {
@@ -226,6 +290,10 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.DestinationSettings -> "Ustawienia"
             TranslationKey.ActionEdit -> "Edytuj"
             TranslationKey.ActionSave -> "Zapisz"
+            TranslationKey.ActionCancel -> "Anuluj"
+            TranslationKey.ActionClose -> "Zamknij"
+            TranslationKey.ActionTemplates -> "Szablony"
+            TranslationKey.ActionDelete -> "Usuń"
             TranslationKey.FactorMorning -> "Rano"
             TranslationKey.FactorBreakfast -> "Śniadanie"
             TranslationKey.FactorLunch -> "Obiad"
@@ -251,6 +319,18 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.BolusExtendedUnits -> "Jednostki przedłużone"
             TranslationKey.FutureFactor -> "Przyszły współczynnik"
             TranslationKey.BreadUnits -> "Wymienniki chlebowe"
+            TranslationKey.TemplatesTitle -> "Szablony"
+            TranslationKey.TemplateAdd -> "Dodaj szablon"
+            TranslationKey.TemplateEdit -> "Edytuj szablon"
+            TranslationKey.TemplateDelete -> "Usuń szablon"
+            TranslationKey.TemplateName -> "Nazwa"
+            TranslationKey.TemplateEmojiOptional -> "Emoji (opcjonalnie)"
+            TranslationKey.TemplateEmpty -> "Brak szablonów"
+            TranslationKey.TemplateEmoji -> "Emoji"
+            TranslationKey.TemplateSortRecent -> "Ostatnio używane"
+            TranslationKey.TemplateSortAlphabetical -> "Alfabetycznie"
+            TranslationKey.TemplateApplyToBothModes -> "Zastosuj do obu trybów"
+            TranslationKey.TemplateDuplicateNameError -> "Szablon o tej nazwie już istnieje"
         }
 
         AppLanguage.System -> error("SystemDefault must be resolved before translating")

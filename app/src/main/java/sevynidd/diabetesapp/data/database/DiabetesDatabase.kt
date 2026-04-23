@@ -8,12 +8,13 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
-    entities = [FactorProfileEntity::class],
-    version = 2,
+    entities = [FactorProfileEntity::class, BolusTemplateEntity::class],
+    version = 4,
     exportSchema = false
 )
 abstract class DiabetesDatabase : RoomDatabase() {
     abstract fun factorProfileDao(): FactorProfileDao
+    abstract fun bolusTemplateDao(): BolusTemplateDao
 
     companion object {
         @Volatile
@@ -26,7 +27,7 @@ abstract class DiabetesDatabase : RoomDatabase() {
                     DiabetesDatabase::class.java,
                     "diabetes_app.db"
                 )
-                    .addMigrations(MIGRATION_1_2)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                     .build().also { created ->
                     instance = created
                 }
@@ -52,6 +53,31 @@ abstract class DiabetesDatabase : RoomDatabase() {
                 db.execSQL("UPDATE factor_profile SET lateTimeMinutes = 1200 WHERE lateTimeMinutes IS NULL")
                 db.execSQL("UPDATE factor_profile SET nightTimeMinutes = 1380 WHERE nightTimeMinutes IS NULL")
                 db.execSQL("UPDATE factor_profile SET basalTimeMinutes = 1140 WHERE basalTimeMinutes IS NULL")
+            }
+        }
+
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS bolus_template (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        name TEXT NOT NULL,
+                        emoji TEXT,
+                        carbohydrates REAL NOT NULL
+                    )
+                    """.trimIndent()
+                )
+            }
+        }
+
+        private val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE bolus_template ADD COLUMN nameNormalized TEXT NOT NULL DEFAULT ''")
+                db.execSQL("ALTER TABLE bolus_template ADD COLUMN lastUsedAtEpochMillis INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("UPDATE bolus_template SET nameNormalized = LOWER(TRIM(name)) WHERE nameNormalized = ''")
+                db.execSQL("DELETE FROM bolus_template WHERE id NOT IN (SELECT MAX(id) FROM bolus_template GROUP BY nameNormalized)")
+                db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_bolus_template_nameNormalized ON bolus_template(nameNormalized)")
             }
         }
     }

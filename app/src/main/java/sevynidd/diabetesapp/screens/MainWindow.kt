@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.ChangeCircle
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
@@ -36,15 +37,18 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import sevynidd.diabetesapp.data.database.BolusTemplateEntity
 import sevynidd.diabetesapp.data.database.FactorsData
 import sevynidd.diabetesapp.navigation.AppDestinations
 import sevynidd.diabetesapp.navigation.destinationLabel
 import sevynidd.diabetesapp.localization.translate
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.AppLanguage
+import sevynidd.diabetesapp.navigation.CalculateDestination
 import sevynidd.diabetesapp.navigation.FactorsDestination
 import sevynidd.diabetesapp.navigation.ThemeMode
 import sevynidd.diabetesapp.navigation.SettingsDestination
+import sevynidd.diabetesapp.navigation.calculateDestinationTransition
 import sevynidd.diabetesapp.navigation.factorsDestinationTransition
 import sevynidd.diabetesapp.navigation.settingsDestinationTransition
 import sevynidd.diabetesapp.screens.factors.FactorEditSessionViewModel
@@ -69,16 +73,26 @@ fun DiabetesAppMainWindow(
     onContrastLevelChange: (ContrastLevel) -> Unit = {},
     onLanguageChange: (AppLanguage) -> Unit = {},
     onBreadUnitsChange: (Double) -> Unit = {},
-    onFactorSaveRequested: (FactorsData) -> Unit = {}
+    onFactorSaveRequested: (FactorsData) -> Unit = {},
+    templates: List<BolusTemplateEntity> = emptyList(),
+    onTemplateAddRequested: suspend (name: String, emoji: String?, carbohydrates: Double) -> Boolean = { _, _, _ -> false },
+    onTemplateUpdateRequested: suspend (BolusTemplateEntity) -> Boolean = { false },
+    onTemplateDeleteRequested: (BolusTemplateEntity) -> Unit = {},
+    onTemplateMarkUsedRequested: (Long) -> Unit = {}
 ) {
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.FACTORS) }
     var settingsDestination by rememberSaveable { mutableStateOf(SettingsDestination.Main) }
     var factorsDestination by rememberSaveable { mutableStateOf(FactorsDestination.Main) }
+    var calculateDestination by rememberSaveable { mutableStateOf(CalculateDestination.Main) }
     val factorEditorViewModel: FactorEditSessionViewModel = viewModel()
     val factorEditorState = factorEditorViewModel.uiState
     val context = LocalContext.current
     val activity = remember(context) { context.findActivity() }
     val lifecycleOwner = LocalLifecycleOwner.current
+    var templatePrefillCarbohydrates by rememberSaveable { mutableStateOf<Double?>(null) }
+    var templateApplyToBothModesSelection by rememberSaveable { mutableStateOf(false) }
+    var templatePrefillApplyToBothModes by rememberSaveable { mutableStateOf(false) }
+    var templatePrefillToken by rememberSaveable { mutableStateOf(0) }
 
     fun leaveFactorsEditMode(shouldSave: Boolean) {
         factorEditorViewModel.leaveEditMode(shouldSave)
@@ -89,6 +103,10 @@ fun DiabetesAppMainWindow(
 
         if (currentDestination == AppDestinations.FACTORS) {
             leaveFactorsEditMode(shouldSave = true)
+        }
+
+        if (currentDestination == AppDestinations.CALCULATE) {
+            calculateDestination = CalculateDestination.Main
         }
 
         currentDestination = destination
@@ -168,6 +186,9 @@ fun DiabetesAppMainWindow(
                     AppDestinations.FACTORS if factorsDestination == FactorsDestination.EditSchedule ->
                         translate(TranslationKey.ActionSchedule, currentLanguage)
 
+                    AppDestinations.CALCULATE if calculateDestination == CalculateDestination.Templates ->
+                        translate(TranslationKey.TemplatesTitle, currentLanguage)
+
                     else -> destinationLabel(currentDestination, currentLanguage)
                 }
 
@@ -180,6 +201,10 @@ fun DiabetesAppMainWindow(
                             }
                         } else if (currentDestination == AppDestinations.FACTORS && factorsDestination == FactorsDestination.EditSchedule) {
                             IconButton(onClick = { factorsDestination = FactorsDestination.Main }) {
+                                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                            }
+                        } else if (currentDestination == AppDestinations.CALCULATE && calculateDestination == CalculateDestination.Templates) {
+                            IconButton(onClick = { calculateDestination = CalculateDestination.Main }) {
                                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                             }
                         }
@@ -219,6 +244,15 @@ fun DiabetesAppMainWindow(
                                 )
                             }
                         }
+
+                        if (currentDestination == AppDestinations.CALCULATE && calculateDestination == CalculateDestination.Main) {
+                            IconButton(onClick = { calculateDestination = CalculateDestination.Templates }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Bookmark,
+                                    contentDescription = translate(TranslationKey.ActionTemplates, currentLanguage)
+                                )
+                            }
+                        }
                     }
                 )
             }
@@ -255,12 +289,45 @@ fun DiabetesAppMainWindow(
                         }
                     }
                 }
-                AppDestinations.CALCULATE -> CalculateScreen(
-                    modifier = contentModifier,
-                    currentLanguage = currentLanguage,
-                    factors = factorEditorState.factors,
-                    breadUnits = breadUnits
-                )
+                AppDestinations.CALCULATE -> {
+                    AnimatedContent(
+                        targetState = calculateDestination,
+                        label = "calculate_navigation_animation",
+                        transitionSpec = {
+                            calculateDestinationTransition(initialState, targetState)
+                        }
+                    ) { destination ->
+                        when (destination) {
+                            CalculateDestination.Main -> CalculateScreen(
+                                modifier = contentModifier,
+                                currentLanguage = currentLanguage,
+                                factors = factorEditorState.factors,
+                                breadUnits = breadUnits,
+                                templatePrefillCarbohydrates = templatePrefillCarbohydrates,
+                                templatePrefillApplyToBothModes = templatePrefillApplyToBothModes,
+                                templatePrefillToken = templatePrefillToken
+                            )
+
+                            CalculateDestination.Templates -> TemplateManagerScreen(
+                                modifier = contentModifier,
+                                currentLanguage = currentLanguage,
+                                templates = templates,
+                                applyToBothModes = templateApplyToBothModesSelection,
+                                onApplyToBothModesChange = { templateApplyToBothModesSelection = it },
+                                onTemplateSelected = { selectedTemplate, applyToBothModes ->
+                                    templatePrefillCarbohydrates = selectedTemplate.carbohydrates
+                                    templatePrefillApplyToBothModes = applyToBothModes
+                                    templatePrefillToken += 1
+                                    onTemplateMarkUsedRequested(selectedTemplate.id)
+                                    calculateDestination = CalculateDestination.Main
+                                },
+                                onTemplateAddRequested = onTemplateAddRequested,
+                                onTemplateUpdateRequested = onTemplateUpdateRequested,
+                                onTemplateDeleteRequested = onTemplateDeleteRequested
+                            )
+                        }
+                    }
+                }
                 AppDestinations.SETTINGS -> {
                     AnimatedContent(
                         targetState = settingsDestination,
@@ -306,6 +373,8 @@ fun DiabetesAppMainWindow(
                     }
                 }
             }
+
+            // Template manager now lives as a dedicated calculate sub-screen.
         }
     }
 }

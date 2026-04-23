@@ -13,6 +13,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -38,13 +39,31 @@ fun CalculateScreen(
     modifier: Modifier = Modifier,
     currentLanguage: AppLanguage = AppLanguage.System,
     factors: FactorsData = FactorsData(),
-    breadUnits: Double = 12.0
+    breadUnits: Double = 12.0,
+    templatePrefillCarbohydrates: Double? = null,
+    templatePrefillApplyToBothModes: Boolean = false,
+    templatePrefillToken: Int = 0
 ) {
     var selectedMode by rememberSaveable { mutableStateOf(BolusMode.Normal) }
     var carbohydrates by rememberSaveable { mutableStateOf("") }
     var splitCarbohydrates by rememberSaveable { mutableStateOf("") }
     var splitImmediatePercent by rememberSaveable { mutableStateOf("") }
     var splitDurationMinutes by rememberSaveable { mutableStateOf("120") }
+
+    LaunchedEffect(templatePrefillToken) {
+        val value = templatePrefillCarbohydrates?.toUiDecimalOrEmpty().orEmpty()
+        if (value.isBlank()) return@LaunchedEffect
+
+        when (selectedMode) {
+            BolusMode.Normal -> carbohydrates = value
+            BolusMode.Split -> splitCarbohydrates = value
+        }
+
+        if (templatePrefillApplyToBothModes) {
+            carbohydrates = value
+            splitCarbohydrates = value
+        }
+    }
 
     val now = LocalTime.now()
     val nowMinutes = (now.hour * 60) + now.minute

@@ -137,8 +137,7 @@ fun ScheduleFactorScreen(
         ) {
             AnimatedGapPieChart(
                 modifier = Modifier
-                    .align(Alignment.Center)
-                    .size(300.dp),
+                    .align(Alignment.Center),
                 pieDataPoints = pieDataPoints
             )
         }
@@ -147,7 +146,7 @@ fun ScheduleFactorScreen(
             text = translate(TranslationKey.ScheduleAutoOrderHint, currentLanguage),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = 24.dp)
+            modifier = Modifier.padding(top = 16.dp)
         )
 
         TimePickerField(
