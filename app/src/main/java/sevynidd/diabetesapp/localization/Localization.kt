@@ -55,6 +55,7 @@ enum class TranslationKey {
     BolusDurationMinutes,
     Carbohydrates,
     ActiveFactor,
+    Calculated,
     CalculatedUnits,
     BolusImmediateUnits,
     BolusExtendedUnits,
@@ -122,6 +123,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.BolusDurationMinutes -> "Duration (minutes)"
             TranslationKey.Carbohydrates -> "Carbohydrates"
             TranslationKey.ActiveFactor -> "Active factor"
+            TranslationKey.Calculated -> "Calculated"
             TranslationKey.CalculatedUnits -> "Calculated units"
             TranslationKey.BolusImmediateUnits -> "Immediate units"
             TranslationKey.BolusExtendedUnits -> "Extended units"
@@ -186,6 +188,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.BolusDurationMinutes -> "Dauer (Minuten)"
             TranslationKey.Carbohydrates -> "Kohlenhydrate"
             TranslationKey.ActiveFactor -> "Aktiver Faktor"
+            TranslationKey.Calculated -> "Berechnet"
             TranslationKey.CalculatedUnits -> "Berechnete Einheiten"
             TranslationKey.BolusImmediateUnits -> "Sofort-Einheiten"
             TranslationKey.BolusExtendedUnits -> "Verzögerte Einheiten"
@@ -250,6 +253,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.BolusDurationMinutes -> "Durée (minutes)"
             TranslationKey.Carbohydrates -> "Glucides"
             TranslationKey.ActiveFactor -> "Facteur actif"
+            TranslationKey.Calculated -> "Calcule"
             TranslationKey.CalculatedUnits -> "Unités calculées"
             TranslationKey.BolusImmediateUnits -> "Unités immédiates"
             TranslationKey.BolusExtendedUnits -> "Unités prolongées"
@@ -314,6 +318,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.BolusDurationMinutes -> "Czas trwania (minuty)"
             TranslationKey.Carbohydrates -> "Węglowodany"
             TranslationKey.ActiveFactor -> "Aktywny współczynnik"
+            TranslationKey.Calculated -> "Obliczone"
             TranslationKey.CalculatedUnits -> "Obliczone jednostki"
             TranslationKey.BolusImmediateUnits -> "Jednostki natychmiastowe"
             TranslationKey.BolusExtendedUnits -> "Jednostki przedłużone"
