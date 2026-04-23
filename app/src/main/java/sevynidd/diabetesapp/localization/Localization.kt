@@ -68,6 +68,7 @@ enum class TranslationKey {
     TemplateName,
     TemplateEmojiOptional,
     TemplateEmoji,
+    TemplateSortTitle,
     TemplateEmpty,
     TemplateSortRecent,
     TemplateSortAlphabetical,
@@ -137,6 +138,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.TemplateEmojiOptional -> "Emoji (optional)"
             TranslationKey.TemplateEmpty -> "No templates yet"
             TranslationKey.TemplateEmoji -> "Emoji"
+            TranslationKey.TemplateSortTitle -> "Order by"
             TranslationKey.TemplateSortRecent -> "Recently used"
             TranslationKey.TemplateSortAlphabetical -> "Alphabetical"
             TranslationKey.TemplateApplyToBothModes -> "Apply to both modes"
@@ -202,6 +204,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.TemplateEmojiOptional -> "Emoji (optional)"
             TranslationKey.TemplateEmpty -> "Noch keine Vorlagen"
             TranslationKey.TemplateEmoji -> "Emoji"
+            TranslationKey.TemplateSortTitle -> "Sortierung"
             TranslationKey.TemplateSortRecent -> "Zuletzt verwendet"
             TranslationKey.TemplateSortAlphabetical -> "Alphabetisch"
             TranslationKey.TemplateApplyToBothModes -> "Auf beide Modi anwenden"
@@ -267,6 +270,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.TemplateEmojiOptional -> "Emoji (optionnel)"
             TranslationKey.TemplateEmpty -> "Aucun modele"
             TranslationKey.TemplateEmoji -> "Emoji"
+            TranslationKey.TemplateSortTitle -> "Trier par"
             TranslationKey.TemplateSortRecent -> "Recemment utilises"
             TranslationKey.TemplateSortAlphabetical -> "Alphabetique"
             TranslationKey.TemplateApplyToBothModes -> "Appliquer aux deux modes"
@@ -332,6 +336,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.TemplateEmojiOptional -> "Emoji (opcjonalnie)"
             TranslationKey.TemplateEmpty -> "Brak szablonów"
             TranslationKey.TemplateEmoji -> "Emoji"
+            TranslationKey.TemplateSortTitle -> "Sortowanie"
             TranslationKey.TemplateSortRecent -> "Ostatnio używane"
             TranslationKey.TemplateSortAlphabetical -> "Alfabetycznie"
             TranslationKey.TemplateApplyToBothModes -> "Zastosuj do obu trybów"

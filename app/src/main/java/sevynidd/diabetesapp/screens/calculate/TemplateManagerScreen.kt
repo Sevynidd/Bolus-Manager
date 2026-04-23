@@ -12,19 +12,23 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -77,70 +81,116 @@ fun TemplateManagerScreen(
         }
     }
 
-    Column(
-        modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-            SegmentedButton(
-                selected = sortOrder == TemplateSortOrder.RecentlyUsed,
-                onClick = { sortOrder = TemplateSortOrder.RecentlyUsed },
-                shape = MaterialTheme.shapes.small
-            ) {
-                Text(translate(TranslationKey.TemplateSortRecent, currentLanguage))
-            }
-            SegmentedButton(
-                selected = sortOrder == TemplateSortOrder.Alphabetical,
-                onClick = { sortOrder = TemplateSortOrder.Alphabetical },
-                shape = MaterialTheme.shapes.small
-            ) {
-                Text(translate(TranslationKey.TemplateSortAlphabetical, currentLanguage))
-            }
-        }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+    Box(modifier = modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            FilterChip(
-                selected = applyToBothModes,
-                onClick = { onApplyToBothModesChange(!applyToBothModes) },
-                label = {
-                    Text(
-                        translate(
-                            TranslationKey.TemplateApplyToBothModes,
-                            currentLanguage
-                        )
-                    )
-                }
+            Text(
+                text = translate(TranslationKey.TemplatesTitle, currentLanguage),
+                style = MaterialTheme.typography.titleMedium
             )
 
-            Button(onClick = { showCreateDialog = true }) {
-                Text(translate(TranslationKey.TemplateAdd, currentLanguage))
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                )
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = translate(TranslationKey.TemplateSortTitle, currentLanguage),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        FilterChip(
+                            selected = sortOrder == TemplateSortOrder.RecentlyUsed,
+                            onClick = { sortOrder = TemplateSortOrder.RecentlyUsed },
+                            label = { Text(translate(TranslationKey.TemplateSortRecent, currentLanguage)) }
+                        )
+
+                        FilterChip(
+                            selected = sortOrder == TemplateSortOrder.Alphabetical,
+                            onClick = { sortOrder = TemplateSortOrder.Alphabetical },
+                            label = { Text(translate(TranslationKey.TemplateSortAlphabetical, currentLanguage)) }
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        FilterChip(
+                            selected = applyToBothModes,
+                            onClick = { onApplyToBothModesChange(!applyToBothModes) },
+                            label = {
+                                Text(
+                                    translate(
+                                        TranslationKey.TemplateApplyToBothModes,
+                                        currentLanguage
+                                    )
+                                )
+                            }
+                        )
+                    }
+                }
+            }
+
+            if (sortedTemplates.isEmpty()) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                    )
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 24.dp)
+                    ) {
+                        Text(
+                            text = translate(TranslationKey.TemplateEmpty, currentLanguage),
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                    }
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(sortedTemplates, key = { it.id }) { template ->
+                        TemplateListRow(
+                            template = template,
+                            currentLanguage = currentLanguage,
+                            onSelect = { onTemplateSelected(template, applyToBothModes) },
+                            onEdit = { templateBeingEdited = template },
+                            onDelete = { templateBeingDeleted = template }
+                        )
+                    }
+                }
             }
         }
 
-        if (sortedTemplates.isEmpty()) {
-            Box(modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp)) {
-                Text(text = translate(TranslationKey.TemplateEmpty, currentLanguage))
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(sortedTemplates, key = { it.id }) { template ->
-                    TemplateListRow(
-                        template = template,
-                        currentLanguage = currentLanguage,
-                        onSelect = { onTemplateSelected(template, applyToBothModes) },
-                        onEdit = { templateBeingEdited = template },
-                        onDelete = { templateBeingDeleted = template }
-                    )
-                }
-            }
+        FloatingActionButton(
+            onClick = { showCreateDialog = true },
+            modifier = Modifier
+                .align(androidx.compose.ui.Alignment.BottomEnd)
+                .padding(16.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Add,
+                contentDescription = translate(TranslationKey.TemplateAdd, currentLanguage)
+            )
         }
     }
 
@@ -225,37 +275,52 @@ private fun TemplateListRow(
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
-    Row(
+    Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onSelect)
-            .padding(vertical = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+            .padding(vertical = 2.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        )
     ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(text = template.displayLabel())
-            Text(
-                text = "${
-                    translate(
-                        TranslationKey.Carbohydrates,
-                        currentLanguage
-                    )
-                }: ${template.carbohydrates.toLocalizedInput()}"
-            )
-        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 12.dp, end = 8.dp, top = 8.dp, bottom = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = template.displayLabel(),
+                    style = MaterialTheme.typography.titleSmall
+                )
+                Text(
+                    text = "${
+                        translate(
+                            TranslationKey.Carbohydrates,
+                            currentLanguage
+                        )
+                    }: ${template.carbohydrates.toLocalizedInput()}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
 
-        IconButton(onClick = onEdit) {
-            Icon(
-                imageVector = Icons.Filled.Edit,
-                contentDescription = translate(TranslationKey.ActionEdit, currentLanguage)
-            )
-        }
+            IconButton(onClick = onEdit) {
+                Icon(
+                    imageVector = Icons.Filled.Edit,
+                    contentDescription = translate(TranslationKey.ActionEdit, currentLanguage)
+                )
+            }
 
-        IconButton(onClick = onDelete) {
-            Icon(
-                imageVector = Icons.Filled.Delete,
-                contentDescription = translate(TranslationKey.ActionDelete, currentLanguage)
-            )
+            IconButton(onClick = onDelete) {
+                Icon(
+                    imageVector = Icons.Filled.Delete,
+                    contentDescription = translate(TranslationKey.ActionDelete, currentLanguage)
+                )
+            }
         }
     }
 }
@@ -287,7 +352,7 @@ private fun TemplateEditorDialog(
         onDismissRequest = onDismissRequest,
         title = { Text(text = translate(titleKey, currentLanguage)) },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
@@ -323,6 +388,8 @@ private fun TemplateEditorDialog(
                     selectedEmoji = selectedEmoji,
                     onEmojiSelected = { selectedEmoji = it }
                 )
+
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
                 OutlinedTextField(
                     value = carbohydrates,
