@@ -8,6 +8,8 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
@@ -46,9 +48,11 @@ fun AnimatedGapPieChart(
     val gapDegrees = 16f
     val numberOfGaps = pieDataPoints.size
     val remainingDegrees = 360f - (gapDegrees * numberOfGaps)
+    val containerWidth = LocalWindowInfo.current.containerSize.width
+    val screenWidth = with(LocalDensity.current) { containerWidth.toDp() }
     val localModifier = modifier
         .padding(top = ChartTopPadding)
-        .size(200.dp)
+        .size(screenWidth)
     val total = pieDataPoints.fold(0f) { acc, pieData -> acc + pieData.amount }.div(remainingDegrees)
     var currentSum = 0f
     val textMeasurer = rememberTextMeasurer()
@@ -88,12 +92,23 @@ fun AnimatedGapPieChart(
     ) {
         val stroke = Stroke(width = 50f, cap = StrokeCap.Round)
         val canvasRadius = min(size.width, size.height) / 2f
-        val arcOuterRadius = canvasRadius - 24.dp.toPx()
+
+        // Pre-measure every label so we can reserve space for the widest one.
+        val labelLayouts = arcs.map { arcData ->
+            textMeasurer.measure(text = arcData.title, style = titleTextStyle) to
+                    textMeasurer.measure(text = arcData.value, style = valueTextStyle)
+        }
+        val maxLabelHalfWidth = labelLayouts.maxOfOrNull { (title, value) ->
+            maxOf(title.size.width, value.size.width)
+        }?.div(2f) ?: 0f
+
+        // Shrink the arc so that labels (centred at labelRadius) never exceed canvasRadius.
+        val arcOuterRadius = canvasRadius - (stroke.width / 2f) - LabelArcPadding.toPx() - maxLabelHalfWidth
         val arcDiameter = arcOuterRadius * 2f
         val arcTopLeft = Offset(center.x - arcOuterRadius, center.y - arcOuterRadius)
         val labelRadius = arcOuterRadius + (stroke.width / 2f) + LabelArcPadding.toPx()
 
-        arcs.forEach { arcData ->
+        arcs.forEachIndexed { index, arcData ->
             drawArc(
                 startAngle = arcData.startAngle,
                 sweepAngle = arcData.animation.value,
@@ -111,14 +126,7 @@ fun AnimatedGapPieChart(
                 y = center.y + (labelRadius * sin(midAngleInRadians).toFloat())
             )
 
-            val titleLayout = textMeasurer.measure(
-                text = arcData.title,
-                style = titleTextStyle
-            )
-            val valueLayout = textMeasurer.measure(
-                text = arcData.value,
-                style = valueTextStyle
-            )
+            val (titleLayout, valueLayout) = labelLayouts[index]
 
             val lineGapPx = valueLineTopPadding.toPx()
             val totalLabelHeight = titleLayout.size.height + lineGapPx + valueLayout.size.height
