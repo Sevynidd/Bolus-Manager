@@ -19,7 +19,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
@@ -58,9 +57,7 @@ fun TemplateManagerScreen(
     modifier: Modifier = Modifier,
     currentLanguage: AppLanguage,
     templates: List<BolusTemplateEntity>,
-    applyToBothModes: Boolean,
-    onApplyToBothModesChange: (Boolean) -> Unit,
-    onTemplateSelected: (BolusTemplateEntity, Boolean) -> Unit,
+    onTemplateSelected: (BolusTemplateEntity) -> Unit,
     onTemplateAddRequested: suspend (name: String, emoji: String?, carbohydrates: Double) -> Boolean,
     onTemplateUpdateRequested: suspend (BolusTemplateEntity) -> Boolean,
     onTemplateDeleteRequested: (BolusTemplateEntity) -> Unit
@@ -123,24 +120,6 @@ fun TemplateManagerScreen(
                             label = { Text(translate(TranslationKey.TemplateSortAlphabetical, currentLanguage)) }
                         )
                     }
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        FilterChip(
-                            selected = applyToBothModes,
-                            onClick = { onApplyToBothModesChange(!applyToBothModes) },
-                            label = {
-                                Text(
-                                    translate(
-                                        TranslationKey.TemplateApplyToBothModes,
-                                        currentLanguage
-                                    )
-                                )
-                            }
-                        )
-                    }
                 }
             }
 
@@ -172,7 +151,7 @@ fun TemplateManagerScreen(
                         TemplateListRow(
                             template = template,
                             currentLanguage = currentLanguage,
-                            onSelect = { onTemplateSelected(template, applyToBothModes) },
+                            onSelect = { onTemplateSelected(template) },
                             onEdit = { templateBeingEdited = template },
                             onDelete = { templateBeingDeleted = template }
                         )

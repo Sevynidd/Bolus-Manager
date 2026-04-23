@@ -54,7 +54,6 @@ fun CalculateScreen(
     factors: FactorsData = FactorsData(),
     breadUnits: Double = 12.0,
     templatePrefillCarbohydrates: Double? = null,
-    templatePrefillApplyToBothModes: Boolean = false,
     templatePrefillToken: Int = 0
 ) {
     var selectedMode by rememberSaveable { mutableStateOf(BolusMode.Normal) }
@@ -71,11 +70,6 @@ fun CalculateScreen(
         when (selectedMode) {
             BolusMode.Normal -> carbohydrates = value
             BolusMode.Split -> splitCarbohydrates = value
-        }
-
-        if (templatePrefillApplyToBothModes) {
-            carbohydrates = value
-            splitCarbohydrates = value
         }
     }
 

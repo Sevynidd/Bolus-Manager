@@ -92,8 +92,6 @@ fun BolusManagerMainWindow(
     val activity = remember(context) { context.findActivity() }
     val lifecycleOwner = LocalLifecycleOwner.current
     var templatePrefillCarbohydrates by rememberSaveable { mutableStateOf<Double?>(null) }
-    var templateApplyToBothModesSelection by rememberSaveable { mutableStateOf(false) }
-    var templatePrefillApplyToBothModes by rememberSaveable { mutableStateOf(false) }
     var templatePrefillToken by rememberSaveable { mutableStateOf(0) }
 
     fun leaveFactorsEditMode(shouldSave: Boolean) {
@@ -306,7 +304,6 @@ fun BolusManagerMainWindow(
                                 factors = factorEditorState.factors,
                                 breadUnits = breadUnits,
                                 templatePrefillCarbohydrates = templatePrefillCarbohydrates,
-                                templatePrefillApplyToBothModes = templatePrefillApplyToBothModes,
                                 templatePrefillToken = templatePrefillToken
                             )
 
@@ -314,11 +311,8 @@ fun BolusManagerMainWindow(
                                 modifier = contentModifier,
                                 currentLanguage = currentLanguage,
                                 templates = templates,
-                                applyToBothModes = templateApplyToBothModesSelection,
-                                onApplyToBothModesChange = { templateApplyToBothModesSelection = it },
-                                onTemplateSelected = { selectedTemplate, applyToBothModes ->
+                                onTemplateSelected = { selectedTemplate ->
                                     templatePrefillCarbohydrates = selectedTemplate.carbohydrates
-                                    templatePrefillApplyToBothModes = applyToBothModes
                                     templatePrefillToken += 1
                                     onTemplateMarkUsedRequested(selectedTemplate.id)
                                     calculateDestination = CalculateDestination.Main
