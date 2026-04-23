@@ -167,9 +167,12 @@ Damit kann sich der zweite Anteil an einem anderen Zeitfenster orientieren als d
 - `app/src/main/java/sevynidd/diabetesapp/screens/MainWindow.kt` - Scaffold, Navigation, Save-Trigger und Settings-Unterseiten
 - `app/src/main/java/sevynidd/diabetesapp/screens/factors/FactorScreen.kt` - Faktoren-UI mit dynamischen Zeitbereichen
 - `app/src/main/java/sevynidd/diabetesapp/screens/factors/ScheduleFactorScreen.kt` - Schedule-Editor mit Pie-Chart und TimePicker
-- `app/src/main/java/sevynidd/diabetesapp/screens/CalculateScreen.kt` - Normal-/Split-Bolus-Berechnung
+- `app/src/main/java/sevynidd/diabetesapp/screens/calculate/CalculateScreen.kt` - Normal-/Split-Bolus-Berechnung
+- `app/src/main/java/sevynidd/diabetesapp/screens/calculate/TemplateManagerScreen.kt` - Template-Auswahl und -Verwaltung für die Bolus-Berechnung
 - `app/src/main/java/sevynidd/diabetesapp/screens/settings/` - Theme-, Language- und Broteinheiten-Einstellungen
-- `app/src/main/java/sevynidd/diabetesapp/data/database/` - Room (`DiabetesDatabase`, `FactorProfileEntity`, `FactorProfileDao`, `FactorsRepository`)
+- `app/src/main/java/sevynidd/diabetesapp/data/database/` - Room (`DiabetesDatabase`, Entities, DAOs, Repositories)
+- `app/src/main/java/sevynidd/diabetesapp/data/model/FactorsData.kt` - UI-freundliches Faktorenmodell
+- `app/src/main/java/sevynidd/diabetesapp/data/settings/ThemeMode.kt` - Persistierter Theme-Modus
 - `app/src/main/java/sevynidd/diabetesapp/data/AppSettingsStore.kt` - Persistenz von Theme, Kontrast, Sprache und Broteinheiten
 - `app/src/main/java/sevynidd/diabetesapp/navigation/Navigation.kt` - Destinationen und Transitionen
 - `app/src/main/java/sevynidd/diabetesapp/localization/Localization.kt` - Übersetzungslogik für EN/DE/FR/PL/System

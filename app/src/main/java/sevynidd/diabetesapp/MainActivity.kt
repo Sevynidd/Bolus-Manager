@@ -15,9 +15,9 @@ import sevynidd.diabetesapp.data.AppSettings
 import sevynidd.diabetesapp.data.AppSettingsStore
 import sevynidd.diabetesapp.data.database.BolusTemplatesRepository
 import sevynidd.diabetesapp.data.database.DiabetesDatabase
-import sevynidd.diabetesapp.data.database.FactorsData
+import sevynidd.diabetesapp.data.model.FactorsData
+import sevynidd.diabetesapp.data.settings.ThemeMode
 import sevynidd.diabetesapp.data.database.FactorsRepository
-import sevynidd.diabetesapp.navigation.ThemeMode
 import sevynidd.diabetesapp.screens.DiabetesAppMainWindow
 import sevynidd.diabetesapp.screens.factors.FactorScreen
 import sevynidd.diabetesapp.ui.theme.DiabetesAppTheme

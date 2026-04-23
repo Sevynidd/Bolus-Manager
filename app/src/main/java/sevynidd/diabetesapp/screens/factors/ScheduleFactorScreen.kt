@@ -27,7 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import sevynidd.diabetesapp.data.database.FactorsData
+import sevynidd.diabetesapp.data.model.FactorsData
 import sevynidd.diabetesapp.libraries.gappedPieChart.AnimatedGapPieChart
 import sevynidd.diabetesapp.libraries.gappedPieChart.PieData
 import sevynidd.diabetesapp.localization.AppLanguage

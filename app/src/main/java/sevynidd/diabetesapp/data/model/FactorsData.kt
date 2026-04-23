@@ -1,4 +1,4 @@
-package sevynidd.diabetesapp.data.database
+package sevynidd.diabetesapp.data.model
 
 /**
  * UI-friendly model for factor values. Decimal values are represented as strings using comma notation.
@@ -21,4 +21,5 @@ data class FactorsData(
     val nightTimeMinutes: Int = 23 * 60,
     val basalTimeMinutes: Int = 19 * 60
 )
+
 

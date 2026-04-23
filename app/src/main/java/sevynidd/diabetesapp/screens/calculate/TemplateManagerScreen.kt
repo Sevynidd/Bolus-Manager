@@ -1,4 +1,4 @@
-package sevynidd.diabetesapp.screens
+package sevynidd.diabetesapp.screens.calculate
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -371,6 +371,7 @@ private fun Double.toLocalizedInput(): String {
         .trimEnd('0')
         .trimEnd(',')
 }
+
 
 
 

@@ -2,6 +2,7 @@ package sevynidd.diabetesapp.data.database
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import sevynidd.diabetesapp.data.model.FactorsData
 import java.util.Locale
 
 class FactorsRepository(

@@ -21,7 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import sevynidd.diabetesapp.data.database.FactorsData
+import sevynidd.diabetesapp.data.model.FactorsData
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.translate
 import sevynidd.diabetesapp.localization.TranslationKey

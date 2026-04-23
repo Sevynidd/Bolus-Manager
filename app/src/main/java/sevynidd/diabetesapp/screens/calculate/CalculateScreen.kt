@@ -1,4 +1,4 @@
-package sevynidd.diabetesapp.screens
+package sevynidd.diabetesapp.screens.calculate
 
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -21,7 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import sevynidd.diabetesapp.data.database.FactorsData
+import sevynidd.diabetesapp.data.model.FactorsData
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
@@ -386,3 +386,4 @@ private fun sanitizePercentageInput(input: String): String? {
 }
 
 private const val MINUTES_PER_DAY = 24 * 60
+

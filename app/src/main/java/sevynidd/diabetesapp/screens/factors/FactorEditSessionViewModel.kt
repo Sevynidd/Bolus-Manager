@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import sevynidd.diabetesapp.data.database.FactorsData
+import sevynidd.diabetesapp.data.model.FactorsData
 
 data class FactorEditSessionUiState(
     val factors: FactorsData = FactorsData(),

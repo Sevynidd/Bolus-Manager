@@ -14,10 +14,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import sevynidd.diabetesapp.data.settings.ThemeMode
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.translate
 import sevynidd.diabetesapp.localization.TranslationKey
-import sevynidd.diabetesapp.navigation.ThemeMode
 import sevynidd.diabetesapp.ui.theme.ContrastLevel
 
 @Composable

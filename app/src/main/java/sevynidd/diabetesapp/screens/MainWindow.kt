@@ -38,7 +38,8 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import sevynidd.diabetesapp.data.database.BolusTemplateEntity
-import sevynidd.diabetesapp.data.database.FactorsData
+import sevynidd.diabetesapp.data.model.FactorsData
+import sevynidd.diabetesapp.data.settings.ThemeMode
 import sevynidd.diabetesapp.navigation.AppDestinations
 import sevynidd.diabetesapp.navigation.destinationLabel
 import sevynidd.diabetesapp.localization.translate
@@ -46,11 +47,12 @@ import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.navigation.CalculateDestination
 import sevynidd.diabetesapp.navigation.FactorsDestination
-import sevynidd.diabetesapp.navigation.ThemeMode
 import sevynidd.diabetesapp.navigation.SettingsDestination
 import sevynidd.diabetesapp.navigation.calculateDestinationTransition
 import sevynidd.diabetesapp.navigation.factorsDestinationTransition
 import sevynidd.diabetesapp.navigation.settingsDestinationTransition
+import sevynidd.diabetesapp.screens.calculate.CalculateScreen
+import sevynidd.diabetesapp.screens.calculate.TemplateManagerScreen
 import sevynidd.diabetesapp.screens.factors.FactorEditSessionViewModel
 import sevynidd.diabetesapp.screens.factors.FactorScreen
 import sevynidd.diabetesapp.screens.factors.ScheduleFactorScreen
