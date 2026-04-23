@@ -36,12 +36,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import sevynidd.diabetesapp.data.database.BolusTemplateEntity
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
 import java.util.Locale
-import kotlinx.coroutines.launch
 
 enum class TemplateSortOrder {
     Alphabetical,
@@ -105,7 +105,14 @@ fun TemplateManagerScreen(
             FilterChip(
                 selected = applyToBothModes,
                 onClick = { onApplyToBothModesChange(!applyToBothModes) },
-                label = { Text(translate(TranslationKey.TemplateApplyToBothModes, currentLanguage)) }
+                label = {
+                    Text(
+                        translate(
+                            TranslationKey.TemplateApplyToBothModes,
+                            currentLanguage
+                        )
+                    )
+                }
             )
 
             Button(onClick = { showCreateDialog = true }) {
@@ -114,7 +121,9 @@ fun TemplateManagerScreen(
         }
 
         if (sortedTemplates.isEmpty()) {
-            Box(modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
+            Box(modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp)) {
                 Text(text = translate(TranslationKey.TemplateEmpty, currentLanguage))
             }
         } else {
@@ -226,7 +235,12 @@ private fun TemplateListRow(
         Column(modifier = Modifier.weight(1f)) {
             Text(text = template.displayLabel())
             Text(
-                text = "${translate(TranslationKey.Carbohydrates, currentLanguage)}: ${template.carbohydrates.toLocalizedInput()}"
+                text = "${
+                    translate(
+                        TranslationKey.Carbohydrates,
+                        currentLanguage
+                    )
+                }: ${template.carbohydrates.toLocalizedInput()}"
             )
         }
 
@@ -277,12 +291,24 @@ private fun TemplateEditorDialog(
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text(text = translate(TranslationKey.TemplateName, currentLanguage)) },
+                    label = {
+                        Text(
+                            text = translate(
+                                TranslationKey.TemplateName,
+                                currentLanguage
+                            )
+                        )
+                    },
                     singleLine = true,
                     isError = hasDuplicateName,
                     supportingText = {
                         if (hasDuplicateName) {
-                            Text(translate(TranslationKey.TemplateDuplicateNameError, currentLanguage))
+                            Text(
+                                translate(
+                                    TranslationKey.TemplateDuplicateNameError,
+                                    currentLanguage
+                                )
+                            )
                         }
                     },
                     modifier = Modifier.fillMaxWidth()
@@ -305,7 +331,14 @@ private fun TemplateEditorDialog(
                             carbohydrates = newValue
                         }
                     },
-                    label = { Text(text = translate(TranslationKey.Carbohydrates, currentLanguage)) },
+                    label = {
+                        Text(
+                            text = translate(
+                                TranslationKey.Carbohydrates,
+                                currentLanguage
+                            )
+                        )
+                    },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()

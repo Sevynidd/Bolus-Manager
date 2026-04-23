@@ -130,10 +130,6 @@ fun CalculateScreen(
         null
     }
 
-    val splitCarbohydratesRequester = remember { FocusRequester() }
-    val splitImmediatePercentRequester = remember { FocusRequester() }
-    val splitDurationRequester = remember { FocusRequester() }
-
     Column(
         modifier = modifier.verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -212,6 +208,10 @@ fun CalculateScreen(
             }
 
             BolusMode.Split -> {
+                val splitCarbohydratesRequester = remember { FocusRequester() }
+                val splitImmediatePercentRequester = remember { FocusRequester() }
+                val splitDurationRequester = remember { FocusRequester() }
+
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
@@ -244,11 +244,7 @@ fun CalculateScreen(
                         ) {
                             EditableNumberField(
                                 value = splitImmediatePercent,
-                                onValueChange = { newValue ->
-                                    sanitizePercentageInput(newValue)?.let { sanitizedValue ->
-                                        splitImmediatePercent = sanitizedValue
-                                    }
-                                },
+                                onValueChange = { splitImmediatePercent = it },
                                 label = translate(TranslationKey.BolusImmediatePercent, currentLanguage),
                                 keyboardType = KeyboardType.Number,
                                 imeAction = ImeAction.Next,
