@@ -1,4 +1,4 @@
-# Diabetes App
+# Bolus Manager
 
 ![Android](https://img.shields.io/badge/Android-31%2B-3DDC84?logo=android&logoColor=white) ![Kotlin](https://img.shields.io/badge/Kotlin-2.3.20-7F52FF?logo=kotlin&logoColor=white) ![Jetpack%20Compose](https://img.shields.io/badge/Jetpack%20Compose-Material%203-4285F4?logo=jetpackcompose&logoColor=white) ![Material%203](https://img.shields.io/badge/Material%203-UI-6200EE) ![Room](https://img.shields.io/badge/Room-2.8.4-6D4C41) ![DataStore](https://img.shields.io/badge/DataStore-Preferences%201.2.1-1E88E5) ![AGP](https://img.shields.io/badge/AGP-9.2.0-34A853)
 
@@ -194,7 +194,7 @@ Damit kann sich der zweite Anteil an einem anderen Zeitfenster orientieren als d
 Optionaler CLI-Build:
 
 ```powershell
-Set-Location "C:\Users\sevyn\Documents\GitHub\DiabetesApp"
+Set-Location "<repo-path>"
 .\gradlew.bat :app:compileDebugKotlin --console=plain
 ```
 

@@ -284,7 +284,7 @@ private fun ColorScheme.withDynamicContrast(contrastLevel: ContrastLevel): Color
 }
 
 @Composable
-fun DiabetesAppTheme(
+fun BolusManagerTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = true,
     contrastLevel: ContrastLevel = ContrastLevel.Normal,

@@ -7,6 +7,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -76,132 +79,127 @@ fun FactorScreen(
     val lateRange = buildTimeRange(factors.lateTimeMinutes, factors.nightTimeMinutes)
     val nightRange = buildTimeRange(factors.nightTimeMinutes, factors.morningTimeMinutes)
 
+    val factorItems = listOf(
+        Triple(
+            morningFactor,
+            { value: String ->
+                morningFactor = value
+                emitFactorsChanged()
+            },
+            "${translate(TranslationKey.FactorMorning, currentLanguage)} ($morningRange)"
+        ),
+        Triple(
+            breakfastFactor,
+            { value: String ->
+                breakfastFactor = value
+                emitFactorsChanged()
+            },
+            "${translate(TranslationKey.FactorBreakfast, currentLanguage)} ($breakfastRange)"
+        ),
+        Triple(
+            lunchFactor,
+            { value: String ->
+                lunchFactor = value
+                emitFactorsChanged()
+            },
+            "${translate(TranslationKey.FactorLunch, currentLanguage)} ($lunchRange)"
+        ),
+        Triple(
+            afternoonFactor,
+            { value: String ->
+                afternoonFactor = value
+                emitFactorsChanged()
+            },
+            "${translate(TranslationKey.FactorAfternoon, currentLanguage)} ($afternoonRange)"
+        ),
+        Triple(
+            dinnerFactor,
+            { value: String ->
+                dinnerFactor = value
+                emitFactorsChanged()
+            },
+            "${translate(TranslationKey.FactorDinner, currentLanguage)} ($dinnerRange)"
+        ),
+        Triple(
+            lateFactor,
+            { value: String ->
+                lateFactor = value
+                emitFactorsChanged()
+            },
+            "${translate(TranslationKey.FactorLate, currentLanguage)} ($lateRange)"
+        ),
+        Triple(
+            nightFactor,
+            { value: String ->
+                nightFactor = value
+                emitFactorsChanged()
+            },
+            "${translate(TranslationKey.FactorNight, currentLanguage)} ($nightRange)"
+        )
+    )
+
     Column(
         modifier = modifier.verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        DoubleInputField(
-            value = morningFactor,
-            onValueChange = {
-                morningFactor = it
-                emitFactorsChanged()
-            },
-            description = "${
-                translate(
-                    TranslationKey.FactorMorning,
-                    currentLanguage
-                )
-            } ($morningRange)",
-            label = translate(TranslationKey.LabelFactor, currentLanguage),
-            enabled = isEditMode
+        Text(
+            text = translate(TranslationKey.LabelFactor, currentLanguage),
+            style = MaterialTheme.typography.titleMedium
         )
 
-        DoubleInputField(
-            value = breakfastFactor,
-            onValueChange = {
-                breakfastFactor = it
-                emitFactorsChanged()
-            },
-            description = "${
-                translate(
-                    TranslationKey.FactorBreakfast,
-                    currentLanguage
-                )
-            } ($breakfastRange)",
-            label = translate(TranslationKey.LabelFactor, currentLanguage),
-            enabled = isEditMode
-        )
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+            )
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                factorItems.forEachIndexed { index, (value, onChange, description) ->
+                    DoubleInputField(
+                        value = value,
+                        onValueChange = onChange,
+                        description = description,
+                        label = translate(TranslationKey.LabelFactor, currentLanguage),
+                        enabled = isEditMode
+                    )
 
-        DoubleInputField(
-            value = lunchFactor,
-            onValueChange = {
-                lunchFactor = it
-                emitFactorsChanged()
-            },
-            description = "${
-                translate(
-                    TranslationKey.FactorLunch,
-                    currentLanguage
-                )
-            } ($lunchRange)",
-            label = translate(TranslationKey.LabelFactor, currentLanguage),
-            enabled = isEditMode
-        )
+                    if (index != factorItems.lastIndex) {
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    }
+                }
+            }
+        }
 
-        DoubleInputField(
-            value = afternoonFactor,
-            onValueChange = {
-                afternoonFactor = it
-                emitFactorsChanged()
-            },
-            description = "${
-                translate(
-                    TranslationKey.FactorAfternoon,
-                    currentLanguage
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+            )
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text(
+                    text = translate(TranslationKey.BasalRate, currentLanguage),
+                    style = MaterialTheme.typography.titleSmall
                 )
-            } ($afternoonRange)",
-            label = translate(TranslationKey.LabelFactor, currentLanguage),
-            enabled = isEditMode
-        )
 
-        DoubleInputField(
-            value = dinnerFactor,
-            onValueChange = {
-                dinnerFactor = it
-                emitFactorsChanged()
-            },
-            description = "${
-                translate(
-                    TranslationKey.FactorDinner,
-                    currentLanguage
+                BasalRateInputField(
+                    value = basalRate,
+                    onValueChange = {
+                        basalRate = it
+                        emitFactorsChanged()
+                    },
+                    description = "${translate(TranslationKey.BasalRate, currentLanguage)} (${formatTimeOfDay(factors.basalTimeMinutes)})",
+                    label = translate(TranslationKey.BasalRate, currentLanguage),
+                    enabled = isEditMode
                 )
-            } ($dinnerRange)",
-            label = translate(TranslationKey.LabelFactor, currentLanguage),
-            enabled = isEditMode
-        )
-
-        DoubleInputField(
-            value = lateFactor,
-            onValueChange = {
-                lateFactor = it
-                emitFactorsChanged()
-            },
-            description = "${
-                translate(
-                    TranslationKey.FactorLate,
-                    currentLanguage
-                )
-            } ($lateRange)",
-            label = translate(TranslationKey.LabelFactor, currentLanguage),
-            enabled = isEditMode
-        )
-
-        DoubleInputField(
-            value = nightFactor,
-            onValueChange = {
-                nightFactor = it
-                emitFactorsChanged()
-            },
-            description = "${
-                translate(
-                    TranslationKey.FactorNight,
-                    currentLanguage
-                )
-            } ($nightRange)",
-            label = translate(TranslationKey.LabelFactor, currentLanguage),
-            enabled = isEditMode
-        )
-
-        BasalRateInputField(
-            value = basalRate,
-            onValueChange = {
-                basalRate = it
-                emitFactorsChanged()
-            },
-            description = "${translate(TranslationKey.BasalRate, currentLanguage)} (${formatTimeOfDay(factors.basalTimeMinutes)})",
-            label = translate(TranslationKey.BasalRate, currentLanguage),
-            enabled = isEditMode
-        )
+            }
+        }
     }
 }
 

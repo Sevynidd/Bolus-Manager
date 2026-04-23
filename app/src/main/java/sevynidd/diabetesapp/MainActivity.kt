@@ -18,9 +18,9 @@ import sevynidd.diabetesapp.data.database.DiabetesDatabase
 import sevynidd.diabetesapp.data.model.FactorsData
 import sevynidd.diabetesapp.data.settings.ThemeMode
 import sevynidd.diabetesapp.data.database.FactorsRepository
-import sevynidd.diabetesapp.screens.DiabetesAppMainWindow
+import sevynidd.diabetesapp.screens.BolusManagerMainWindow
 import sevynidd.diabetesapp.screens.factors.FactorScreen
-import sevynidd.diabetesapp.ui.theme.DiabetesAppTheme
+import sevynidd.diabetesapp.ui.theme.BolusManagerTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,12 +47,12 @@ class MainActivity : ComponentActivity() {
                 ThemeMode.Dark -> true
             }
 
-            DiabetesAppTheme(
+            BolusManagerTheme(
                 darkTheme = darkTheme,
                 dynamicColor = false,
                 contrastLevel = settings.contrastLevel
             ) {
-                DiabetesAppMainWindow(
+                BolusManagerMainWindow(
                     themeMode = settings.themeMode,
                     contrastLevel = settings.contrastLevel,
                     currentLanguage = settings.language,
@@ -99,7 +99,7 @@ class MainActivity : ComponentActivity() {
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    DiabetesAppTheme {
+    BolusManagerTheme {
         FactorScreen()
     }
 }

@@ -65,7 +65,7 @@ import sevynidd.diabetesapp.ui.theme.ContrastLevel
 @OptIn(ExperimentalMaterial3Api::class)
 @PreviewScreenSizes
 @Composable
-fun DiabetesAppMainWindow(
+fun BolusManagerMainWindow(
     themeMode: ThemeMode = ThemeMode.System,
     contrastLevel: ContrastLevel = ContrastLevel.Normal,
     currentLanguage: AppLanguage = AppLanguage.System,
