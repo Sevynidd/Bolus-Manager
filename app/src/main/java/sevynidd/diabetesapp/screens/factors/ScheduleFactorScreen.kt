@@ -5,10 +5,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -24,8 +25,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import sevynidd.diabetesapp.data.model.FactorsData
 import sevynidd.diabetesapp.libraries.gappedPieChart.AnimatedGapPieChart
@@ -46,6 +47,12 @@ private enum class ScheduleTimeSlot {
     Night,
     Basal
 }
+
+private data class ScheduleFieldItem(
+    val slot: ScheduleTimeSlot,
+    val title: String,
+    val timeMinutes: Int
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -126,76 +133,102 @@ fun ScheduleFactorScreen(
         )
     }
 
+    val scheduleFields = listOf(
+        ScheduleFieldItem(
+            slot = ScheduleTimeSlot.Morning,
+            title = translate(TranslationKey.FactorMorning, currentLanguage),
+            timeMinutes = morningTimeMinutes
+        ),
+        ScheduleFieldItem(
+            slot = ScheduleTimeSlot.Breakfast,
+            title = translate(TranslationKey.FactorBreakfast, currentLanguage),
+            timeMinutes = breakfastTimeMinutes
+        ),
+        ScheduleFieldItem(
+            slot = ScheduleTimeSlot.Lunch,
+            title = translate(TranslationKey.FactorLunch, currentLanguage),
+            timeMinutes = lunchTimeMinutes
+        ),
+        ScheduleFieldItem(
+            slot = ScheduleTimeSlot.Afternoon,
+            title = translate(TranslationKey.FactorAfternoon, currentLanguage),
+            timeMinutes = afternoonTimeMinutes
+        ),
+        ScheduleFieldItem(
+            slot = ScheduleTimeSlot.Dinner,
+            title = translate(TranslationKey.FactorDinner, currentLanguage),
+            timeMinutes = dinnerTimeMinutes
+        ),
+        ScheduleFieldItem(
+            slot = ScheduleTimeSlot.Late,
+            title = translate(TranslationKey.FactorLate, currentLanguage),
+            timeMinutes = lateTimeMinutes
+        ),
+        ScheduleFieldItem(
+            slot = ScheduleTimeSlot.Night,
+            title = translate(TranslationKey.FactorNight, currentLanguage),
+            timeMinutes = nightTimeMinutes
+        ),
+        ScheduleFieldItem(
+            slot = ScheduleTimeSlot.Basal,
+            title = translate(TranslationKey.BasalRate, currentLanguage),
+            timeMinutes = basalTimeMinutes
+        )
+    )
+
     Column(
         modifier = modifier.verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+        Text(
+            text = translate(TranslationKey.ActionSchedule, currentLanguage),
+            style = MaterialTheme.typography.titleMedium
+        )
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+            )
         ) {
-            AnimatedGapPieChart(
+            Box(
                 modifier = Modifier
-                    .align(Alignment.Center),
-                pieDataPoints = pieDataPoints
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                AnimatedGapPieChart(
+                    modifier = Modifier.align(Alignment.Center),
+                    pieDataPoints = pieDataPoints
+                )
+            }
+
+            Text(
+                text = translate(TranslationKey.ScheduleAutoOrderHint, currentLanguage),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
             )
         }
 
-        Text(
-            text = translate(TranslationKey.ScheduleAutoOrderHint, currentLanguage),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = 16.dp)
-        )
-
-        TimePickerField(
-            description = translate(TranslationKey.FactorMorning, currentLanguage),
-            timeLabel = formatTimeLabel(morningTimeMinutes),
-            onClick = { activePicker = ScheduleTimeSlot.Morning }
-        )
-
-        TimePickerField(
-            description = translate(TranslationKey.FactorBreakfast, currentLanguage),
-            timeLabel = formatTimeLabel(breakfastTimeMinutes),
-            onClick = { activePicker = ScheduleTimeSlot.Breakfast }
-        )
-
-        TimePickerField(
-            description = translate(TranslationKey.FactorLunch, currentLanguage),
-            timeLabel = formatTimeLabel(lunchTimeMinutes),
-            onClick = { activePicker = ScheduleTimeSlot.Lunch }
-        )
-
-        TimePickerField(
-            description = translate(TranslationKey.FactorAfternoon, currentLanguage),
-            timeLabel = formatTimeLabel(afternoonTimeMinutes),
-            onClick = { activePicker = ScheduleTimeSlot.Afternoon }
-        )
-
-        TimePickerField(
-            description = translate(TranslationKey.FactorDinner, currentLanguage),
-            timeLabel = formatTimeLabel(dinnerTimeMinutes),
-            onClick = { activePicker = ScheduleTimeSlot.Dinner }
-        )
-
-        TimePickerField(
-            description = translate(TranslationKey.FactorLate, currentLanguage),
-            timeLabel = formatTimeLabel(lateTimeMinutes),
-            onClick = { activePicker = ScheduleTimeSlot.Late }
-        )
-
-        TimePickerField(
-            description = translate(TranslationKey.FactorNight, currentLanguage),
-            timeLabel = formatTimeLabel(nightTimeMinutes),
-            onClick = { activePicker = ScheduleTimeSlot.Night }
-        )
-
-        TimePickerField(
-            description = translate(TranslationKey.BasalRate, currentLanguage),
-            timeLabel = formatTimeLabel(basalTimeMinutes),
-            onClick = { activePicker = ScheduleTimeSlot.Basal }
-        )
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+            )
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                scheduleFields.forEach { item ->
+                    TimePickerField(
+                        description = item.title,
+                        timeLabel = formatTimeLabel(item.timeMinutes),
+                        onClick = { activePicker = item.slot }
+                    )
+                }
+            }
+        }
     }
 
     activePicker?.let { slot ->
@@ -220,47 +253,7 @@ fun ScheduleFactorScreen(
             onDismissRequest = { activePicker = null },
             title = {
                 Text(
-                    text = when (slot) {
-                        ScheduleTimeSlot.Morning -> translate(
-                            TranslationKey.FactorMorning,
-                            currentLanguage
-                        )
-
-                        ScheduleTimeSlot.Breakfast -> translate(
-                            TranslationKey.FactorBreakfast,
-                            currentLanguage
-                        )
-
-                        ScheduleTimeSlot.Lunch -> translate(
-                            TranslationKey.FactorLunch,
-                            currentLanguage
-                        )
-
-                        ScheduleTimeSlot.Afternoon -> translate(
-                            TranslationKey.FactorAfternoon,
-                            currentLanguage
-                        )
-
-                        ScheduleTimeSlot.Dinner -> translate(
-                            TranslationKey.FactorDinner,
-                            currentLanguage
-                        )
-
-                        ScheduleTimeSlot.Late -> translate(
-                            TranslationKey.FactorLate,
-                            currentLanguage
-                        )
-
-                        ScheduleTimeSlot.Night -> translate(
-                            TranslationKey.FactorNight,
-                            currentLanguage
-                        )
-
-                        ScheduleTimeSlot.Basal -> translate(
-                            TranslationKey.BasalRate,
-                            currentLanguage
-                        )
-                    }
+                    text = slotTitle(slot, currentLanguage)
                 )
             },
             text = { TimePicker(state = pickerState) },
@@ -272,12 +265,12 @@ fun ScheduleFactorScreen(
                         activePicker = null
                     }
                 ) {
-                    Text("OK")
+                    Text(stringResource(android.R.string.ok))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { activePicker = null }) {
-                    Text("Cancel")
+                    Text(stringResource(android.R.string.cancel))
                 }
             }
         )
@@ -304,9 +297,22 @@ private fun TimePickerField(
         ) {
             Text(
                 text = timeLabel,
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.titleMedium
             )
         }
+    }
+}
+
+private fun slotTitle(slot: ScheduleTimeSlot, currentLanguage: AppLanguage): String {
+    return when (slot) {
+        ScheduleTimeSlot.Morning -> translate(TranslationKey.FactorMorning, currentLanguage)
+        ScheduleTimeSlot.Breakfast -> translate(TranslationKey.FactorBreakfast, currentLanguage)
+        ScheduleTimeSlot.Lunch -> translate(TranslationKey.FactorLunch, currentLanguage)
+        ScheduleTimeSlot.Afternoon -> translate(TranslationKey.FactorAfternoon, currentLanguage)
+        ScheduleTimeSlot.Dinner -> translate(TranslationKey.FactorDinner, currentLanguage)
+        ScheduleTimeSlot.Late -> translate(TranslationKey.FactorLate, currentLanguage)
+        ScheduleTimeSlot.Night -> translate(TranslationKey.FactorNight, currentLanguage)
+        ScheduleTimeSlot.Basal -> translate(TranslationKey.BasalRate, currentLanguage)
     }
 }
 
