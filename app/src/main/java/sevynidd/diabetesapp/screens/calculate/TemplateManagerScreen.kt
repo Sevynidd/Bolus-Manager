@@ -97,29 +97,22 @@ fun TemplateManagerScreen(
                     style = MaterialTheme.typography.titleMedium
                 )
 
-                Column(horizontalAlignment = Alignment.End) {
-                    Text(
-                        text = translate(TranslationKey.TemplateSortTitle, currentLanguage),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    IconButton(onClick = {
-                        sortOrder = when (sortOrder) {
-                            TemplateSortOrder.RecentlyUsed -> TemplateSortOrder.Alphabetical
-                            TemplateSortOrder.Alphabetical -> TemplateSortOrder.RecentlyUsed
-                        }
-                    }) {
-                        Icon(
-                            imageVector = when (sortOrder) {
-                                TemplateSortOrder.RecentlyUsed -> Icons.Filled.AccessTime
-                                TemplateSortOrder.Alphabetical -> Icons.Filled.SortByAlpha
-                            },
-                            contentDescription = translate(
-                                TranslationKey.TemplateSortTitle,
-                                currentLanguage
-                            )
-                        )
+                IconButton(onClick = {
+                    sortOrder = when (sortOrder) {
+                        TemplateSortOrder.RecentlyUsed -> TemplateSortOrder.Alphabetical
+                        TemplateSortOrder.Alphabetical -> TemplateSortOrder.RecentlyUsed
                     }
+                }) {
+                    Icon(
+                        imageVector = when (sortOrder) {
+                            TemplateSortOrder.RecentlyUsed -> Icons.Filled.AccessTime
+                            TemplateSortOrder.Alphabetical -> Icons.Filled.SortByAlpha
+                        },
+                        contentDescription = translate(
+                            TranslationKey.TemplateSortTitle,
+                            currentLanguage
+                        )
+                    )
                 }
             }
 
