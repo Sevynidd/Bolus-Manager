@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -92,7 +93,8 @@ fun BolusManagerMainWindow(
     val activity = remember(context) { context.findActivity() }
     val lifecycleOwner = LocalLifecycleOwner.current
     var templatePrefillCarbohydrates by rememberSaveable { mutableStateOf<Double?>(null) }
-    var templatePrefillToken by rememberSaveable { mutableStateOf(0) }
+    var templatePrefillToken by rememberSaveable { mutableIntStateOf(0) }
+    var templateApplyToBothModes by rememberSaveable { mutableStateOf(false) }
 
     fun leaveFactorsEditMode(shouldSave: Boolean) {
         factorEditorViewModel.leaveEditMode(shouldSave)
@@ -304,15 +306,17 @@ fun BolusManagerMainWindow(
                                 factors = factorEditorState.factors,
                                 breadUnits = breadUnits,
                                 templatePrefillCarbohydrates = templatePrefillCarbohydrates,
-                                templatePrefillToken = templatePrefillToken
+                                templatePrefillToken = templatePrefillToken,
+                                templateApplyToBothModes = templateApplyToBothModes
                             )
 
                             CalculateDestination.Templates -> TemplateManagerScreen(
                                 modifier = contentModifier,
                                 currentLanguage = currentLanguage,
                                 templates = templates,
-                                onTemplateSelected = { selectedTemplate ->
+                                onTemplateSelected = { selectedTemplate, applyToBoth ->
                                     templatePrefillCarbohydrates = selectedTemplate.carbohydrates
+                                    templateApplyToBothModes = applyToBoth
                                     templatePrefillToken += 1
                                     onTemplateMarkUsedRequested(selectedTemplate.id)
                                     calculateDestination = CalculateDestination.Main

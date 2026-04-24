@@ -15,9 +15,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.SortByAlpha
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -36,6 +39,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -57,7 +61,7 @@ fun TemplateManagerScreen(
     modifier: Modifier = Modifier,
     currentLanguage: AppLanguage,
     templates: List<BolusTemplateEntity>,
-    onTemplateSelected: (BolusTemplateEntity) -> Unit,
+    onTemplateSelected: (template: BolusTemplateEntity, applyToBoth: Boolean) -> Unit,
     onTemplateAddRequested: suspend (name: String, emoji: String?, carbohydrates: Double) -> Boolean,
     onTemplateUpdateRequested: suspend (BolusTemplateEntity) -> Boolean,
     onTemplateDeleteRequested: (BolusTemplateEntity) -> Unit
@@ -83,41 +87,37 @@ fun TemplateManagerScreen(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(
-                text = translate(TranslationKey.TemplatesTitle, currentLanguage),
-                style = MaterialTheme.typography.titleMedium
-            )
-
-            Card(
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-                )
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
+                Text(
+                    text = translate(TranslationKey.TemplatesTitle, currentLanguage),
+                    style = MaterialTheme.typography.titleMedium
+                )
+
+                Column(horizontalAlignment = Alignment.End) {
                     Text(
                         text = translate(TranslationKey.TemplateSortTitle, currentLanguage),
-                        style = MaterialTheme.typography.labelLarge,
+                        style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        FilterChip(
-                            selected = sortOrder == TemplateSortOrder.RecentlyUsed,
-                            onClick = { sortOrder = TemplateSortOrder.RecentlyUsed },
-                            label = { Text(translate(TranslationKey.TemplateSortRecent, currentLanguage)) }
-                        )
-
-                        FilterChip(
-                            selected = sortOrder == TemplateSortOrder.Alphabetical,
-                            onClick = { sortOrder = TemplateSortOrder.Alphabetical },
-                            label = { Text(translate(TranslationKey.TemplateSortAlphabetical, currentLanguage)) }
+                    IconButton(onClick = {
+                        sortOrder = when (sortOrder) {
+                            TemplateSortOrder.RecentlyUsed -> TemplateSortOrder.Alphabetical
+                            TemplateSortOrder.Alphabetical -> TemplateSortOrder.RecentlyUsed
+                        }
+                    }) {
+                        Icon(
+                            imageVector = when (sortOrder) {
+                                TemplateSortOrder.RecentlyUsed -> Icons.Filled.AccessTime
+                                TemplateSortOrder.Alphabetical -> Icons.Filled.SortByAlpha
+                            },
+                            contentDescription = translate(
+                                TranslationKey.TemplateSortTitle,
+                                currentLanguage
+                            )
                         )
                     }
                 }
@@ -151,7 +151,7 @@ fun TemplateManagerScreen(
                         TemplateListRow(
                             template = template,
                             currentLanguage = currentLanguage,
-                            onSelect = { onTemplateSelected(template) },
+                            onSelect = { applyToBoth -> onTemplateSelected(template, applyToBoth) },
                             onEdit = { templateBeingEdited = template },
                             onDelete = { templateBeingDeleted = template }
                         )
@@ -250,14 +250,14 @@ fun TemplateManagerScreen(
 private fun TemplateListRow(
     template: BolusTemplateEntity,
     currentLanguage: AppLanguage,
-    onSelect: () -> Unit,
+    onSelect: (applyToBoth: Boolean) -> Unit,
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onSelect)
+            .clickable(onClick = { onSelect(false) })
             .padding(vertical = 2.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
@@ -284,6 +284,16 @@ private fun TemplateListRow(
                     }: ${template.carbohydrates.toLocalizedInput()}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            IconButton(onClick = { onSelect(true) }) {
+                Icon(
+                    imageVector = Icons.Filled.DoneAll,
+                    contentDescription = translate(
+                        TranslationKey.TemplateApplyToBothModes,
+                        currentLanguage
+                    )
                 )
             }
 
