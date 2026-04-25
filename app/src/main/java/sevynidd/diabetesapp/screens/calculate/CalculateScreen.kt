@@ -53,6 +53,7 @@ fun CalculateScreen(
     currentLanguage: AppLanguage = AppLanguage.System,
     factors: FactorsData = FactorsData(),
     breadUnits: Double = 12.0,
+    periodeFactorPercent: Double = 0.0,
     templatePrefillCarbohydrates: Double? = null,
     templatePrefillToken: Int = 0,
     selectedMode: BolusMode = BolusMode.Normal,
@@ -77,8 +78,14 @@ fun CalculateScreen(
     val now = LocalTime.now()
     val nowMinutes = (now.hour * 60) + now.minute
     val activeFactorInfo = activeFactorForTime(factors, nowMinutes)
-    val activeFactor = activeFactorInfo.factor
-    val activeFactorText = activeFactorInfo.toDisplayText(currentLanguage)
+    val sanitizedPeriodeFactorPercent = periodeFactorPercent.coerceAtLeast(0.0)
+    val factorMultiplier = if (factors.isPeriodeEnabled) {
+        1.0 + (sanitizedPeriodeFactorPercent / 100.0)
+    } else {
+        1.0
+    }
+    val activeFactor = activeFactorInfo.factor?.times(factorMultiplier)
+    val activeFactorText = activeFactorInfo.toDisplayText(currentLanguage, activeFactor)
     val effectiveBreadUnits = breadUnits.takeIf { it > 0.0 } ?: 12.0
 
     val carbohydratesValue = carbohydrates.replace(',', '.').toDoubleOrNull()
@@ -96,8 +103,8 @@ fun CalculateScreen(
     val splitDurationOffsetMinutes = splitDurationValue?.roundToInt()?.coerceAtLeast(0) ?: 120
     val futureFactorTimeMinutes = (nowMinutes + splitDurationOffsetMinutes) % MINUTES_PER_DAY
     val futureFactorInfo = activeFactorForTime(factors, futureFactorTimeMinutes)
-    val futureFactor = futureFactorInfo.factor
-    val futureFactorText = futureFactorInfo.toDisplayText(currentLanguage)
+    val futureFactor = futureFactorInfo.factor?.times(factorMultiplier)
+    val futureFactorText = futureFactorInfo.toDisplayText(currentLanguage, futureFactor)
 
     val splitImmediateCarbohydrates = if (splitCarbohydratesValue != null && splitImmediatePercentValue != null) {
         splitCarbohydratesValue * splitImmediatePercentValue / 100.0
@@ -469,10 +476,10 @@ private fun activeFactorForTime(factors: FactorsData, nowMinutes: Int): ActiveFa
     )
 }
 
-private fun ActiveFactorInfo.toDisplayText(language: AppLanguage): String {
+private fun ActiveFactorInfo.toDisplayText(language: AppLanguage, factorValue: Double? = factor): String {
     val factorName = translate(factorLabel, language)
-    val factorValue = factor.toUiDecimalOrEmpty()
-    return if (factorValue.isBlank()) factorName else "$factorName · $factorValue"
+    val valueText = factorValue.toUiDecimalOrEmpty()
+    return if (valueText.isBlank()) factorName else "$factorName · $valueText"
 }
 
 private fun Double?.toUiDecimalOrEmpty(): String {

@@ -9,7 +9,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [FactorProfileEntity::class, BolusTemplateEntity::class],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class DiabetesDatabase : RoomDatabase() {
@@ -27,7 +27,7 @@ abstract class DiabetesDatabase : RoomDatabase() {
                     DiabetesDatabase::class.java,
                     "diabetes_app.db"
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                     .build().also { created ->
                     instance = created
                 }
@@ -78,6 +78,12 @@ abstract class DiabetesDatabase : RoomDatabase() {
                 db.execSQL("UPDATE bolus_template SET nameNormalized = LOWER(TRIM(name)) WHERE nameNormalized = ''")
                 db.execSQL("DELETE FROM bolus_template WHERE id NOT IN (SELECT MAX(id) FROM bolus_template GROUP BY nameNormalized)")
                 db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_bolus_template_nameNormalized ON bolus_template(nameNormalized)")
+            }
+        }
+
+        private val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE factor_profile ADD COLUMN isPeriodeEnabled INTEGER NOT NULL DEFAULT 0")
             }
         }
     }

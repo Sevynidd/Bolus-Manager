@@ -6,6 +6,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "factor_profile")
 data class FactorProfileEntity(
     @PrimaryKey val id: Int = SINGLE_PROFILE_ID,
+    val isPeriodeEnabled: Boolean = false,
     val morningFactor: Double? = null,
     val breakfastFactor: Double? = null,
     val lunchFactor: Double? = null,

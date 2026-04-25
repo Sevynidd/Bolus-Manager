@@ -72,11 +72,13 @@ fun BolusManagerMainWindow(
     contrastLevel: ContrastLevel = ContrastLevel.Normal,
     currentLanguage: AppLanguage = AppLanguage.System,
     breadUnits: Double = 12.0,
+    periodeFactorPercent: Double = 0.0,
     factorData: FactorsData = FactorsData(),
     onThemeModeChange: (ThemeMode) -> Unit = {},
     onContrastLevelChange: (ContrastLevel) -> Unit = {},
     onLanguageChange: (AppLanguage) -> Unit = {},
     onBreadUnitsChange: (Double) -> Unit = {},
+    onPeriodeFactorPercentChange: (Double) -> Unit = {},
     onFactorSaveRequested: (FactorsData) -> Unit = {},
     templates: List<BolusTemplateEntity> = emptyList(),
     onTemplateAddRequested: suspend (name: String, emoji: String?, carbohydrates: Double) -> Boolean = { _, _, _ -> false },
@@ -280,7 +282,8 @@ fun BolusManagerMainWindow(
                                 isEditMode = factorEditorState.isEditMode,
                                 currentLanguage = currentLanguage,
                                 factors = factorEditorState.factors,
-                                onFactorsChange = factorEditorViewModel::updateDraft
+                                onFactorsChange = factorEditorViewModel::updateDraft,
+                                onPeriodeEnabledChange = factorEditorViewModel::updatePeriodeEnabled
                             )
 
                             FactorsDestination.EditSchedule -> ScheduleFactorScreen(
@@ -306,6 +309,7 @@ fun BolusManagerMainWindow(
                                 currentLanguage = currentLanguage,
                                 factors = factorEditorState.factors,
                                 breadUnits = breadUnits,
+                                periodeFactorPercent = periodeFactorPercent,
                                 templatePrefillCarbohydrates = templatePrefillCarbohydrates,
                                 templatePrefillToken = templatePrefillToken,
                                 selectedMode = calculateBolusMode,
@@ -341,6 +345,8 @@ fun BolusManagerMainWindow(
                             SettingsDestination.Main -> SettingsScreen(
                                 modifier = contentModifier,
                                 currentLanguage = currentLanguage,
+                                currentPeriodeFactorPercent = periodeFactorPercent,
+                                onPeriodeFactorPercentChange = onPeriodeFactorPercentChange,
                                 onNavigateToTheme = { settingsDestination = SettingsDestination.Theme },
                                 onNavigateToLanguage = { settingsDestination = SettingsDestination.Language },
                                 onNavigateToBreadUnits = { settingsDestination = SettingsDestination.BreadUnits }

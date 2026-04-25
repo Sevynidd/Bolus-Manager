@@ -60,6 +60,8 @@ enum class TranslationKey {
     BolusImmediateUnits,
     BolusExtendedUnits,
     FutureFactor,
+    PeriodeLabel,
+    PeriodeFactorPercent,
     BreadUnits,
     TemplatesTitle,
     TemplateAdd,
@@ -128,6 +130,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.BolusImmediateUnits -> "Immediate units"
             TranslationKey.BolusExtendedUnits -> "Extended units"
             TranslationKey.FutureFactor -> "Future factor"
+            TranslationKey.PeriodeLabel -> "Period?"
+            TranslationKey.PeriodeFactorPercent -> "Period increase (%)"
             TranslationKey.BreadUnits -> "Bread units"
             TranslationKey.TemplatesTitle -> "Templates"
             TranslationKey.TemplateAdd -> "Add template"
@@ -193,6 +197,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.BolusImmediateUnits -> "Sofort-Einheiten"
             TranslationKey.BolusExtendedUnits -> "Verzögerte Einheiten"
             TranslationKey.FutureFactor -> "Zukünftiger Faktor"
+            TranslationKey.PeriodeLabel -> "Periode?"
+            TranslationKey.PeriodeFactorPercent -> "Periode-Erhöhung (%)"
             TranslationKey.BreadUnits -> "Broteinheiten"
             TranslationKey.TemplatesTitle -> "Vorlagen"
             TranslationKey.TemplateAdd -> "Vorlage hinzufügen"
@@ -258,6 +264,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.BolusImmediateUnits -> "Unités immédiates"
             TranslationKey.BolusExtendedUnits -> "Unités prolongées"
             TranslationKey.FutureFactor -> "Facteur futur"
+            TranslationKey.PeriodeLabel -> "Période?"
+            TranslationKey.PeriodeFactorPercent -> "Augmentation Période (%)"
             TranslationKey.BreadUnits -> "Unités de pain"
             TranslationKey.TemplatesTitle -> "Modeles"
             TranslationKey.TemplateAdd -> "Ajouter un modele"
@@ -323,6 +331,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.BolusImmediateUnits -> "Jednostki natychmiastowe"
             TranslationKey.BolusExtendedUnits -> "Jednostki przedłużone"
             TranslationKey.FutureFactor -> "Przyszły współczynnik"
+            TranslationKey.PeriodeLabel -> "Okres?"
+            TranslationKey.PeriodeFactorPercent -> "Zwiększenie Okres (%)"
             TranslationKey.BreadUnits -> "Wymienniki chlebowe"
             TranslationKey.TemplatesTitle -> "Szablony"
             TranslationKey.TemplateAdd -> "Dodaj szablon"

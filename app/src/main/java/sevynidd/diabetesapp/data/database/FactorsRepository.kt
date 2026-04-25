@@ -19,6 +19,7 @@ class FactorsRepository(
 
 private fun FactorProfileEntity.toFactorsData(): FactorsData {
     return FactorsData(
+        isPeriodeEnabled = isPeriodeEnabled,
         morningFactor = morningFactor.toUiString(),
         breakfastFactor = breakfastFactor.toUiString(),
         lunchFactor = lunchFactor.toUiString(),
@@ -41,6 +42,7 @@ private fun FactorProfileEntity.toFactorsData(): FactorsData {
 private fun FactorsData.toEntity(): FactorProfileEntity {
     return FactorProfileEntity(
         id = FactorProfileEntity.SINGLE_PROFILE_ID,
+        isPeriodeEnabled = isPeriodeEnabled,
         morningFactor = morningFactor.toDbDoubleOrNull(),
         breakfastFactor = breakfastFactor.toDbDoubleOrNull(),
         lunchFactor = lunchFactor.toDbDoubleOrNull(),

@@ -2,14 +2,16 @@ package sevynidd.diabetesapp.screens.factors
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -20,6 +22,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
@@ -49,8 +52,10 @@ fun FactorScreen(
     isEditMode: Boolean = false,
     currentLanguage: AppLanguage = AppLanguage.System,
     factors: FactorsData = FactorsData(),
-    onFactorsChange: (FactorsData) -> Unit = {}
+    onFactorsChange: (FactorsData) -> Unit = {},
+    onPeriodeEnabledChange: (Boolean) -> Unit = {}
 ) {
+    var isPeriodeEnabled by rememberSaveable(factors.isPeriodeEnabled) { mutableStateOf(factors.isPeriodeEnabled) }
     var morningFactor by rememberSaveable(factors.morningFactor) { mutableStateOf(factors.morningFactor) }
     var breakfastFactor by rememberSaveable(factors.breakfastFactor) { mutableStateOf(factors.breakfastFactor) }
     var lunchFactor by rememberSaveable(factors.lunchFactor) { mutableStateOf(factors.lunchFactor) }
@@ -63,6 +68,7 @@ fun FactorScreen(
     fun emitFactorsChanged() {
         onFactorsChange(
             FactorsData(
+                isPeriodeEnabled = isPeriodeEnabled,
                 morningFactor = morningFactor,
                 breakfastFactor = breakfastFactor,
                 lunchFactor = lunchFactor,
@@ -154,10 +160,30 @@ fun FactorScreen(
         modifier = modifier.verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text(
-            text = translate(TranslationKey.LabelFactor, currentLanguage),
-            style = MaterialTheme.typography.titleMedium
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = translate(TranslationKey.LabelFactor, currentLanguage),
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = translate(TranslationKey.PeriodeLabel, currentLanguage),
+                    style = MaterialTheme.typography.labelLarge
+                )
+                Checkbox(
+                    checked = isPeriodeEnabled,
+                    onCheckedChange = { checked ->
+                        isPeriodeEnabled = checked
+                        onPeriodeEnabledChange(checked)
+                    }
+                )
+            }
+        }
 
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -182,7 +208,9 @@ fun FactorScreen(
         }
 
         Card(
-            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerLow
             )

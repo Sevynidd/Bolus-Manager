@@ -4,6 +4,7 @@ package sevynidd.diabetesapp.data.model
  * UI-friendly model for factor values. Decimal values are represented as strings using comma notation.
  */
 data class FactorsData(
+    val isPeriodeEnabled: Boolean = false,
     val morningFactor: String = "",
     val breakfastFactor: String = "",
     val lunchFactor: String = "",

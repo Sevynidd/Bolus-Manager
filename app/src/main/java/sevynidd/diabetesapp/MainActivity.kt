@@ -57,6 +57,7 @@ class MainActivity : ComponentActivity() {
                     contrastLevel = settings.contrastLevel,
                     currentLanguage = settings.language,
                     breadUnits = settings.breadUnits,
+                    periodeFactorPercent = settings.periodeFactorPercent,
                     onThemeModeChange = { themeMode ->
                         coroutineScope.launch { appSettingsStore.setThemeMode(themeMode) }
                     },
@@ -68,6 +69,9 @@ class MainActivity : ComponentActivity() {
                     },
                     onBreadUnitsChange = { breadUnits ->
                         coroutineScope.launch { appSettingsStore.setBreadUnits(breadUnits) }
+                    },
+                    onPeriodeFactorPercentChange = { percentage ->
+                        coroutineScope.launch { appSettingsStore.setPeriodeFactorPercent(percentage) }
                     },
                     factorData = factors,
                     onFactorSaveRequested = { updatedFactors ->
@@ -93,13 +97,5 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    BolusManagerTheme {
-        FactorScreen()
     }
 }

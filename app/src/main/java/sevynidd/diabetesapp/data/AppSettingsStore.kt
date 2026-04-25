@@ -28,7 +28,8 @@ data class AppSettings(
     val themeMode: ThemeMode = ThemeMode.System,
     val contrastLevel: ContrastLevel = ContrastLevel.Normal,
     val language: AppLanguage = AppLanguage.System,
-    val breadUnits: Double = DEFAULT_BREAD_UNITS
+    val breadUnits: Double = DEFAULT_BREAD_UNITS,
+    val periodeFactorPercent: Double = DEFAULT_PERIODE_FACTOR_PERCENT
 )
 
 class AppSettingsStore(private val context: Context) {
@@ -38,6 +39,7 @@ class AppSettingsStore(private val context: Context) {
         // Keep legacy key name so existing language value migrates seamlessly.
         val LANGUAGE = stringPreferencesKey(LEGACY_LANGUAGE_KEY)
         val BREAD_UNITS = stringPreferencesKey("bread_units")
+        val PERIODE_FACTOR_PERCENT = stringPreferencesKey("periode_factor_percent")
     }
 
     val settingsFlow: Flow<AppSettings> = context.appSettingsDataStore.data.map { preferences ->
@@ -45,7 +47,9 @@ class AppSettingsStore(private val context: Context) {
             themeMode = preferences[Keys.THEME_MODE].toEnumOrDefault(ThemeMode.System),
             contrastLevel = preferences[Keys.CONTRAST_LEVEL].toEnumOrDefault(ContrastLevel.Normal),
             language = preferences[Keys.LANGUAGE].toEnumOrDefault(AppLanguage.System),
-            breadUnits = preferences[Keys.BREAD_UNITS].toDoubleOrDefault(DEFAULT_BREAD_UNITS)
+            breadUnits = preferences[Keys.BREAD_UNITS].toDoubleOrDefault(DEFAULT_BREAD_UNITS),
+            periodeFactorPercent = preferences[Keys.PERIODE_FACTOR_PERCENT]
+                .toDoubleOrDefault(DEFAULT_PERIODE_FACTOR_PERCENT)
         )
     }
 
@@ -72,6 +76,12 @@ class AppSettingsStore(private val context: Context) {
             preferences[Keys.BREAD_UNITS] = breadUnits.toString()
         }
     }
+
+    suspend fun setPeriodeFactorPercent(percentage: Double) {
+        context.appSettingsDataStore.edit { preferences ->
+            preferences[Keys.PERIODE_FACTOR_PERCENT] = percentage.toString()
+        }
+    }
 }
 
 private inline fun <reified T : Enum<T>> String?.toEnumOrDefault(defaultValue: T): T {
@@ -86,4 +96,5 @@ private fun String?.toDoubleOrDefault(defaultValue: Double): Double {
 }
 
 private const val DEFAULT_BREAD_UNITS = 12.0
+private const val DEFAULT_PERIODE_FACTOR_PERCENT = 0.0
 
