@@ -54,8 +54,7 @@ fun CalculateScreen(
     factors: FactorsData = FactorsData(),
     breadUnits: Double = 12.0,
     templatePrefillCarbohydrates: Double? = null,
-    templatePrefillToken: Int = 0,
-    templateApplyToBothModes: Boolean = false
+    templatePrefillToken: Int = 0
 ) {
     var selectedMode by rememberSaveable { mutableStateOf(BolusMode.Normal) }
     var carbohydrates by rememberSaveable { mutableStateOf("") }
@@ -68,14 +67,9 @@ fun CalculateScreen(
         val value = templatePrefillCarbohydrates?.toUiDecimalOrEmpty().orEmpty()
         if (value.isBlank()) return@LaunchedEffect
 
-        if (templateApplyToBothModes) {
-            carbohydrates = value
-            splitCarbohydrates = value
-        } else {
-            when (selectedMode) {
-                BolusMode.Normal -> carbohydrates = value
-                BolusMode.Split -> splitCarbohydrates = value
-            }
+        when (selectedMode) {
+            BolusMode.Normal -> carbohydrates = value
+            BolusMode.Split -> splitCarbohydrates = value
         }
     }
 

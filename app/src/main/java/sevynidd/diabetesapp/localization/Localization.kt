@@ -72,7 +72,6 @@ enum class TranslationKey {
     TemplateEmpty,
     TemplateSortRecent,
     TemplateSortAlphabetical,
-    TemplateApplyToBothModes,
     TemplateDuplicateNameError
 }
 
@@ -141,7 +140,6 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.TemplateSortTitle -> "Order by"
             TranslationKey.TemplateSortRecent -> "Recently used"
             TranslationKey.TemplateSortAlphabetical -> "Alphabetical"
-            TranslationKey.TemplateApplyToBothModes -> "Apply to both modes"
             TranslationKey.TemplateDuplicateNameError -> "A template with this name already exists"
         }
 
@@ -207,7 +205,6 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.TemplateSortTitle -> "Sortierung"
             TranslationKey.TemplateSortRecent -> "Zuletzt verwendet"
             TranslationKey.TemplateSortAlphabetical -> "Alphabetisch"
-            TranslationKey.TemplateApplyToBothModes -> "Auf beide Modi anwenden"
             TranslationKey.TemplateDuplicateNameError -> "Eine Vorlage mit diesem Namen existiert bereits"
         }
 
@@ -273,7 +270,6 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.TemplateSortTitle -> "Trier par"
             TranslationKey.TemplateSortRecent -> "Recemment utilises"
             TranslationKey.TemplateSortAlphabetical -> "Alphabetique"
-            TranslationKey.TemplateApplyToBothModes -> "Appliquer aux deux modes"
             TranslationKey.TemplateDuplicateNameError -> "Un modele avec ce nom existe deja"
         }
 
@@ -339,7 +335,6 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.TemplateSortTitle -> "Sortowanie"
             TranslationKey.TemplateSortRecent -> "Ostatnio używane"
             TranslationKey.TemplateSortAlphabetical -> "Alfabetycznie"
-            TranslationKey.TemplateApplyToBothModes -> "Zastosuj do obu trybów"
             TranslationKey.TemplateDuplicateNameError -> "Szablon o tej nazwie już istnieje"
         }
 

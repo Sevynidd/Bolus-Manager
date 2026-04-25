@@ -18,7 +18,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.SortByAlpha
 import androidx.compose.material3.AlertDialog
@@ -61,7 +60,7 @@ fun TemplateManagerScreen(
     modifier: Modifier = Modifier,
     currentLanguage: AppLanguage,
     templates: List<BolusTemplateEntity>,
-    onTemplateSelected: (template: BolusTemplateEntity, applyToBoth: Boolean) -> Unit,
+    onTemplateSelected: (template: BolusTemplateEntity) -> Unit,
     onTemplateAddRequested: suspend (name: String, emoji: String?, carbohydrates: Double) -> Boolean,
     onTemplateUpdateRequested: suspend (BolusTemplateEntity) -> Boolean,
     onTemplateDeleteRequested: (BolusTemplateEntity) -> Unit
@@ -144,7 +143,7 @@ fun TemplateManagerScreen(
                         TemplateListRow(
                             template = template,
                             currentLanguage = currentLanguage,
-                            onSelect = { applyToBoth -> onTemplateSelected(template, applyToBoth) },
+                            onSelect = { onTemplateSelected(template) },
                             onEdit = { templateBeingEdited = template },
                             onDelete = { templateBeingDeleted = template }
                         )
@@ -243,14 +242,14 @@ fun TemplateManagerScreen(
 private fun TemplateListRow(
     template: BolusTemplateEntity,
     currentLanguage: AppLanguage,
-    onSelect: (applyToBoth: Boolean) -> Unit,
+    onSelect: () -> Unit,
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = { onSelect(false) })
+            .clickable(onClick = onSelect)
             .padding(vertical = 2.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
@@ -280,15 +279,6 @@ private fun TemplateListRow(
                 )
             }
 
-            IconButton(onClick = { onSelect(true) }) {
-                Icon(
-                    imageVector = Icons.Filled.DoneAll,
-                    contentDescription = translate(
-                        TranslationKey.TemplateApplyToBothModes,
-                        currentLanguage
-                    )
-                )
-            }
 
             IconButton(onClick = onEdit) {
                 Icon(
