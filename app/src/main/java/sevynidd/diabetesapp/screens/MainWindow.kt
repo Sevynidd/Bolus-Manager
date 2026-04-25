@@ -52,6 +52,7 @@ import sevynidd.diabetesapp.navigation.SettingsDestination
 import sevynidd.diabetesapp.navigation.calculateDestinationTransition
 import sevynidd.diabetesapp.navigation.factorsDestinationTransition
 import sevynidd.diabetesapp.navigation.settingsDestinationTransition
+import sevynidd.diabetesapp.screens.calculate.BolusMode
 import sevynidd.diabetesapp.screens.calculate.CalculateScreen
 import sevynidd.diabetesapp.screens.calculate.TemplateManagerScreen
 import sevynidd.diabetesapp.screens.factors.FactorEditSessionViewModel
@@ -87,6 +88,7 @@ fun BolusManagerMainWindow(
     var settingsDestination by rememberSaveable { mutableStateOf(SettingsDestination.Main) }
     var factorsDestination by rememberSaveable { mutableStateOf(FactorsDestination.Main) }
     var calculateDestination by rememberSaveable { mutableStateOf(CalculateDestination.Main) }
+    var calculateBolusMode by rememberSaveable { mutableStateOf(BolusMode.Normal) }
     val factorEditorViewModel: FactorEditSessionViewModel = viewModel()
     val factorEditorState = factorEditorViewModel.uiState
     val context = LocalContext.current
@@ -305,7 +307,9 @@ fun BolusManagerMainWindow(
                                 factors = factorEditorState.factors,
                                 breadUnits = breadUnits,
                                 templatePrefillCarbohydrates = templatePrefillCarbohydrates,
-                                templatePrefillToken = templatePrefillToken
+                                templatePrefillToken = templatePrefillToken,
+                                selectedMode = calculateBolusMode,
+                                onSelectedModeChange = { calculateBolusMode = it }
                             )
 
                             CalculateDestination.Templates -> TemplateManagerScreen(

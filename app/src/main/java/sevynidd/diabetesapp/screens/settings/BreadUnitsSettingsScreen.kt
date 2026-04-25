@@ -62,7 +62,7 @@ fun BreadUnitsSettingsScreen(
                             newValue.replace(',', '.').toDoubleOrNull()?.takeIf { it > 0.0 }?.let(onBreadUnitsChange)
                         }
                     },
-                    label = { Text(translate(TranslationKey.BreadUnits, currentLanguage)) },
+                    label = { Text(translate(TranslationKey.Carbohydrates, currentLanguage)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
