@@ -53,7 +53,7 @@ jobs:
     - name: Run Detekt
       id: run_detekt
       continue-on-error: true
-      run: ./gradlew detekt --stacktrace
+      run: bash gradlew detekt --stacktrace
 
     # Surfaces what actually happened even when the step above is collapsed in the UI,
     # so a real (pre-analysis) failure is never silently swallowed by continue-on-error.
