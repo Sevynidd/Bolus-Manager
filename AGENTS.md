@@ -1,10 +1,12 @@
 # AGENTS.md
 
 ## Project
+
 Bolus Manager — Android app (Kotlin, Jetpack Compose, Material 3, Room, DataStore)
 for managing diabetes-relevant factors, time windows, and bolus calculations.
 
 ## Build & Test
+
 - Build: `./gradlew assembleDebug`
 - Unit tests: `./gradlew testDebugUnitTest`
 - Instrumented tests: `./gradlew connectedDebugAndroidTest`
@@ -13,6 +15,7 @@ Run unit tests after every change to `data/` or calculation logic before
 considering a task done. Do not mark a task complete if `testDebugUnitTest` fails.
 
 ## Static Analysis (Detekt)
+
 - Run locally: `./gradlew detekt`. Config lives at `config/detekt/detekt.yml`
   (builds upon Detekt's default rule set — only deviations are listed there,
   e.g. `FunctionNaming` ignores `@Composable` functions since PascalCase is
@@ -36,11 +39,15 @@ considering a task done. Do not mark a task complete if `testDebugUnitTest` fail
   do not mark a task complete if it fails.
 
 ## Language
+
 - All code, identifiers, comments, commit messages, and internal docs are
   written in English — regardless of which language the UI is localized into.
   Only user-facing strings in `localization/` may be non-English.
+- UI strings go through the existing localization mechanism in
+  `localization/` — no hardcoded German/English strings in Composables.
 
 ## Architecture
+
 - Layers: `data` (Room entities/DAOs, DataStore, repositories) → domain/calculation
   logic (plain Kotlin, no Android imports) → `screens`/`ui` (Compose, stateless
   where possible) → `navigation`.
@@ -52,6 +59,7 @@ considering a task done. Do not mark a task complete if `testDebugUnitTest` fail
   calculation testable without an emulator.
 
 ## Data / Persistence
+
 - Room schema changes go through a proper migration, not ad-hoc column changes.
 - Schema design must respect normal forms (up to 3NF unless there's a documented
   performance reason not to): no repeating groups, every non-key column depends
@@ -60,6 +68,7 @@ considering a task done. Do not mark a task complete if `testDebugUnitTest` fail
   across day-schedule rows), that's a modeling bug, not a shortcut.
 
 ## Testability
+
 - Every function that contains a decision or a calculation (factor lookup,
   split-bolus math, time-window resolution) must be a pure function: same input
   → same output, no hidden state, no side effects — and must have a unit test.
@@ -74,6 +83,7 @@ considering a task done. Do not mark a task complete if `testDebugUnitTest` fail
   carbs).
 
 ## KISS / YAGNI / DRY
+
 - Solve the task in front of you. Don't add configuration hooks, strategy
   patterns, or abstraction layers for a second use case that doesn't exist yet.
 - Duplication across 2 call sites is fine; extract a shared function only once
@@ -83,6 +93,7 @@ considering a task done. Do not mark a task complete if `testDebugUnitTest` fail
 - No speculative feature flags, no "just in case" nullable fields.
 
 ## Readability & Comments
+
 - Names should make comments unnecessary: `calculateDelayedSplitUnits(...)` not
   `calc2(...)`.
 - Comment only the non-obvious: *why* a formula uses a specific rounding rule,
@@ -92,10 +103,37 @@ considering a task done. Do not mark a task complete if `testDebugUnitTest` fail
 - Keep functions short enough to read without scrolling; if a Composable body
   exceeds ~40 lines, extract sub-composables.
 
-## Localization
-- UI strings go through the existing localization mechanism in
-  `localization/` — no hardcoded German/English strings in Composables.
+## Documentation
+
+- `README.md` must stay in sync with the code. Whenever a change adds,
+  removes, or alters user-facing behavior (features, screens, settings,
+  calculation rules, persisted data, tech-stack versions), update the
+  matching README section (`Features`, `Datenhaltung & Persistenz`,
+  `Berechnungslogik`, `Validierung & Eingabeverhalten`, `Tech-Stack`,
+  `Projektstruktur (Auszug)`) in the same change. Do not mark a task
+  complete if the README still describes the old behavior.
+- README should be in English, matching the code and comments (see `Language`).
+- New top-level files/packages under `app/src/main/java/sevynidd/diabetesapp/`
+  get a one-line entry in `Projektstruktur (Auszug)`; remove the entry if the
+  file is deleted.
+- Every public class, object, and function outside of `screens`/`ui` (i.e.
+  `data`, domain/calculation logic, repositories, DAOs) gets a KDoc comment
+  (`/** ... */`) stating what it represents or computes — not how, the code
+  already shows how. Composables and other UI-layer functions are exempt
+  unless they expose a non-obvious contract (e.g. a Composable that mutates
+  shared state as a side effect).
+- KDoc on a calculation function documents its formula/rule and any
+  non-obvious rounding or clamping behavior (e.g. the `0,25`-step rounding
+  and `100`% split-bolus cap from `Validierung & Eingabeverhalten`) so the
+  contract is visible without cross-referencing the README.
+- Don't restate the function signature in prose (no "returns a Boolean"); say
+  what the value/state means.
+- Keep KDoc in sync with the code it documents in the same commit — stale
+  KDoc is worse than none.
 
 ## Definition of Done
+
 - Compiles, unit tests pass, new/changed calculation logic has tests, no
   hardcoded strings, no dead/commented-out code left behind.
+- `README.md` reflects the change, and touched public declarations in
+  `data`/domain/calculation code have up-to-date KDoc (see `Documentation`).
