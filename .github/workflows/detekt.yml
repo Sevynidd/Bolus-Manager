@@ -48,9 +48,27 @@ jobs:
       uses: gradle/actions/setup-gradle@v6
 
     # Runs Detekt using the project's own config and baseline (see app/build.gradle.kts)
+    # continue-on-error is intentional: Detekt fails the Gradle build when it finds
+    # issues, but the report is still written and we want to upload it regardless.
     - name: Run Detekt
+      id: run_detekt
       continue-on-error: true
-      run: ./gradlew detekt
+      run: ./gradlew detekt --stacktrace
+
+    # Surfaces what actually happened even when the step above is collapsed in the UI,
+    # so a real (pre-analysis) failure is never silently swallowed by continue-on-error.
+    - name: Check Detekt report was produced
+      if: always()
+      run: |
+        echo "Run Detekt step outcome: ${{ steps.run_detekt.outcome }}"
+        if [ -f "app/build/reports/detekt/detekt.sarif" ]; then
+          echo "detekt.sarif found:"
+          ls -la app/build/reports/detekt/
+        else
+          echo "::error::detekt.sarif was not produced. The Detekt task likely failed before running analysis (e.g. dependency/type resolution error) rather than failing on lint findings. Check the 'Run Detekt' step log above for the real error."
+          find app/build/reports -type f 2>/dev/null || echo "No reports directory at all."
+          exit 1
+        fi
 
     # Modifies the SARIF output produced by Detekt so that absolute URIs are relative
     # This is so we can easily map results onto their source files
