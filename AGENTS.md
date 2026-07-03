@@ -12,6 +12,29 @@ for managing diabetes-relevant factors, time windows, and bolus calculations.
 Run unit tests after every change to `data/` or calculation logic before
 considering a task done. Do not mark a task complete if `testDebugUnitTest` fails.
 
+## Static Analysis (Detekt)
+- Run locally: `./gradlew detekt`. Config lives at `config/detekt/detekt.yml`
+  (builds upon Detekt's default rule set — only deviations are listed there,
+  e.g. `FunctionNaming` ignores `@Composable` functions since PascalCase is
+  the Compose convention, not a naming violation).
+- The build **fails** on any new finding not already in
+  `config/detekt/baseline.xml` (`maxIssues: 0`). The baseline grandfathers in
+  findings that existed when Detekt was introduced — don't add new entries to
+  it to silence a violation; fix the code instead. Paying down an existing
+  baseline entry while touching that code is welcome but not required.
+- Keep new/changed Kotlin under Detekt's default thresholds: short functions
+  (`LongMethod`) with few parameters (`LongParameterList`), low cyclomatic
+  complexity (`ComplexMethod`, `LargeClass`), named constants instead of
+  magic numbers other than `0`/`1`/`-1` (`MagicNumber`), no wildcard imports,
+  no catching/throwing generic `Exception`/`Throwable`.
+- Detekt also runs in CI (`.github/workflows/detekt.yml`) on every push/PR to
+  `main` and weekly, uploading results to the repo's Security → Code scanning
+  tab. That CI run is a separate, non-blocking SARIF scan
+  (`continue-on-error: true`) — the local `./gradlew detekt` run above is what
+  actually gates the build.
+- Run `./gradlew detekt` after changes to Kotlin source, same as unit tests;
+  do not mark a task complete if it fails.
+
 ## Language
 - All code, identifiers, comments, commit messages, and internal docs are
   written in English — regardless of which language the UI is localized into.

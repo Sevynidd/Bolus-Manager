@@ -1,0 +1,189 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:CalculateScreen.kt$@Composable fun CalculateScreen( modifier: Modifier = Modifier, currentLanguage: AppLanguage = AppLanguage.System, factors: FactorsData = FactorsData(), breadUnits: Double = 12.0, periodeFactorPercent: Double = 0.0, templatePrefillCarbohydrates: Double? = null, templatePrefillToken: Int = 0, selectedMode: BolusMode = BolusMode.Normal, onSelectedModeChange: (BolusMode) -&gt; Unit = {} )</ID>
+    <ID>CyclomaticComplexMethod:Localization.kt$fun translate(key: TranslationKey, language: AppLanguage): String</ID>
+    <ID>CyclomaticComplexMethod:MainWindow.kt$@OptIn(ExperimentalMaterial3Api::class) @PreviewScreenSizes @Composable fun BolusManagerMainWindow( themeMode: ThemeMode = ThemeMode.System, contrastLevel: ContrastLevel = ContrastLevel.Normal, currentLanguage: AppLanguage = AppLanguage.System, breadUnits: Double = 12.0, periodeFactorPercent: Double = 0.0, factorData: FactorsData = FactorsData(), onThemeModeChange: (ThemeMode) -&gt; Unit = {}, onContrastLevelChange: (ContrastLevel) -&gt; Unit = {}, onLanguageChange: (AppLanguage) -&gt; Unit = {}, onBreadUnitsChange: (Double) -&gt; Unit = {}, onPeriodeFactorPercentChange: (Double) -&gt; Unit = {}, onFactorSaveRequested: (FactorsData) -&gt; Unit = {}, templates: List&lt;BolusTemplateEntity&gt; = emptyList(), onTemplateAddRequested: suspend (name: String, emoji: String?, carbohydrates: Double) -&gt; Boolean = { _, _, _ -&gt; false }, onTemplateUpdateRequested: suspend (BolusTemplateEntity) -&gt; Boolean = { false }, onTemplateDeleteRequested: (BolusTemplateEntity) -&gt; Unit = {}, onTemplateMarkUsedRequested: (Long) -&gt; Unit = {} )</ID>
+    <ID>LongMethod:AnimatedGapPieChart.kt$@Composable fun AnimatedGapPieChart( modifier: Modifier = Modifier, pieDataPoints: List&lt;PieData&gt; )</ID>
+    <ID>LongMethod:CalculateScreen.kt$@Composable fun CalculateScreen( modifier: Modifier = Modifier, currentLanguage: AppLanguage = AppLanguage.System, factors: FactorsData = FactorsData(), breadUnits: Double = 12.0, periodeFactorPercent: Double = 0.0, templatePrefillCarbohydrates: Double? = null, templatePrefillToken: Int = 0, selectedMode: BolusMode = BolusMode.Normal, onSelectedModeChange: (BolusMode) -&gt; Unit = {} )</ID>
+    <ID>LongMethod:FactorScreen.kt$@Composable fun FactorScreen( modifier: Modifier = Modifier, isEditMode: Boolean = false, currentLanguage: AppLanguage = AppLanguage.System, factors: FactorsData = FactorsData(), onFactorsChange: (FactorsData) -&gt; Unit = {}, onPeriodeEnabledChange: (Boolean) -&gt; Unit = {} )</ID>
+    <ID>LongMethod:Localization.kt$fun translate(key: TranslationKey, language: AppLanguage): String</ID>
+    <ID>LongMethod:MainActivity.kt$MainActivity$override fun onCreate(savedInstanceState: Bundle?)</ID>
+    <ID>LongMethod:MainWindow.kt$@OptIn(ExperimentalMaterial3Api::class) @PreviewScreenSizes @Composable fun BolusManagerMainWindow( themeMode: ThemeMode = ThemeMode.System, contrastLevel: ContrastLevel = ContrastLevel.Normal, currentLanguage: AppLanguage = AppLanguage.System, breadUnits: Double = 12.0, periodeFactorPercent: Double = 0.0, factorData: FactorsData = FactorsData(), onThemeModeChange: (ThemeMode) -&gt; Unit = {}, onContrastLevelChange: (ContrastLevel) -&gt; Unit = {}, onLanguageChange: (AppLanguage) -&gt; Unit = {}, onBreadUnitsChange: (Double) -&gt; Unit = {}, onPeriodeFactorPercentChange: (Double) -&gt; Unit = {}, onFactorSaveRequested: (FactorsData) -&gt; Unit = {}, templates: List&lt;BolusTemplateEntity&gt; = emptyList(), onTemplateAddRequested: suspend (name: String, emoji: String?, carbohydrates: Double) -&gt; Boolean = { _, _, _ -&gt; false }, onTemplateUpdateRequested: suspend (BolusTemplateEntity) -&gt; Boolean = { false }, onTemplateDeleteRequested: (BolusTemplateEntity) -&gt; Unit = {}, onTemplateMarkUsedRequested: (Long) -&gt; Unit = {} )</ID>
+    <ID>LongMethod:ScheduleFactorScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ScheduleFactorScreen( modifier: Modifier = Modifier, currentLanguage: AppLanguage = AppLanguage.System, factors: FactorsData = FactorsData(), onFactorsChange: (FactorsData) -&gt; Unit = {} )</ID>
+    <ID>LongMethod:TemplateManagerScreen.kt$@Composable private fun TemplateEditorDialog( currentLanguage: AppLanguage, titleKey: TranslationKey, initialName: String, initialEmoji: String?, initialCarbohydrates: String, templates: List&lt;BolusTemplateEntity&gt;, editingId: Long? = null, onDismissRequest: () -&gt; Unit, onConfirm: (name: String, emoji: String?, carbohydrates: Double) -&gt; Unit )</ID>
+    <ID>LongMethod:TemplateManagerScreen.kt$@OptIn(ExperimentalLayoutApi::class) @Composable fun TemplateManagerScreen( modifier: Modifier = Modifier, currentLanguage: AppLanguage, templates: List&lt;BolusTemplateEntity&gt;, onTemplateSelected: (template: BolusTemplateEntity) -&gt; Unit, onTemplateAddRequested: suspend (name: String, emoji: String?, carbohydrates: Double) -&gt; Boolean, onTemplateUpdateRequested: suspend (BolusTemplateEntity) -&gt; Boolean, onTemplateDeleteRequested: (BolusTemplateEntity) -&gt; Unit )</ID>
+    <ID>LongParameterList:CalculateScreen.kt$( modifier: Modifier = Modifier, currentLanguage: AppLanguage = AppLanguage.System, factors: FactorsData = FactorsData(), breadUnits: Double = 12.0, periodeFactorPercent: Double = 0.0, templatePrefillCarbohydrates: Double? = null, templatePrefillToken: Int = 0, selectedMode: BolusMode = BolusMode.Normal, onSelectedModeChange: (BolusMode) -&gt; Unit = {} )</ID>
+    <ID>LongParameterList:CalculateScreen.kt$( value: String, onValueChange: (String) -&gt; Unit, label: String, keyboardType: KeyboardType, imeAction: ImeAction, keyboardActions: KeyboardActions, sanitizeInput: (String) -&gt; String?, modifier: Modifier = Modifier )</ID>
+    <ID>LongParameterList:FactorScreen.kt$( modifier: Modifier = Modifier, isEditMode: Boolean = false, currentLanguage: AppLanguage = AppLanguage.System, factors: FactorsData = FactorsData(), onFactorsChange: (FactorsData) -&gt; Unit = {}, onPeriodeEnabledChange: (Boolean) -&gt; Unit = {} )</ID>
+    <ID>LongParameterList:FactorScreen.kt$( value: String, onValueChange: (String) -&gt; Unit, description: String, label: String, enabled: Boolean, modifier: Modifier = Modifier )</ID>
+    <ID>LongParameterList:MainWindow.kt$( themeMode: ThemeMode = ThemeMode.System, contrastLevel: ContrastLevel = ContrastLevel.Normal, currentLanguage: AppLanguage = AppLanguage.System, breadUnits: Double = 12.0, periodeFactorPercent: Double = 0.0, factorData: FactorsData = FactorsData(), onThemeModeChange: (ThemeMode) -&gt; Unit = {}, onContrastLevelChange: (ContrastLevel) -&gt; Unit = {}, onLanguageChange: (AppLanguage) -&gt; Unit = {}, onBreadUnitsChange: (Double) -&gt; Unit = {}, onPeriodeFactorPercentChange: (Double) -&gt; Unit = {}, onFactorSaveRequested: (FactorsData) -&gt; Unit = {}, templates: List&lt;BolusTemplateEntity&gt; = emptyList(), onTemplateAddRequested: suspend (name: String, emoji: String?, carbohydrates: Double) -&gt; Boolean = { _, _, _ -&gt; false }, onTemplateUpdateRequested: suspend (BolusTemplateEntity) -&gt; Boolean = { false }, onTemplateDeleteRequested: (BolusTemplateEntity) -&gt; Unit = {}, onTemplateMarkUsedRequested: (Long) -&gt; Unit = {} )</ID>
+    <ID>LongParameterList:ScheduleFactorScreen.kt$( morning: Int, breakfast: Int, lunch: Int, afternoon: Int, dinner: Int, late: Int, night: Int )</ID>
+    <ID>LongParameterList:SettingsScreen.kt$( modifier: Modifier = Modifier, currentLanguage: AppLanguage = AppLanguage.System, currentPeriodeFactorPercent: Double = 0.0, onPeriodeFactorPercentChange: (Double) -&gt; Unit = {}, onNavigateToTheme: () -&gt; Unit = {}, onNavigateToLanguage: () -&gt; Unit = {}, onNavigateToBreadUnits: () -&gt; Unit = {} )</ID>
+    <ID>LongParameterList:TemplateManagerScreen.kt$( currentLanguage: AppLanguage, titleKey: TranslationKey, initialName: String, initialEmoji: String?, initialCarbohydrates: String, templates: List&lt;BolusTemplateEntity&gt;, editingId: Long? = null, onDismissRequest: () -&gt; Unit, onConfirm: (name: String, emoji: String?, carbohydrates: Double) -&gt; Unit )</ID>
+    <ID>LongParameterList:TemplateManagerScreen.kt$( modifier: Modifier = Modifier, currentLanguage: AppLanguage, templates: List&lt;BolusTemplateEntity&gt;, onTemplateSelected: (template: BolusTemplateEntity) -&gt; Unit, onTemplateAddRequested: suspend (name: String, emoji: String?, carbohydrates: Double) -&gt; Boolean, onTemplateUpdateRequested: suspend (BolusTemplateEntity) -&gt; Boolean, onTemplateDeleteRequested: (BolusTemplateEntity) -&gt; Unit )</ID>
+    <ID>LongParameterList:ThemeSettingsScreen.kt$( modifier: Modifier = Modifier, currentThemeMode: ThemeMode = ThemeMode.System, currentContrastLevel: ContrastLevel = ContrastLevel.Normal, currentLanguage: AppLanguage = AppLanguage.System, onThemeModeChange: (ThemeMode) -&gt; Unit = {}, onContrastLevelChange: (ContrastLevel) -&gt; Unit = {}, onBackClick: () -&gt; Unit = {} )</ID>
+    <ID>MagicNumber:AnimatedGapPieChart.kt$16f</ID>
+    <ID>MagicNumber:AnimatedGapPieChart.kt$360f</ID>
+    <ID>MagicNumber:CalculateScreen.kt$100</ID>
+    <ID>MagicNumber:CalculateScreen.kt$100.0</ID>
+    <ID>MagicNumber:CalculateScreen.kt$12.0</ID>
+    <ID>MagicNumber:CalculateScreen.kt$120</ID>
+    <ID>MagicNumber:CalculateScreen.kt$60</ID>
+    <ID>MagicNumber:Color.kt$0xFF000000</ID>
+    <ID>MagicNumber:Color.kt$0xFF0D0604</ID>
+    <ID>MagicNumber:Color.kt$0xFF140C0A</ID>
+    <ID>MagicNumber:Color.kt$0xFF180F0D</ID>
+    <ID>MagicNumber:Color.kt$0xFF190603</ID>
+    <ID>MagicNumber:Color.kt$0xFF1A110F</ID>
+    <ID>MagicNumber:Color.kt$0xFF1B0500</ID>
+    <ID>MagicNumber:Color.kt$0xFF1E0300</ID>
+    <ID>MagicNumber:Color.kt$0xFF220001</ID>
+    <ID>MagicNumber:Color.kt$0xFF231917</ID>
+    <ID>MagicNumber:Color.kt$0xFF251B19</ID>
+    <ID>MagicNumber:Color.kt$0xFF271D1B</ID>
+    <ID>MagicNumber:Color.kt$0xFF302623</ID>
+    <ID>MagicNumber:Color.kt$0xFF322825</ID>
+    <ID>MagicNumber:Color.kt$0xFF372925</ID>
+    <ID>MagicNumber:Color.kt$0xFF381F18</ID>
+    <ID>MagicNumber:Color.kt$0xFF392E2B</ID>
+    <ID>MagicNumber:Color.kt$0xFF3B302D</ID>
+    <ID>MagicNumber:Color.kt$0xFF3D322F</ID>
+    <ID>MagicNumber:Color.kt$0xFF3F261E</ID>
+    <ID>MagicNumber:Color.kt$0xFF41332F</ID>
+    <ID>MagicNumber:Color.kt$0xFF423734</ID>
+    <ID>MagicNumber:Color.kt$0xFF442A22</ID>
+    <ID>MagicNumber:Color.kt$0xFF443936</ID>
+    <ID>MagicNumber:Color.kt$0xFF461601</ID>
+    <ID>MagicNumber:Color.kt$0xFF463B38</ID>
+    <ID>MagicNumber:Color.kt$0xFF481506</ID>
+    <ID>MagicNumber:Color.kt$0xFF4B2F28</ID>
+    <ID>MagicNumber:Color.kt$0xFF4E423F</ID>
+    <ID>MagicNumber:Color.kt$0xFF4F1C04</ID>
+    <ID>MagicNumber:Color.kt$0xFF501B0B</ID>
+    <ID>MagicNumber:Color.kt$0xFF504441</ID>
+    <ID>MagicNumber:Color.kt$0xFF53433F</ID>
+    <ID>MagicNumber:Color.kt$0xFF540003</ID>
+    <ID>MagicNumber:Color.kt$0xFF552107</ID>
+    <ID>MagicNumber:Color.kt$0xFF554641</ID>
+    <ID>MagicNumber:Color.kt$0xFF561F0F</ID>
+    <ID>MagicNumber:Color.kt$0xFF5A4D4A</ID>
+    <ID>MagicNumber:Color.kt$0xFF5C260C</ID>
+    <ID>MagicNumber:Color.kt$0xFF5D2514</ID>
+    <ID>MagicNumber:Color.kt$0xFF5D4037</ID>
+    <ID>MagicNumber:Color.kt$0xFF5F4F4A</ID>
+    <ID>MagicNumber:Color.kt$0xFF600004</ID>
+    <ID>MagicNumber:Color.kt$0xFF60423A</ID>
+    <ID>MagicNumber:Color.kt$0xFF690005</ID>
+    <ID>MagicNumber:Color.kt$0xFF71361B</ID>
+    <ID>MagicNumber:Color.kt$0xFF723523</ID>
+    <ID>MagicNumber:Color.kt$0xFF740006</ID>
+    <ID>MagicNumber:Color.kt$0xFF743624</ID>
+    <ID>MagicNumber:Color.kt$0xFF74381D</ID>
+    <ID>MagicNumber:Color.kt$0xFF753725</ID>
+    <ID>MagicNumber:Color.kt$0xFF77574E</ID>
+    <ID>MagicNumber:Color.kt$0xFF7B6964</ID>
+    <ID>MagicNumber:Color.kt$0xFF85736E</ID>
+    <ID>MagicNumber:Color.kt$0xFF87655C</ID>
+    <ID>MagicNumber:Color.kt$0xFF8E4D30</ID>
+    <ID>MagicNumber:Color.kt$0xFF8F4C38</ID>
+    <ID>MagicNumber:Color.kt$0xFF93000A</ID>
+    <ID>MagicNumber:Color.kt$0xFF98000A</ID>
+    <ID>MagicNumber:Color.kt$0xFFA05B3D</ID>
+    <ID>MagicNumber:Color.kt$0xFFA08C87</ID>
+    <ID>MagicNumber:Color.kt$0xFFA15A45</ID>
+    <ID>MagicNumber:Color.kt$0xFFAE887E</ID>
+    <ID>MagicNumber:Color.kt$0xFFBA1A1A</ID>
+    <ID>MagicNumber:Color.kt$0xFFC2ADA8</ID>
+    <ID>MagicNumber:Color.kt$0xFFC6B5B1</ID>
+    <ID>MagicNumber:Color.kt$0xFFCA7D5D</ID>
+    <ID>MagicNumber:Color.kt$0xFFCB7C65</ID>
+    <ID>MagicNumber:Color.kt$0xFFCF2C27</ID>
+    <ID>MagicNumber:Color.kt$0xFFD4BEB8</ID>
+    <ID>MagicNumber:Color.kt$0xFFD4C3BE</ID>
+    <ID>MagicNumber:Color.kt$0xFFD8C2BC</ID>
+    <ID>MagicNumber:Color.kt$0xFFDFCEC9</ID>
+    <ID>MagicNumber:Color.kt$0xFFE2D1CC</ID>
+    <ID>MagicNumber:Color.kt$0xFFE3B9AE</ID>
+    <ID>MagicNumber:Color.kt$0xFFE7BDB2</ID>
+    <ID>MagicNumber:Color.kt$0xFFE8D6D2</ID>
+    <ID>MagicNumber:Color.kt$0xFFEBD9D4</ID>
+    <ID>MagicNumber:Color.kt$0xFFEED7D1</ID>
+    <ID>MagicNumber:Color.kt$0xFFF1DFDA</ID>
+    <ID>MagicNumber:Color.kt$0xFFF5DED8</ID>
+    <ID>MagicNumber:Color.kt$0xFFF7E4E0</ID>
+    <ID>MagicNumber:Color.kt$0xFFFCEAE5</ID>
+    <ID>MagicNumber:Color.kt$0xFFFED3C7</ID>
+    <ID>MagicNumber:Color.kt$0xFFFF5449</ID>
+    <ID>MagicNumber:Color.kt$0xFFFFAEA4</ID>
+    <ID>MagicNumber:Color.kt$0xFFFFAF98</ID>
+    <ID>MagicNumber:Color.kt$0xFFFFB08F</ID>
+    <ID>MagicNumber:Color.kt$0xFFFFB4AB</ID>
+    <ID>MagicNumber:Color.kt$0xFFFFB597</ID>
+    <ID>MagicNumber:Color.kt$0xFFFFB5A0</ID>
+    <ID>MagicNumber:Color.kt$0xFFFFD2C6</ID>
+    <ID>MagicNumber:Color.kt$0xFFFFD2CC</ID>
+    <ID>MagicNumber:Color.kt$0xFFFFD3C2</ID>
+    <ID>MagicNumber:Color.kt$0xFFFFDAD6</ID>
+    <ID>MagicNumber:Color.kt$0xFFFFDBCD</ID>
+    <ID>MagicNumber:Color.kt$0xFFFFDBD1</ID>
+    <ID>MagicNumber:Color.kt$0xFFFFECE6</ID>
+    <ID>MagicNumber:Color.kt$0xFFFFECE7</ID>
+    <ID>MagicNumber:Color.kt$0xFFFFECE9</ID>
+    <ID>MagicNumber:Color.kt$0xFFFFEDE8</ID>
+    <ID>MagicNumber:Color.kt$0xFFFFF1ED</ID>
+    <ID>MagicNumber:Color.kt$0xFFFFF8F6</ID>
+    <ID>MagicNumber:Color.kt$0xFFFFFFFF</ID>
+    <ID>MagicNumber:DiabetesDatabase.kt$DiabetesDatabase.Companion.&lt;no name provided&gt;$3</ID>
+    <ID>MagicNumber:DiabetesDatabase.kt$DiabetesDatabase.Companion.&lt;no name provided&gt;$4</ID>
+    <ID>MagicNumber:DiabetesDatabase.kt$DiabetesDatabase.Companion.&lt;no name provided&gt;$5</ID>
+    <ID>MagicNumber:FactorScreen.kt$0.25</ID>
+    <ID>MagicNumber:FactorScreen.kt$60</ID>
+    <ID>MagicNumber:FactorsData.kt$FactorsData$12</ID>
+    <ID>MagicNumber:FactorsData.kt$FactorsData$14</ID>
+    <ID>MagicNumber:FactorsData.kt$FactorsData$17</ID>
+    <ID>MagicNumber:FactorsData.kt$FactorsData$19</ID>
+    <ID>MagicNumber:FactorsData.kt$FactorsData$20</ID>
+    <ID>MagicNumber:FactorsData.kt$FactorsData$23</ID>
+    <ID>MagicNumber:FactorsData.kt$FactorsData$5</ID>
+    <ID>MagicNumber:FactorsData.kt$FactorsData$60</ID>
+    <ID>MagicNumber:FactorsData.kt$FactorsData$9</ID>
+    <ID>MagicNumber:Navigation.kt$4</ID>
+    <ID>MagicNumber:ScheduleFactorScreen.kt$0xFF009688</ID>
+    <ID>MagicNumber:ScheduleFactorScreen.kt$0xFF3949AB</ID>
+    <ID>MagicNumber:ScheduleFactorScreen.kt$0xFF42A1D5</ID>
+    <ID>MagicNumber:ScheduleFactorScreen.kt$0xFF8D9311</ID>
+    <ID>MagicNumber:ScheduleFactorScreen.kt$0xFF9400D3</ID>
+    <ID>MagicNumber:ScheduleFactorScreen.kt$0xFFE91E63</ID>
+    <ID>MagicNumber:ScheduleFactorScreen.kt$0xFFFF7F00</ID>
+    <ID>MagicNumber:ScheduleFactorScreen.kt$24</ID>
+    <ID>MagicNumber:ScheduleFactorScreen.kt$60</ID>
+    <ID>MagicNumber:Theme.kt$0.5f</ID>
+    <ID>MagicNumber:Theme.kt$0.8f</ID>
+    <ID>MatchingDeclarationName:CalculateScreen.kt$BolusMode</ID>
+    <ID>MatchingDeclarationName:TemplateManagerScreen.kt$TemplateSortOrder</ID>
+    <ID>MaxLineLength:CalculateScreen.kt$keyboardActions = KeyboardActions(onNext = { splitImmediatePercentRequester.requestFocus() })</ID>
+    <ID>MaxLineLength:DiabetesDatabase.kt$DiabetesDatabase.Companion.&lt;no name provided&gt;$db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_bolus_template_nameNormalized ON bolus_template(nameNormalized)")</ID>
+    <ID>MaxLineLength:DiabetesDatabase.kt$DiabetesDatabase.Companion.&lt;no name provided&gt;$db.execSQL("DELETE FROM bolus_template WHERE id NOT IN (SELECT MAX(id) FROM bolus_template GROUP BY nameNormalized)")</ID>
+    <ID>MaxLineLength:Localization.kt$TranslationKey.ScheduleAutoOrderHint -&gt; "Godziny są automatycznie korygowane, aby zachować kolejność w ciągu dnia."</ID>
+    <ID>MaxLineLength:Localization.kt$TranslationKey.ScheduleAutoOrderHint -&gt; "Les heures sont corrigées automatiquement pour conserver l'ordre de la journée."</ID>
+    <ID>MaxLineLength:Localization.kt$TranslationKey.ScheduleAutoOrderHint -&gt; "Zeiten werden automatisch angepasst, damit die Tagesreihenfolge erhalten bleibt."</ID>
+    <ID>MaxLineLength:MainWindow.kt$if</ID>
+    <ID>MaxLineLength:MainWindow.kt$imageVector = if (factorEditorState.isEditMode) Icons.Filled.Check else Icons.Filled.Edit</ID>
+    <ID>MaxLineLength:MainWindow.kt$onTemplateAddRequested: suspend (name: String, emoji: String?, carbohydrates: Double) -&gt; Boolean = { _, _, _ -&gt; false }</ID>
+    <ID>MaxLineLength:MainWindow.kt$}</ID>
+    <ID>NewLineAtEndOfFile:AnimatedGapPieChart.kt$sevynidd.diabetesapp.libraries.gappedPieChart.AnimatedGapPieChart.kt</ID>
+    <ID>NewLineAtEndOfFile:Color.kt$sevynidd.diabetesapp.ui.theme.Color.kt</ID>
+    <ID>NewLineAtEndOfFile:ExampleUnitTest.kt$sevynidd.diabetesapp.ExampleUnitTest.kt</ID>
+    <ID>NewLineAtEndOfFile:MainActivity.kt$sevynidd.diabetesapp.MainActivity.kt</ID>
+    <ID>NewLineAtEndOfFile:Theme.kt$sevynidd.diabetesapp.ui.theme.Theme.kt</ID>
+    <ID>ReturnCount:CalculateScreen.kt$private fun sanitizePercentageInput(input: String): String?</ID>
+    <ID>ReturnCount:FactorsRepository.kt$private fun Double?.toUiString(): String</ID>
+    <ID>ReturnCount:ScheduleFactorScreen.kt$private fun FactorsData.withUpdatedTime(slot: ScheduleTimeSlot, selectedMinutes: Int): FactorsData</ID>
+    <ID>UnusedParameter:BreadUnitsSettingsScreen.kt$onBackClick: () -&gt; Unit = {}</ID>
+    <ID>UnusedParameter:LanguageSettingsScreen.kt$onBackClick: () -&gt; Unit = {}</ID>
+    <ID>UnusedParameter:ThemeSettingsScreen.kt$onBackClick: () -&gt; Unit = {}</ID>
+    <ID>WildcardImport:ExampleUnitTest.kt$import org.junit.Assert.*</ID>
+  </CurrentIssues>
+</SmellBaseline>
