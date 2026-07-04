@@ -4,34 +4,30 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.PrimaryTabRow
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Tab
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import sevynidd.diabetesapp.calculation.ActiveFactorInfo
 import sevynidd.diabetesapp.calculation.MINUTES_PER_DAY
@@ -46,13 +42,18 @@ import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
 import java.time.LocalTime
 import java.util.Locale
-import kotlin.math.min
 import kotlin.math.roundToInt
 
 enum class BolusMode {
     Normal,
     Split
 }
+
+/** The active/calculated values shown for the normal-bolus tab, bundled to keep parameter lists short. */
+private data class NormalModeResult(
+    val activeFactorText: String,
+    val calculatedUnitsText: String
+)
 
 @Composable
 fun CalculateScreen(
@@ -64,7 +65,8 @@ fun CalculateScreen(
     templatePrefillCarbohydrates: Double? = null,
     templatePrefillToken: Int = 0,
     selectedMode: BolusMode = BolusMode.Normal,
-    onSelectedModeChange: (BolusMode) -> Unit = {}
+    onSelectedModeChange: (BolusMode) -> Unit = {},
+    now: LocalTime = LocalTime.now()
 ) {
     var carbohydrates by rememberSaveable { mutableStateOf("") }
     var splitCarbohydrates by rememberSaveable { mutableStateOf("") }
@@ -82,7 +84,6 @@ fun CalculateScreen(
         }
     }
 
-    val now = LocalTime.now()
     val nowMinutes = (now.hour * 60) + now.minute
     val activeFactorInfo = activeFactorForTime(factors, nowMinutes)
     val activeFactor = applyPeriodMultiplier(activeFactorInfo.factor, factors.isPeriodEnabled, periodFactorPercent)
@@ -121,276 +122,123 @@ fun CalculateScreen(
     ) {
         Text(
             text = translate(TranslationKey.BolusType, currentLanguage),
-            style = MaterialTheme.typography.titleMedium
+            style = MaterialTheme.typography.titleLarge
         )
 
-        val bolusTabs = listOf(BolusMode.Normal, BolusMode.Split)
-        PrimaryTabRow(
-            selectedTabIndex = bolusTabs.indexOf(selectedMode),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            bolusTabs.forEach { tabMode ->
-                Tab(
-                    selected = tabMode == selectedMode,
-                    onClick = { onSelectedModeChange(tabMode) },
-                    text = {
-                        Text(
-                            text = when (tabMode) {
-                                BolusMode.Normal -> translate(TranslationKey.BolusNormal, currentLanguage)
-                                BolusMode.Split -> translate(TranslationKey.BolusSplit, currentLanguage)
-                            }
-                        )
-                    }
-                )
-            }
-        }
+        BolusModeSelector(
+            selectedMode = selectedMode,
+            onSelectedModeChange = onSelectedModeChange,
+            currentLanguage = currentLanguage
+        )
 
         when (selectedMode) {
-            BolusMode.Normal -> {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-                    )
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        EditableNumberField(
-                            value = carbohydrates,
-                            onValueChange = { carbohydrates = it },
-                            label = translate(TranslationKey.Carbohydrates, currentLanguage),
-                            keyboardType = KeyboardType.Decimal,
-                            imeAction = ImeAction.Done,
-                            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(force = true) }),
-                            sanitizeInput = { rawInput ->
-                                val sanitized = rawInput.replace('.', ',')
-                                if (sanitized.isEmpty() || sanitized.matches(DecimalInputRegex)) sanitized else null
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-
-                        OutlinedTextField(
-                            value = activeFactorText,
-                            onValueChange = {},
-                            label = { Text(translate(TranslationKey.ActiveFactor, currentLanguage)) },
-                            readOnly = true,
-                            singleLine = true,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-
-                        OutlinedTextField(
-                            value = calculatedUnitsText,
-                            onValueChange = {},
-                            label = { Text(translate(TranslationKey.CalculatedUnits, currentLanguage)) },
-                            readOnly = true,
-                            singleLine = true,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                }
-            }
+            BolusMode.Normal -> NormalModeContent(
+                carbohydrates = carbohydrates,
+                onCarbohydratesChange = { carbohydrates = it },
+                result = NormalModeResult(activeFactorText, calculatedUnitsText),
+                currentLanguage = currentLanguage,
+                focusManager = focusManager
+            )
 
             BolusMode.Split -> {
-                val splitCarbohydratesRequester = remember { FocusRequester() }
-                val splitImmediatePercentRequester = remember { FocusRequester() }
-                val splitDurationRequester = remember { FocusRequester() }
+                val inputs = SplitModeInputs(
+                    carbohydrates = splitCarbohydrates,
+                    onCarbohydratesChange = { splitCarbohydrates = it },
+                    immediatePercent = splitImmediatePercent,
+                    onImmediatePercentChange = { splitImmediatePercent = it },
+                    restPercentValue = splitRestPercentValue,
+                    durationMinutes = splitDurationMinutes,
+                    onDurationMinutesChange = { splitDurationMinutes = it }
+                )
 
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-                    )
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        EditableNumberField(
-                            value = splitCarbohydrates,
-                            onValueChange = { splitCarbohydrates = it },
-                            label = translate(TranslationKey.Carbohydrates, currentLanguage),
-                            keyboardType = KeyboardType.Decimal,
-                            imeAction = ImeAction.Next,
-                            keyboardActions = KeyboardActions(onNext = { splitImmediatePercentRequester.requestFocus() }),
-                            sanitizeInput = { rawInput ->
-                                val sanitized = rawInput.replace('.', ',')
-                                if (sanitized.isEmpty() || sanitized.matches(DecimalInputRegex)) sanitized else null
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .focusRequester(splitCarbohydratesRequester)
-                        )
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            EditableNumberField(
-                                value = splitImmediatePercent,
-                                onValueChange = { splitImmediatePercent = it },
-                                label = translate(TranslationKey.BolusImmediatePercent, currentLanguage),
-                                keyboardType = KeyboardType.Number,
-                                imeAction = ImeAction.Next,
-                                keyboardActions = KeyboardActions(onNext = { splitDurationRequester.requestFocus() }),
-                                sanitizeInput = { rawInput -> sanitizePercentageInput(rawInput) },
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .focusRequester(splitImmediatePercentRequester)
-                            )
-
-                            OutlinedTextField(
-                                value = splitRestPercentValue?.toString().orEmpty(),
-                                onValueChange = {},
-                                label = { Text(translate(TranslationKey.BolusExtendedPercent, currentLanguage)) },
-                                readOnly = true,
-                                singleLine = true,
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
-
-                        EditableNumberField(
-                            value = splitDurationMinutes,
-                            onValueChange = { splitDurationMinutes = it },
-                            label = translate(TranslationKey.BolusDurationMinutes, currentLanguage),
-                            keyboardType = KeyboardType.Decimal,
-                            imeAction = ImeAction.Done,
-                            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(force = true) }),
-                            sanitizeInput = { rawInput ->
-                                val sanitized = rawInput.replace('.', ',')
-                                if (sanitized.isEmpty() || sanitized.matches(DecimalInputRegex)) sanitized else null
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .focusRequester(splitDurationRequester)
-                        )
-                    }
-                }
-
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-                    )
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        Text(
-                            text = translate(TranslationKey.Calculated, currentLanguage),
-                            style = MaterialTheme.typography.titleSmall
-                        )
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            OutlinedTextField(
-                                value = activeFactorText,
-                                onValueChange = {},
-                                label = { Text(translate(TranslationKey.ActiveFactor, currentLanguage)) },
-                                readOnly = true,
-                                singleLine = true,
-                                modifier = Modifier.weight(1f)
-                            )
-
-                            OutlinedTextField(
-                                value = futureFactorText,
-                                onValueChange = {},
-                                label = { Text(translate(TranslationKey.FutureFactor, currentLanguage)) },
-                                readOnly = true,
-                                singleLine = true,
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
-
-                        OutlinedTextField(
-                            value = splitBolus?.totalUnits.toUiDecimalOrEmpty(),
-                            onValueChange = {},
-                            label = { Text(translate(TranslationKey.CalculatedUnits, currentLanguage)) },
-                            readOnly = true,
-                            singleLine = true,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            OutlinedTextField(
-                                value = splitBolus?.immediateUnits.toUiDecimalOrEmpty(),
-                                onValueChange = {},
-                                label = { Text(translate(TranslationKey.BolusImmediateUnits, currentLanguage)) },
-                                readOnly = true,
-                                singleLine = true,
-                                modifier = Modifier.weight(1f)
-                            )
-
-                            OutlinedTextField(
-                                value = splitBolus?.restUnits.toUiDecimalOrEmpty(),
-                                onValueChange = {},
-                                label = { Text(translate(TranslationKey.BolusExtendedUnits, currentLanguage)) },
-                                readOnly = true,
-                                singleLine = true,
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
-                    }
-                }
+                SplitInputsCard(inputs = inputs, currentLanguage = currentLanguage, focusManager = focusManager)
+                SplitResultsCard(
+                    activeFactorText = activeFactorText,
+                    futureFactorText = futureFactorText,
+                    splitBolus = splitBolus,
+                    currentLanguage = currentLanguage
+                )
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun EditableNumberField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    label: String,
-    keyboardType: KeyboardType,
-    imeAction: ImeAction,
-    keyboardActions: KeyboardActions,
-    sanitizeInput: (String) -> String?,
+private fun BolusModeSelector(
+    selectedMode: BolusMode,
+    onSelectedModeChange: (BolusMode) -> Unit,
+    currentLanguage: AppLanguage,
     modifier: Modifier = Modifier
 ) {
-    var textFieldValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(text = value, selection = TextRange(value.length)))
-    }
-    var wasFocused by remember { mutableStateOf(false) }
-
-    LaunchedEffect(value) {
-        if (value != textFieldValue.text) {
-            textFieldValue = TextFieldValue(text = value, selection = TextRange(value.length))
-        }
-    }
-
-    OutlinedTextField(
-        value = textFieldValue,
-        onValueChange = { newValue ->
-            val sanitized = sanitizeInput(newValue.text) ?: return@OutlinedTextField
-            val cursorPosition = min(newValue.selection.end, sanitized.length)
-            textFieldValue = newValue.copy(
-                text = sanitized,
-                selection = TextRange(cursorPosition)
+    val bolusModes = listOf(BolusMode.Normal, BolusMode.Split)
+    SingleChoiceSegmentedButtonRow(modifier = modifier.fillMaxWidth()) {
+        bolusModes.forEachIndexed { index, mode ->
+            SegmentedButton(
+                shape = SegmentedButtonDefaults.itemShape(index = index, count = bolusModes.size),
+                selected = mode == selectedMode,
+                onClick = { onSelectedModeChange(mode) },
+                label = {
+                    Text(
+                        text = when (mode) {
+                            BolusMode.Normal -> translate(TranslationKey.BolusNormal, currentLanguage)
+                            BolusMode.Split -> translate(TranslationKey.BolusSplit, currentLanguage)
+                        }
+                    )
+                }
             )
-            onValueChange(sanitized)
-        },
-        label = { Text(label) },
-        keyboardOptions = KeyboardOptions(
-            keyboardType = keyboardType,
-            imeAction = imeAction
-        ),
-        keyboardActions = keyboardActions,
-        singleLine = true,
-        modifier = modifier.onFocusChanged { focusState ->
-            if (!wasFocused && focusState.isFocused) {
-                textFieldValue = textFieldValue.copy(selection = TextRange(textFieldValue.text.length))
-            }
-            wasFocused = focusState.isFocused
         }
-    )
+    }
+}
+
+@Composable
+private fun NormalModeContent(
+    carbohydrates: String,
+    onCarbohydratesChange: (String) -> Unit,
+    result: NormalModeResult,
+    currentLanguage: AppLanguage,
+    focusManager: FocusManager
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            EditableNumberField(
+                value = carbohydrates,
+                onValueChange = onCarbohydratesChange,
+                label = translate(TranslationKey.Carbohydrates, currentLanguage),
+                keyboardType = KeyboardType.Decimal,
+                imeAction = ImeAction.Done,
+                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(force = true) }),
+                sanitizeInput = { rawInput ->
+                    val sanitized = rawInput.replace('.', ',')
+                    if (sanitized.isEmpty() || sanitized.matches(DecimalInputRegex)) sanitized else null
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+
+            ResultStat(
+                label = translate(TranslationKey.ActiveFactor, currentLanguage),
+                value = result.activeFactorText
+            )
+
+            ResultStat(
+                label = translate(TranslationKey.CalculatedUnits, currentLanguage),
+                value = result.calculatedUnitsText,
+                modifier = Modifier.fillMaxWidth(),
+                emphasize = true
+            )
+        }
+    }
 }
 
 private fun ActiveFactorInfo.toDisplayText(language: AppLanguage, factorValue: Double? = factor): String {
@@ -399,20 +247,13 @@ private fun ActiveFactorInfo.toDisplayText(language: AppLanguage, factorValue: D
     return if (valueText.isBlank()) factorName else "$factorName · $valueText"
 }
 
-private fun Double?.toUiDecimalOrEmpty(): String {
+internal fun Double?.toUiDecimalOrEmpty(): String {
     return this?.let { value ->
         String.format(Locale.ROOT, "%.2f", value)
             .replace('.', ',')
             .trimEnd('0')
             .trimEnd(',')
     }.orEmpty()
-}
-
-private fun sanitizePercentageInput(input: String): String? {
-    if (input.isEmpty()) return ""
-    if (!input.matches(PercentageInputRegex)) return null
-
-    return input.toIntOrNull()?.coerceAtMost(100)?.toString() ?: input
 }
 
 private fun splitBolusOrNull(
@@ -431,6 +272,13 @@ private fun splitBolusOrNull(
     }
 }
 
-private val DecimalInputRegex = Regex("^\\d*[.,]?\\d*$")
-private val PercentageInputRegex = Regex("^\\d{0,3}$")
+internal val DecimalInputRegex = Regex("^\\d*[.,]?\\d*$")
 
+private const val PREVIEW_HOUR = 12
+private const val PREVIEW_MINUTE = 30
+
+@Preview(showBackground = true)
+@Composable
+private fun CalculateScreenPreview() {
+    CalculateScreen(now = LocalTime.of(PREVIEW_HOUR, PREVIEW_MINUTE))
+}

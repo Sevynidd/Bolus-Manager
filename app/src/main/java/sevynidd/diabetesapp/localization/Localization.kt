@@ -76,7 +76,22 @@ enum class TranslationKey {
     TemplateEmpty,
     TemplateSortRecent,
     TemplateSortAlphabetical,
-    TemplateDuplicateNameError
+    TemplateDuplicateNameError,
+    ActiveNowBadge,
+    AppUpdateTitle,
+    AppUpdateCurrentVersion,
+    AppUpdateCheckButton,
+    AppUpdateChecking,
+    AppUpdateUpToDate,
+    AppUpdateAvailable,
+    AppUpdateDownloadButton,
+    AppUpdateDownloading,
+    AppUpdateReadyToInstall,
+    AppUpdatePermissionNeeded,
+    AppUpdateOpenSettingsButton,
+    AppUpdateError,
+    AppUpdateRetryButton,
+    AppUpdateViewOnGitHub
 }
 
 /** The localized text for [key] in [language]; [AppLanguage.System] resolves to the device locale. */
@@ -148,6 +163,21 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.TemplateSortRecent -> "Recently used"
             TranslationKey.TemplateSortAlphabetical -> "Alphabetical"
             TranslationKey.TemplateDuplicateNameError -> "A template with this name already exists"
+            TranslationKey.ActiveNowBadge -> "Now"
+            TranslationKey.AppUpdateTitle -> "App update"
+            TranslationKey.AppUpdateCurrentVersion -> "Current version"
+            TranslationKey.AppUpdateCheckButton -> "Check for updates"
+            TranslationKey.AppUpdateChecking -> "Checking for updates…"
+            TranslationKey.AppUpdateUpToDate -> "You're up to date"
+            TranslationKey.AppUpdateAvailable -> "Update available"
+            TranslationKey.AppUpdateDownloadButton -> "Download & install"
+            TranslationKey.AppUpdateDownloading -> "Downloading update…"
+            TranslationKey.AppUpdateReadyToInstall -> "Follow the prompts to finish installing"
+            TranslationKey.AppUpdatePermissionNeeded -> "Allow installing apps from this source to continue"
+            TranslationKey.AppUpdateOpenSettingsButton -> "Open settings"
+            TranslationKey.AppUpdateError -> "Couldn't check for updates. Please try again."
+            TranslationKey.AppUpdateRetryButton -> "Retry"
+            TranslationKey.AppUpdateViewOnGitHub -> "View source on GitHub"
         }
 
         AppLanguage.German -> when (key) {
@@ -215,6 +245,21 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.TemplateSortRecent -> "Zuletzt verwendet"
             TranslationKey.TemplateSortAlphabetical -> "Alphabetisch"
             TranslationKey.TemplateDuplicateNameError -> "Eine Vorlage mit diesem Namen existiert bereits"
+            TranslationKey.ActiveNowBadge -> "Jetzt"
+            TranslationKey.AppUpdateTitle -> "App-Update"
+            TranslationKey.AppUpdateCurrentVersion -> "Aktuelle Version"
+            TranslationKey.AppUpdateCheckButton -> "Nach Updates suchen"
+            TranslationKey.AppUpdateChecking -> "Suche nach Updates…"
+            TranslationKey.AppUpdateUpToDate -> "Du bist auf dem neuesten Stand"
+            TranslationKey.AppUpdateAvailable -> "Update verfügbar"
+            TranslationKey.AppUpdateDownloadButton -> "Herunterladen & installieren"
+            TranslationKey.AppUpdateDownloading -> "Update wird heruntergeladen…"
+            TranslationKey.AppUpdateReadyToInstall -> "Folge den Anweisungen, um die Installation abzuschließen"
+            TranslationKey.AppUpdatePermissionNeeded -> "Erlaube die Installation von Apps aus dieser Quelle, um fortzufahren"
+            TranslationKey.AppUpdateOpenSettingsButton -> "Einstellungen öffnen"
+            TranslationKey.AppUpdateError -> "Update-Suche fehlgeschlagen. Bitte versuche es erneut."
+            TranslationKey.AppUpdateRetryButton -> "Erneut versuchen"
+            TranslationKey.AppUpdateViewOnGitHub -> "Quellcode auf GitHub ansehen"
         }
 
         AppLanguage.French -> when (key) {
@@ -282,6 +327,21 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.TemplateSortRecent -> "Recemment utilises"
             TranslationKey.TemplateSortAlphabetical -> "Alphabetique"
             TranslationKey.TemplateDuplicateNameError -> "Un modele avec ce nom existe deja"
+            TranslationKey.ActiveNowBadge -> "Actuel"
+            TranslationKey.AppUpdateTitle -> "Mise à jour de l'application"
+            TranslationKey.AppUpdateCurrentVersion -> "Version actuelle"
+            TranslationKey.AppUpdateCheckButton -> "Rechercher des mises à jour"
+            TranslationKey.AppUpdateChecking -> "Recherche de mises à jour…"
+            TranslationKey.AppUpdateUpToDate -> "Vous êtes à jour"
+            TranslationKey.AppUpdateAvailable -> "Mise à jour disponible"
+            TranslationKey.AppUpdateDownloadButton -> "Télécharger et installer"
+            TranslationKey.AppUpdateDownloading -> "Téléchargement de la mise à jour…"
+            TranslationKey.AppUpdateReadyToInstall -> "Suivez les instructions pour terminer l'installation"
+            TranslationKey.AppUpdatePermissionNeeded -> "Autorisez l'installation d'applications depuis cette source pour continuer"
+            TranslationKey.AppUpdateOpenSettingsButton -> "Ouvrir les paramètres"
+            TranslationKey.AppUpdateError -> "Impossible de rechercher des mises à jour. Veuillez réessayer."
+            TranslationKey.AppUpdateRetryButton -> "Réessayer"
+            TranslationKey.AppUpdateViewOnGitHub -> "Voir le code source sur GitHub"
         }
 
         AppLanguage.Polish -> when (key) {
@@ -349,6 +409,21 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.TemplateSortRecent -> "Ostatnio używane"
             TranslationKey.TemplateSortAlphabetical -> "Alfabetycznie"
             TranslationKey.TemplateDuplicateNameError -> "Szablon o tej nazwie już istnieje"
+            TranslationKey.ActiveNowBadge -> "Teraz"
+            TranslationKey.AppUpdateTitle -> "Aktualizacja aplikacji"
+            TranslationKey.AppUpdateCurrentVersion -> "Bieżąca wersja"
+            TranslationKey.AppUpdateCheckButton -> "Sprawdź aktualizacje"
+            TranslationKey.AppUpdateChecking -> "Sprawdzanie aktualizacji…"
+            TranslationKey.AppUpdateUpToDate -> "Masz najnowszą wersję"
+            TranslationKey.AppUpdateAvailable -> "Dostępna aktualizacja"
+            TranslationKey.AppUpdateDownloadButton -> "Pobierz i zainstaluj"
+            TranslationKey.AppUpdateDownloading -> "Pobieranie aktualizacji…"
+            TranslationKey.AppUpdateReadyToInstall -> "Postępuj zgodnie z instrukcjami, aby zakończyć instalację"
+            TranslationKey.AppUpdatePermissionNeeded -> "Zezwól na instalowanie aplikacji z tego źródła, aby kontynuować"
+            TranslationKey.AppUpdateOpenSettingsButton -> "Otwórz ustawienia"
+            TranslationKey.AppUpdateError -> "Nie udało się sprawdzić aktualizacji. Spróbuj ponownie."
+            TranslationKey.AppUpdateRetryButton -> "Spróbuj ponownie"
+            TranslationKey.AppUpdateViewOnGitHub -> "Zobacz kod źródłowy na GitHub"
         }
 
         AppLanguage.System -> error("SystemDefault must be resolved before translating")

@@ -56,6 +56,7 @@ import sevynidd.diabetesapp.navigation.factorsDestinationTransition
 import sevynidd.diabetesapp.navigation.settingsDestinationTransition
 import sevynidd.diabetesapp.screens.calculate.BolusMode
 import sevynidd.diabetesapp.screens.calculate.CalculateScreen
+import sevynidd.diabetesapp.screens.calculate.TemplateEditorScreen
 import sevynidd.diabetesapp.screens.calculate.TemplateManagerScreen
 import sevynidd.diabetesapp.screens.factors.FactorEditSessionViewModel
 import sevynidd.diabetesapp.screens.factors.FactorScreen
@@ -64,6 +65,8 @@ import sevynidd.diabetesapp.screens.settings.BreadUnitsSettingsScreen
 import sevynidd.diabetesapp.screens.settings.SettingsScreen
 import sevynidd.diabetesapp.screens.settings.ThemeSettingsScreen
 import sevynidd.diabetesapp.screens.settings.LanguageSettingsScreen
+import sevynidd.diabetesapp.screens.settings.UpdateCheckViewModel
+import sevynidd.diabetesapp.screens.settings.UpdateSettingsScreen
 import sevynidd.diabetesapp.ui.theme.ContrastLevel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -97,11 +100,14 @@ fun BolusManagerMainWindow(
     var calculateBolusMode by rememberSaveable { mutableStateOf(BolusMode.Normal) }
     val factorEditorViewModel: FactorEditSessionViewModel = viewModel()
     val factorEditorState = factorEditorViewModel.uiState
+    val updateCheckViewModel: UpdateCheckViewModel = viewModel()
     val context = LocalContext.current
     val activity = remember(context) { context.findActivity() }
     val lifecycleOwner = LocalLifecycleOwner.current
     var templatePrefillCarbohydrates by rememberSaveable { mutableStateOf<Double?>(null) }
     var templatePrefillToken by rememberSaveable { mutableIntStateOf(0) }
+    var editingTemplateId by rememberSaveable { mutableStateOf<Long?>(null) }
+    val editingTemplate = templates.firstOrNull { it.id == editingTemplateId }
 
     fun leaveFactorsEditMode(shouldSave: Boolean) {
         factorEditorViewModel.leaveEditMode(shouldSave)
@@ -116,6 +122,7 @@ fun BolusManagerMainWindow(
 
         if (currentDestination == AppDestinations.CALCULATE) {
             calculateDestination = CalculateDestination.Main
+            editingTemplateId = null
         }
 
         currentDestination = destination
@@ -204,11 +211,20 @@ fun BolusManagerMainWindow(
                     AppDestinations.SETTINGS if settingsDestination == SettingsDestination.BreadUnits ->
                         translate(TranslationKey.BreadUnits, currentLanguage)
 
+                    AppDestinations.SETTINGS if settingsDestination == SettingsDestination.Updates ->
+                        translate(TranslationKey.AppUpdateTitle, currentLanguage)
+
                     AppDestinations.FACTORS if factorsDestination == FactorsDestination.EditSchedule ->
                         translate(TranslationKey.ActionSchedule, currentLanguage)
 
                     AppDestinations.CALCULATE if calculateDestination == CalculateDestination.Templates ->
                         translate(TranslationKey.TemplatesTitle, currentLanguage)
+
+                    AppDestinations.CALCULATE if calculateDestination == CalculateDestination.TemplateEditor ->
+                        translate(
+                            if (editingTemplate != null) TranslationKey.TemplateEdit else TranslationKey.TemplateAdd,
+                            currentLanguage
+                        )
 
                     else -> destinationLabel(currentDestination, currentLanguage)
                 }
@@ -224,8 +240,12 @@ fun BolusManagerMainWindow(
                             IconButton(onClick = { factorsDestination = FactorsDestination.Main }) {
                                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                             }
-                        } else if (currentDestination == AppDestinations.CALCULATE && calculateDestination == CalculateDestination.Templates) {
-                            IconButton(onClick = { calculateDestination = CalculateDestination.Main }) {
+                        } else if (currentDestination == AppDestinations.CALCULATE && calculateDestination != CalculateDestination.Main) {
+                            val previousCalculateDestination = when (calculateDestination) {
+                                CalculateDestination.TemplateEditor -> CalculateDestination.Templates
+                                else -> CalculateDestination.Main
+                            }
+                            IconButton(onClick = { calculateDestination = previousCalculateDestination }) {
                                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                             }
                         }
@@ -343,9 +363,26 @@ fun BolusManagerMainWindow(
                                     onTemplateMarkUsedRequested(selectedTemplate.id)
                                     calculateDestination = CalculateDestination.Main
                                 },
-                                onTemplateAddRequested = onTemplateAddRequested,
-                                onTemplateUpdateRequested = onTemplateUpdateRequested,
+                                onAddTemplateRequested = {
+                                    editingTemplateId = null
+                                    calculateDestination = CalculateDestination.TemplateEditor
+                                },
+                                onEditTemplateRequested = { template ->
+                                    editingTemplateId = template.id
+                                    calculateDestination = CalculateDestination.TemplateEditor
+                                },
                                 onTemplateDeleteRequested = onTemplateDeleteRequested
+                            )
+
+                            CalculateDestination.TemplateEditor -> TemplateEditorScreen(
+                                modifier = contentModifier,
+                                currentLanguage = currentLanguage,
+                                template = editingTemplate,
+                                templates = templates,
+                                onAddRequested = onTemplateAddRequested,
+                                onUpdateRequested = onTemplateUpdateRequested,
+                                onSaved = { calculateDestination = CalculateDestination.Templates },
+                                onCancel = { calculateDestination = CalculateDestination.Templates }
                             )
                         }
                     }
@@ -366,7 +403,8 @@ fun BolusManagerMainWindow(
                                 onPeriodFactorPercentChange = onPeriodFactorPercentChange,
                                 onNavigateToTheme = { settingsDestination = SettingsDestination.Theme },
                                 onNavigateToLanguage = { settingsDestination = SettingsDestination.Language },
-                                onNavigateToBreadUnits = { settingsDestination = SettingsDestination.BreadUnits }
+                                onNavigateToBreadUnits = { settingsDestination = SettingsDestination.BreadUnits },
+                                onNavigateToUpdates = { settingsDestination = SettingsDestination.Updates }
                             )
 
                             SettingsDestination.Theme -> ThemeSettingsScreen(
@@ -393,12 +431,20 @@ fun BolusManagerMainWindow(
                                 onBreadUnitsChange = onBreadUnitsChange,
                                 onBackClick = { settingsDestination = SettingsDestination.Main }
                             )
+
+                            SettingsDestination.Updates -> UpdateSettingsScreen(
+                                modifier = contentModifier,
+                                currentLanguage = currentLanguage,
+                                uiState = updateCheckViewModel.uiState,
+                                canRequestPackageInstalls = updateCheckViewModel.canRequestPackageInstalls(),
+                                onCheckForUpdateRequested = updateCheckViewModel::checkForUpdate,
+                                onDownloadAndInstallRequested = updateCheckViewModel::downloadAndInstall,
+                                onRequestInstallPermission = updateCheckViewModel::requestInstallPermission
+                            )
                         }
                     }
                 }
             }
-
-            // Template manager now lives as a dedicated calculate sub-screen.
         }
     }
 }

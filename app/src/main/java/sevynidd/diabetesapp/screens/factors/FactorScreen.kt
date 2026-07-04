@@ -1,5 +1,6 @@
 package sevynidd.diabetesapp.screens.factors
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,6 +25,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.onFocusChanged
@@ -32,18 +34,23 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import sevynidd.diabetesapp.calculation.activeFactorForTime
+import sevynidd.diabetesapp.calculation.normalizeBasalRateValue
+import sevynidd.diabetesapp.calculation.normalizeQuarterStepValue
 import sevynidd.diabetesapp.data.model.FactorsData
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
+import java.time.LocalTime
 import java.util.Locale
-import kotlin.math.ceil
 
 private data class FactorItem(
     val value: String,
     val onChange: (String) -> Unit,
-    val description: String
+    val description: String,
+    val isActiveNow: Boolean
 )
 
 @Composable
@@ -53,7 +60,8 @@ fun FactorScreen(
     currentLanguage: AppLanguage = AppLanguage.System,
     factors: FactorsData = FactorsData(),
     onFactorsChange: (FactorsData) -> Unit = {},
-    onPeriodEnabledChange: (Boolean) -> Unit = {}
+    onPeriodEnabledChange: (Boolean) -> Unit = {},
+    now: LocalTime = LocalTime.now()
 ) {
     var isPeriodEnabled by rememberSaveable(factors.isPeriodEnabled) { mutableStateOf(factors.isPeriodEnabled) }
     var morningFactor by rememberSaveable(factors.morningFactor) { mutableStateOf(factors.morningFactor) }
@@ -97,6 +105,9 @@ fun FactorScreen(
     val lateRange = buildTimeRange(factors.lateTimeMinutes, factors.nightTimeMinutes)
     val nightRange = buildTimeRange(factors.nightTimeMinutes, factors.morningTimeMinutes)
 
+    val nowMinutes = (now.hour * 60) + now.minute
+    val activeLabel = activeFactorForTime(factors, nowMinutes).factorLabel
+
     val factorItems = listOf(
         FactorItem(
             morningFactor,
@@ -104,7 +115,8 @@ fun FactorScreen(
                 morningFactor = value
                 emitFactorsChanged()
             },
-            "${translate(TranslationKey.FactorMorning, currentLanguage)} ($morningRange)"
+            "${translate(TranslationKey.FactorMorning, currentLanguage)} ($morningRange)",
+            isActiveNow = activeLabel == TranslationKey.FactorMorning
         ),
         FactorItem(
             breakfastFactor,
@@ -112,7 +124,8 @@ fun FactorScreen(
                 breakfastFactor = value
                 emitFactorsChanged()
             },
-            "${translate(TranslationKey.FactorBreakfast, currentLanguage)} ($breakfastRange)"
+            "${translate(TranslationKey.FactorBreakfast, currentLanguage)} ($breakfastRange)",
+            isActiveNow = activeLabel == TranslationKey.FactorBreakfast
         ),
         FactorItem(
             lunchFactor,
@@ -120,7 +133,8 @@ fun FactorScreen(
                 lunchFactor = value
                 emitFactorsChanged()
             },
-            "${translate(TranslationKey.FactorLunch, currentLanguage)} ($lunchRange)"
+            "${translate(TranslationKey.FactorLunch, currentLanguage)} ($lunchRange)",
+            isActiveNow = activeLabel == TranslationKey.FactorLunch
         ),
         FactorItem(
             afternoonFactor,
@@ -128,7 +142,8 @@ fun FactorScreen(
                 afternoonFactor = value
                 emitFactorsChanged()
             },
-            "${translate(TranslationKey.FactorAfternoon, currentLanguage)} ($afternoonRange)"
+            "${translate(TranslationKey.FactorAfternoon, currentLanguage)} ($afternoonRange)",
+            isActiveNow = activeLabel == TranslationKey.FactorAfternoon
         ),
         FactorItem(
             dinnerFactor,
@@ -136,7 +151,8 @@ fun FactorScreen(
                 dinnerFactor = value
                 emitFactorsChanged()
             },
-            "${translate(TranslationKey.FactorDinner, currentLanguage)} ($dinnerRange)"
+            "${translate(TranslationKey.FactorDinner, currentLanguage)} ($dinnerRange)",
+            isActiveNow = activeLabel == TranslationKey.FactorDinner
         ),
         FactorItem(
             lateFactor,
@@ -144,7 +160,8 @@ fun FactorScreen(
                 lateFactor = value
                 emitFactorsChanged()
             },
-            "${translate(TranslationKey.FactorLate, currentLanguage)} ($lateRange)"
+            "${translate(TranslationKey.FactorLate, currentLanguage)} ($lateRange)",
+            isActiveNow = activeLabel == TranslationKey.FactorLate
         ),
         FactorItem(
             nightFactor,
@@ -152,7 +169,8 @@ fun FactorScreen(
                 nightFactor = value
                 emitFactorsChanged()
             },
-            "${translate(TranslationKey.FactorNight, currentLanguage)} ($nightRange)"
+            "${translate(TranslationKey.FactorNight, currentLanguage)} ($nightRange)",
+            isActiveNow = activeLabel == TranslationKey.FactorNight
         )
     )
 
@@ -167,7 +185,7 @@ fun FactorScreen(
         ) {
             Text(
                 text = translate(TranslationKey.LabelFactor, currentLanguage),
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleLarge
             )
 
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -188,6 +206,7 @@ fun FactorScreen(
 
         Card(
             modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.large,
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerLow
             )
@@ -196,13 +215,15 @@ fun FactorScreen(
                 modifier = Modifier.padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                val activeNowLabel = translate(TranslationKey.ActiveNowBadge, currentLanguage)
                 factorItems.forEach { item ->
                     DoubleInputField(
                         value = item.value,
                         onValueChange = item.onChange,
                         description = item.description,
                         label = translate(TranslationKey.LabelFactor, currentLanguage),
-                        enabled = isEditMode
+                        enabled = isEditMode,
+                        activeNowLabel = activeNowLabel.takeIf { item.isActiveNow }
                     )
                 }
             }
@@ -212,6 +233,7 @@ fun FactorScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
+            shape = MaterialTheme.shapes.large,
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerLow
             )
@@ -285,7 +307,8 @@ private fun DoubleInputField(
     description: String,
     label: String,
     enabled: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    activeNowLabel: String? = null
 ) {
     var draftValue by rememberSaveable(value, stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(text = value, selection = TextRange(value.length)))
@@ -299,13 +322,8 @@ private fun DoubleInputField(
         onValueChange(normalized)
     }
 
-    Column(modifier = modifier) {
-        Text(
-            text = description,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(bottom = 4.dp)
-        )
+    Column(modifier = modifier.activeFieldHighlight(activeNowLabel != null)) {
+        FieldDescriptionRow(description = description, activeNowLabel = activeNowLabel)
         OutlinedTextField(
             value = draftValue,
             onValueChange = { newValue ->
@@ -343,6 +361,48 @@ private fun DoubleInputField(
     NormalizeOnDisable(enabled = enabled, focusManager = focusManager) {
         applyNormalization()
     }
+}
+
+@Composable
+private fun Modifier.activeFieldHighlight(isActive: Boolean): Modifier {
+    if (!isActive) return this
+    return clip(MaterialTheme.shapes.medium)
+        .background(MaterialTheme.colorScheme.primaryContainer)
+        .padding(8.dp)
+}
+
+@Composable
+private fun FieldDescriptionRow(description: String, activeNowLabel: String?) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            text = description,
+            style = MaterialTheme.typography.bodyMedium,
+            color = if (activeNowLabel != null) {
+                MaterialTheme.colorScheme.onPrimaryContainer
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            },
+            modifier = Modifier.padding(bottom = 4.dp)
+        )
+
+        if (activeNowLabel != null) {
+            ActiveNowBadge(activeNowLabel)
+        }
+    }
+}
+
+@Composable
+private fun ActiveNowBadge(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.labelSmall,
+        color = MaterialTheme.colorScheme.onPrimary,
+        modifier = Modifier
+            .padding(start = 8.dp, bottom = 4.dp)
+            .clip(MaterialTheme.shapes.small)
+            .background(MaterialTheme.colorScheme.primary)
+            .padding(horizontal = 8.dp, vertical = 2.dp)
+    )
 }
 
 @Composable
@@ -410,28 +470,12 @@ private fun BasalRateInputField(
     }
 }
 
-private fun normalizeQuarterStepValue(value: String): String {
-    return value
-        .replace(',', '.')
-        .toDoubleOrNull()
-        ?.let { raw ->
-            val rounded = ceil(raw / 0.25) * 0.25
-            if (rounded % 1.0 == 0.0) {
-                rounded.toInt().toString()
-            } else {
-                rounded
-                    .toString()
-                    .replace('.', ',')
-                    .trimEnd('0')
-                    .trimEnd(',')
-            }
-        }
-        ?: ""
-}
+private const val PREVIEW_HOUR = 10
+private const val PREVIEW_MINUTE = 0
 
-private fun normalizeBasalRateValue(value: String): String {
-    return value.toIntOrNull()?.let { raw ->
-        if (raw % 2 == 0) raw else raw + 1
-    }?.toString() ?: ""
+@Preview(showBackground = true)
+@Composable
+private fun FactorScreenPreview() {
+    FactorScreen(now = LocalTime.of(PREVIEW_HOUR, PREVIEW_MINUTE))
 }
 

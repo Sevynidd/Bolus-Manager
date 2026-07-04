@@ -19,7 +19,6 @@ import sevynidd.diabetesapp.data.model.FactorsData
 import sevynidd.diabetesapp.data.settings.ThemeMode
 import sevynidd.diabetesapp.data.database.FactorsRepository
 import sevynidd.diabetesapp.screens.BolusManagerMainWindow
-import sevynidd.diabetesapp.screens.factors.FactorScreen
 import sevynidd.diabetesapp.ui.theme.BolusManagerTheme
 
 class MainActivity : ComponentActivity() {
@@ -50,7 +49,7 @@ class MainActivity : ComponentActivity() {
 
             BolusManagerTheme(
                 darkTheme = darkTheme,
-                dynamicColor = false,
+                dynamicColor = true,
                 contrastLevel = settings.contrastLevel
             ) {
                 BolusManagerMainWindow(

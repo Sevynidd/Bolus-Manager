@@ -19,6 +19,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
@@ -43,6 +44,7 @@ fun BreadUnitsSettingsScreen(
     ) {
         Card(
             modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.large,
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerLow
             )
@@ -80,4 +82,10 @@ private fun Double.toBreadUnitsText(): String {
 }
 
 private val BreadUnitsInputRegex = Regex("^\\d*[.,]?\\d*$")
+
+@Preview(showBackground = true)
+@Composable
+private fun BreadUnitsSettingsScreenPreview() {
+    BreadUnitsSettingsScreen()
+}
 

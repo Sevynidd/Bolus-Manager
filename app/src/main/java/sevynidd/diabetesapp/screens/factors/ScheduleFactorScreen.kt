@@ -28,7 +28,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import sevynidd.diabetesapp.calculation.ScheduleTimeSlot
+import sevynidd.diabetesapp.calculation.withUpdatedTime
 import sevynidd.diabetesapp.data.model.FactorsData
 import sevynidd.diabetesapp.libraries.gappedPieChart.AnimatedGapPieChart
 import sevynidd.diabetesapp.libraries.gappedPieChart.PieData
@@ -37,17 +40,6 @@ import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
 import java.util.Locale
 import kotlin.math.max
-
-private enum class ScheduleTimeSlot {
-    Morning,
-    Breakfast,
-    Lunch,
-    Afternoon,
-    Dinner,
-    Late,
-    Night,
-    Basal
-}
 
 private data class ScheduleFieldItem(
     val slot: ScheduleTimeSlot,
@@ -187,11 +179,12 @@ fun ScheduleFactorScreen(
     ) {
         Text(
             text = translate(TranslationKey.ActionSchedule, currentLanguage),
-            style = MaterialTheme.typography.titleMedium
+            style = MaterialTheme.typography.titleLarge
         )
 
         Card(
             modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.large,
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerLow
             )
@@ -217,6 +210,7 @@ fun ScheduleFactorScreen(
 
         Card(
             modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.large,
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerLow
             )
@@ -379,77 +373,11 @@ private fun formatTimeLabel(totalMinutes: Int): String {
     return String.format(Locale.ROOT, "%02d:%02d", hour, minute)
 }
 
-private fun FactorsData.withUpdatedTime(slot: ScheduleTimeSlot, selectedMinutes: Int): FactorsData {
-    val clampedMinutes = selectedMinutes.coerceIn(0, MINUTES_PER_DAY - 1)
-
-    if (slot == ScheduleTimeSlot.Basal) {
-        return copy(basalTimeMinutes = clampedMinutes)
-    }
-
-    var morning = morningTimeMinutes
-    var breakfast = breakfastTimeMinutes
-    var lunch = lunchTimeMinutes
-    var afternoon = afternoonTimeMinutes
-    var dinner = dinnerTimeMinutes
-    var late = lateTimeMinutes
-    var night = nightTimeMinutes
-
-    when (slot) {
-        ScheduleTimeSlot.Morning -> morning = clampedMinutes
-        ScheduleTimeSlot.Breakfast -> breakfast = clampedMinutes
-        ScheduleTimeSlot.Lunch -> lunch = clampedMinutes
-        ScheduleTimeSlot.Afternoon -> afternoon = clampedMinutes
-        ScheduleTimeSlot.Dinner -> dinner = clampedMinutes
-        ScheduleTimeSlot.Late -> late = clampedMinutes
-        ScheduleTimeSlot.Night -> night = clampedMinutes
-        ScheduleTimeSlot.Basal -> return this
-    }
-
-    val normalized =
-        normalizeAscendingSchedule(morning, breakfast, lunch, afternoon, dinner, late, night)
-
-    return copy(
-        morningTimeMinutes = normalized[0],
-        breakfastTimeMinutes = normalized[1],
-        lunchTimeMinutes = normalized[2],
-        afternoonTimeMinutes = normalized[3],
-        dinnerTimeMinutes = normalized[4],
-        lateTimeMinutes = normalized[5],
-        nightTimeMinutes = normalized[6]
-    )
+@Preview(showBackground = true)
+@Composable
+private fun ScheduleFactorScreenPreview() {
+    ScheduleFactorScreen()
 }
 
-private fun normalizeAscendingSchedule(
-    morning: Int,
-    breakfast: Int,
-    lunch: Int,
-    afternoon: Int,
-    dinner: Int,
-    late: Int,
-    night: Int
-): IntArray {
-    val times = intArrayOf(morning, breakfast, lunch, afternoon, dinner, late, night)
-
-    times[0] = times[0].coerceIn(0, MINUTES_PER_DAY - 1)
-    for (index in 1 until times.size) {
-        times[index] = maxOf(times[index], times[index - 1] + 1)
-    }
-
-    if (times.last() >= MINUTES_PER_DAY) {
-        times[times.lastIndex] = MINUTES_PER_DAY - 1
-        for (index in times.lastIndex - 1 downTo 0) {
-            times[index] = minOf(times[index], times[index + 1] - 1)
-        }
-
-        times[0] = maxOf(times[0], 0)
-        for (index in 1 until times.size) {
-            times[index] = maxOf(times[index], times[index - 1] + 1)
-        }
-    }
-
-    return times
-}
-
-private const val MINUTES_PER_DAY = 24 * 60
 private const val MID_LUMINANCE = 0.5f
 

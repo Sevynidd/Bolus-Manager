@@ -11,3 +11,9 @@ naming:
     # @Composable functions are PascalCase by Compose convention, not a
     # naming violation.
     ignoreAnnotated: ['Composable']
+
+style:
+  UnusedPrivateMember:
+    # @Preview composables are entry points for Android Studio's preview
+    # renderer, not dead code, even though nothing in the module calls them.
+    ignoreAnnotated: ['Preview']

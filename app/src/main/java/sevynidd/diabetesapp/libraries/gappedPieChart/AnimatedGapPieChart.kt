@@ -11,6 +11,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -22,6 +23,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import sevynidd.diabetesapp.ui.theme.AppTypography
@@ -32,6 +34,13 @@ import kotlin.math.sin
 private val LabelArcPadding = 32.dp
 private val ChartTopPadding = 8.dp
 private val ArcStrokeWidth = 50.dp
+
+// The arc's radius is chosen to leave just enough room for the widest label at the current font
+// scale (see arcOuterRadius below), so unbounded growth shrinks the ring and grows the labels at
+// the same time, causing neighboring labels to collide. Capping the scale used for these
+// Canvas-drawn labels avoids that; nothing is lost since the same times/names are already shown,
+// fully reflowing and accessible, in the editable list directly below this chart.
+private const val MAX_CHART_FONT_SCALE = 1.3f
 
 data class ArcData(
     val animation: Animatable<Float, AnimationVector1D>,
@@ -45,6 +54,19 @@ data class ArcData(
 @Composable
 fun AnimatedGapPieChart(
     modifier: Modifier = Modifier,
+    pieDataPoints: List<PieData>
+) {
+    val cappedFontScale = LocalDensity.current.fontScale.coerceAtMost(MAX_CHART_FONT_SCALE)
+    val chartDensity = Density(density = LocalDensity.current.density, fontScale = cappedFontScale)
+
+    CompositionLocalProvider(LocalDensity provides chartDensity) {
+        AnimatedGapPieChartContent(modifier = modifier, pieDataPoints = pieDataPoints)
+    }
+}
+
+@Composable
+private fun AnimatedGapPieChartContent(
+    modifier: Modifier,
     pieDataPoints: List<PieData>
 ) {
     val gapDegrees = 16f

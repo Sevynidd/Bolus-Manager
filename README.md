@@ -40,6 +40,10 @@ The project is in active development, but already has a working workflow for:
 - Schedule times are automatically kept in ascending order
 - A hint text on the schedule screen explains the automatic order correction
 - Factor descriptions dynamically show their saved time ranges
+- The factor whose time window is currently active is visually highlighted
+  with a "Now" badge
+- **Period** toggle: scales every active factor up by a configurable percentage
+  (set in Settings) while enabled
 
 ### Calculate
 
@@ -58,6 +62,16 @@ The project is in active development, but already has a working workflow for:
   - Current and future factors displayed side by side
   - Immediate and delayed units displayed side by side
 - Configurable bread-unit value instead of a hardcoded divisor
+- **Bolus templates**: save a name, optional emoji, and carbohydrate amount as a
+  reusable shortcut
+  - Reachable via the bookmark icon in the Calculate top app bar
+  - Sortable by recently used or alphabetically
+  - Names are unique regardless of casing/whitespace
+  - Selecting a template prefills the carbohydrate field for the active tab and
+    marks the template as recently used
+  - Added and edited on a dedicated full-screen editor with a live emoji
+    preview; emoji entry uses the device's own keyboard/emoji picker rather
+    than a fixed, curated set of choices
 
 ### Settings
 
@@ -65,6 +79,15 @@ The project is in active development, but already has a working workflow for:
 - Contrast level: `Normal`, `Medium`, `High`
 - Language: `System`, `Deutsch`, `English`, `Français`, `Polski`
 - Dedicated setting for **bread units**
+- Dedicated setting for the **Period** factor surcharge percentage
+- **App update** screen: checks the project's GitHub releases for a newer
+  version, then downloads and installs the APK directly
+  - Shows the currently installed version and, once checked, the latest
+    release's tag and notes
+  - Downloads the release's `.apk` asset via Android's `DownloadManager` with
+    progress feedback, then hands it to the system package installer
+  - Prompts the user to grant the "install unknown apps" permission if it
+    hasn't been granted yet
 - Animated navigation within settings
 
 ### UI & Navigation
@@ -82,6 +105,7 @@ Stored in `diabetes_app.db`, table `factor_profile`:
 
 - All 7 factors
 - Basal rate
+- Whether the Period surcharge is enabled
 - All schedule times:
   - Morning
   - Breakfast
@@ -92,6 +116,13 @@ Stored in `diabetes_app.db`, table `factor_profile`:
   - Night
   - Basal time
 
+Table `bolus_template`:
+
+- Name (plus a normalized, case/whitespace-insensitive copy for uniqueness)
+- Optional emoji
+- Carbohydrate amount
+- Last-used timestamp, for "recently used" sorting
+
 ### DataStore Preferences
 
 The following are persisted:
@@ -100,6 +131,7 @@ The following are persisted:
 - Contrast level
 - Language
 - Bread-unit value
+- Period factor surcharge percentage
 
 ### Edit Session / Save Behavior
 
@@ -112,6 +144,16 @@ Auto-save is triggered on:
 - The app going to the background (`ON_STOP`)
 
 Configuration changes (e.g. rotation) do not incorrectly trigger the background save (`isChangingConfigurations`).
+
+### In-App Updates
+
+The Settings → App update screen queries
+`https://api.github.com/repos/Sevynidd/Bolus-Manager/releases/latest` and
+compares its tag against the installed `versionName`. If the release
+publishes a `.apk` asset and its version is newer, the user can download and
+install it without leaving the app. This requires the `INTERNET` and
+`REQUEST_INSTALL_PACKAGES` permissions and a `FileProvider` (declared in
+`AndroidManifest.xml`) to hand the downloaded file to the system installer.
 
 ## Calculation Logic
 
@@ -136,6 +178,16 @@ The split bolus divides the carbohydrates into two shares:
 
 This lets the second share account for a different time window than the first.
 
+### Period Surcharge
+
+When the Period toggle is enabled, every resolved factor (immediate and, in
+split-bolus mode, the delayed one) is scaled up by the configured percentage
+before the unit calculation:
+
+`EffectiveFactor = Factor * (1 + PeriodFactorPercent / 100)`
+
+A negative configured percentage is treated as `0`.
+
 ## Validation & Input Behavior
 
 - Decimal values are entered and displayed with a comma (e.g. `1,25`)
@@ -145,6 +197,9 @@ This lets the second share account for a different time window than the first.
 - Schedule times are automatically corrected to keep a valid order
 - The split-bolus immediate share is capped at `100`
 - The rest share is calculated automatically and therefore can never exceed `100`
+- A negative Period factor surcharge percentage is treated as `0`
+- Bolus template names must be unique (case/whitespace-insensitive); saving a
+  duplicate name is rejected with an inline error
 
 ## Tech Stack
 
