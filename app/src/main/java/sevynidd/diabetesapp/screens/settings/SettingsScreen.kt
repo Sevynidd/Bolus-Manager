@@ -52,7 +52,7 @@ fun SettingsScreen(
     ) {
         Text(
             text = translate(TranslationKey.DestinationSettings, currentLanguage),
-            style = MaterialTheme.typography.titleMedium
+            style = MaterialTheme.typography.titleLarge
         )
 
         SettingsCardItem(
@@ -72,6 +72,7 @@ fun SettingsScreen(
 
         Card(
             modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.large,
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerLow
             )
@@ -114,6 +115,7 @@ private fun SettingsCardItem(
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
+        shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         )

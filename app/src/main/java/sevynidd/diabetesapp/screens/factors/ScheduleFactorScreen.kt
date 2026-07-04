@@ -179,11 +179,12 @@ fun ScheduleFactorScreen(
     ) {
         Text(
             text = translate(TranslationKey.ActionSchedule, currentLanguage),
-            style = MaterialTheme.typography.titleMedium
+            style = MaterialTheme.typography.titleLarge
         )
 
         Card(
             modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.large,
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerLow
             )
@@ -209,6 +210,7 @@ fun ScheduleFactorScreen(
 
         Card(
             modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.large,
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerLow
             )

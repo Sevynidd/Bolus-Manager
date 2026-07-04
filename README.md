@@ -40,6 +40,8 @@ The project is in active development, but already has a working workflow for:
 - Schedule times are automatically kept in ascending order
 - A hint text on the schedule screen explains the automatic order correction
 - Factor descriptions dynamically show their saved time ranges
+- The factor whose time window is currently active is visually highlighted
+  with a "Now" badge
 - **Period** toggle: scales every active factor up by a configurable percentage
   (set in Settings) while enabled
 

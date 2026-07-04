@@ -93,7 +93,7 @@ fun TemplateManagerScreen(
             ) {
                 Text(
                     text = translate(TranslationKey.TemplatesTitle, currentLanguage),
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleLarge
                 )
 
                 IconButton(onClick = {
@@ -118,6 +118,7 @@ fun TemplateManagerScreen(
             if (sortedTemplates.isEmpty()) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
+                    shape = MaterialTheme.shapes.large,
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surfaceContainerLow
                     )
@@ -251,7 +252,7 @@ private fun TemplateListRow(
             .fillMaxWidth()
             .clickable(onClick = onSelect)
             .padding(vertical = 2.dp),
-        shape = MaterialTheme.shapes.medium,
+        shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         )

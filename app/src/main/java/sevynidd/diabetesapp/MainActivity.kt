@@ -49,7 +49,7 @@ class MainActivity : ComponentActivity() {
 
             BolusManagerTheme(
                 darkTheme = darkTheme,
-                dynamicColor = false,
+                dynamicColor = true,
                 contrastLevel = settings.contrastLevel
             ) {
                 BolusManagerMainWindow(

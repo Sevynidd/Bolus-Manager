@@ -76,7 +76,8 @@ enum class TranslationKey {
     TemplateEmpty,
     TemplateSortRecent,
     TemplateSortAlphabetical,
-    TemplateDuplicateNameError
+    TemplateDuplicateNameError,
+    ActiveNowBadge
 }
 
 /** The localized text for [key] in [language]; [AppLanguage.System] resolves to the device locale. */
@@ -148,6 +149,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.TemplateSortRecent -> "Recently used"
             TranslationKey.TemplateSortAlphabetical -> "Alphabetical"
             TranslationKey.TemplateDuplicateNameError -> "A template with this name already exists"
+            TranslationKey.ActiveNowBadge -> "Now"
         }
 
         AppLanguage.German -> when (key) {
@@ -215,6 +217,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.TemplateSortRecent -> "Zuletzt verwendet"
             TranslationKey.TemplateSortAlphabetical -> "Alphabetisch"
             TranslationKey.TemplateDuplicateNameError -> "Eine Vorlage mit diesem Namen existiert bereits"
+            TranslationKey.ActiveNowBadge -> "Jetzt"
         }
 
         AppLanguage.French -> when (key) {
@@ -282,6 +285,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.TemplateSortRecent -> "Recemment utilises"
             TranslationKey.TemplateSortAlphabetical -> "Alphabetique"
             TranslationKey.TemplateDuplicateNameError -> "Un modele avec ce nom existe deja"
+            TranslationKey.ActiveNowBadge -> "Actuel"
         }
 
         AppLanguage.Polish -> when (key) {
@@ -349,6 +353,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.TemplateSortRecent -> "Ostatnio używane"
             TranslationKey.TemplateSortAlphabetical -> "Alfabetycznie"
             TranslationKey.TemplateDuplicateNameError -> "Szablon o tej nazwie już istnieje"
+            TranslationKey.ActiveNowBadge -> "Teraz"
         }
 
         AppLanguage.System -> error("SystemDefault must be resolved before translating")
