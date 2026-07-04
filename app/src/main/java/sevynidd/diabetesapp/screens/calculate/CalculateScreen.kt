@@ -32,6 +32,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import sevynidd.diabetesapp.calculation.ActiveFactorInfo
 import sevynidd.diabetesapp.calculation.MINUTES_PER_DAY
@@ -64,7 +65,8 @@ fun CalculateScreen(
     templatePrefillCarbohydrates: Double? = null,
     templatePrefillToken: Int = 0,
     selectedMode: BolusMode = BolusMode.Normal,
-    onSelectedModeChange: (BolusMode) -> Unit = {}
+    onSelectedModeChange: (BolusMode) -> Unit = {},
+    now: LocalTime = LocalTime.now()
 ) {
     var carbohydrates by rememberSaveable { mutableStateOf("") }
     var splitCarbohydrates by rememberSaveable { mutableStateOf("") }
@@ -82,7 +84,6 @@ fun CalculateScreen(
         }
     }
 
-    val now = LocalTime.now()
     val nowMinutes = (now.hour * 60) + now.minute
     val activeFactorInfo = activeFactorForTime(factors, nowMinutes)
     val activeFactor = applyPeriodMultiplier(activeFactorInfo.factor, factors.isPeriodEnabled, periodFactorPercent)
@@ -433,4 +434,13 @@ private fun splitBolusOrNull(
 
 private val DecimalInputRegex = Regex("^\\d*[.,]?\\d*$")
 private val PercentageInputRegex = Regex("^\\d{0,3}$")
+
+private const val PREVIEW_HOUR = 12
+private const val PREVIEW_MINUTE = 30
+
+@Preview(showBackground = true)
+@Composable
+private fun CalculateScreenPreview() {
+    CalculateScreen(now = LocalTime.of(PREVIEW_HOUR, PREVIEW_MINUTE))
+}
 

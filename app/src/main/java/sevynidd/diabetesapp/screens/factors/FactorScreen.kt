@@ -32,13 +32,15 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import sevynidd.diabetesapp.calculation.normalizeBasalRateValue
+import sevynidd.diabetesapp.calculation.normalizeQuarterStepValue
 import sevynidd.diabetesapp.data.model.FactorsData
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
 import java.util.Locale
-import kotlin.math.ceil
 
 private data class FactorItem(
     val value: String,
@@ -410,28 +412,9 @@ private fun BasalRateInputField(
     }
 }
 
-private fun normalizeQuarterStepValue(value: String): String {
-    return value
-        .replace(',', '.')
-        .toDoubleOrNull()
-        ?.let { raw ->
-            val rounded = ceil(raw / 0.25) * 0.25
-            if (rounded % 1.0 == 0.0) {
-                rounded.toInt().toString()
-            } else {
-                rounded
-                    .toString()
-                    .replace('.', ',')
-                    .trimEnd('0')
-                    .trimEnd(',')
-            }
-        }
-        ?: ""
-}
-
-private fun normalizeBasalRateValue(value: String): String {
-    return value.toIntOrNull()?.let { raw ->
-        if (raw % 2 == 0) raw else raw + 1
-    }?.toString() ?: ""
+@Preview(showBackground = true)
+@Composable
+private fun FactorScreenPreview() {
+    FactorScreen()
 }
 

@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.translate
@@ -144,4 +145,10 @@ private fun Double.toLocalizedInput(): String {
 }
 
 private val PercentageInputRegex = Regex("^\\d*[.,]?\\d*$")
+
+@Preview(showBackground = true)
+@Composable
+private fun SettingsScreenPreview() {
+    SettingsScreen()
+}
 

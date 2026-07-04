@@ -40,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import sevynidd.diabetesapp.data.database.BolusTemplateEntity
@@ -443,6 +444,33 @@ private fun Double.toLocalizedInput(): String {
         .trimEnd(',')
 }
 
+private const val PREVIEW_BREAD_ROLL_CARBOHYDRATES = 30.0
+private const val PREVIEW_PIZZA_SLICE_CARBOHYDRATES = 45.0
 
-
-
+@Preview(showBackground = true)
+@Composable
+private fun TemplateManagerScreenPreview() {
+    TemplateManagerScreen(
+        currentLanguage = AppLanguage.System,
+        templates = listOf(
+            BolusTemplateEntity(
+                id = 1,
+                name = "Bread roll",
+                nameNormalized = "bread roll",
+                emoji = "🍞",
+                carbohydrates = PREVIEW_BREAD_ROLL_CARBOHYDRATES
+            ),
+            BolusTemplateEntity(
+                id = 2,
+                name = "Pizza slice",
+                nameNormalized = "pizza slice",
+                emoji = "🍕",
+                carbohydrates = PREVIEW_PIZZA_SLICE_CARBOHYDRATES
+            )
+        ),
+        onTemplateSelected = {},
+        onTemplateAddRequested = { _, _, _ -> true },
+        onTemplateUpdateRequested = { true },
+        onTemplateDeleteRequested = {}
+    )
+}

@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import sevynidd.diabetesapp.data.settings.ThemeMode
 import sevynidd.diabetesapp.localization.AppLanguage
@@ -125,5 +126,11 @@ private fun contrastLevelLabel(level: ContrastLevel, language: AppLanguage): Str
         ContrastLevel.MediumContrast -> translate(TranslationKey.ContrastMedium, language)
         ContrastLevel.HighContrast -> translate(TranslationKey.ContrastHigh, language)
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ThemeSettingsScreenPreview() {
+    ThemeSettingsScreen()
 }
 
