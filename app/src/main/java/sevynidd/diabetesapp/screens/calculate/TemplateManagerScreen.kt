@@ -1,5 +1,6 @@
 package sevynidd.diabetesapp.screens.calculate
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -8,13 +9,17 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.RestaurantMenu
 import androidx.compose.material.icons.filled.SortByAlpha
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -32,6 +37,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import sevynidd.diabetesapp.data.database.BolusTemplateEntity
@@ -103,25 +110,12 @@ fun TemplateManagerScreen(
             }
 
             if (sortedTemplates.isEmpty()) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = MaterialTheme.shapes.large,
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-                    )
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 24.dp)
-                    ) {
-                        Text(
-                            text = translate(TranslationKey.TemplateEmpty, currentLanguage),
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
-                    }
-                }
+                TemplateEmptyState(
+                    currentLanguage = currentLanguage,
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                )
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxWidth(),
@@ -179,6 +173,34 @@ fun TemplateManagerScreen(
 }
 
 @Composable
+private fun TemplateEmptyState(
+    currentLanguage: AppLanguage,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Bookmark,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(EmptyStateIconSize)
+            )
+            Text(
+                text = translate(TranslationKey.TemplateEmpty, currentLanguage),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
 private fun TemplateListRow(
     template: BolusTemplateEntity,
     currentLanguage: AppLanguage,
@@ -200,11 +222,14 @@ private fun TemplateListRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 12.dp, end = 8.dp, top = 8.dp, bottom = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            TemplateAvatar(emoji = template.emoji)
+
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = template.displayLabel(),
+                    text = template.name,
                     style = MaterialTheme.typography.titleSmall
                 )
                 Text(
@@ -218,7 +243,6 @@ private fun TemplateListRow(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-
 
             IconButton(onClick = onEdit) {
                 Icon(
@@ -237,6 +261,33 @@ private fun TemplateListRow(
     }
 }
 
+@Composable
+private fun TemplateAvatar(emoji: String?) {
+    Box(
+        modifier = Modifier
+            .size(TemplateAvatarSize)
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.primaryContainer),
+        contentAlignment = Alignment.Center
+    ) {
+        if (emoji.isNullOrBlank()) {
+            Icon(
+                imageVector = Icons.Filled.RestaurantMenu,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                modifier = Modifier.size(TemplateAvatarIconSize)
+            )
+        } else {
+            Text(
+                text = emoji,
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
 private fun BolusTemplateEntity.displayLabel(): String {
     return if (emoji.isNullOrBlank()) name else "$emoji $name"
 }
@@ -248,6 +299,9 @@ private fun Double.toLocalizedInput(): String {
         .trimEnd(',')
 }
 
+private val EmptyStateIconSize = 48.dp
+private val TemplateAvatarSize = 44.dp
+private val TemplateAvatarIconSize = 20.dp
 private const val PREVIEW_BREAD_ROLL_CARBOHYDRATES = 30.0
 private const val PREVIEW_PIZZA_SLICE_CARBOHYDRATES = 45.0
 
@@ -272,6 +326,19 @@ private fun TemplateManagerScreenPreview() {
                 carbohydrates = PREVIEW_PIZZA_SLICE_CARBOHYDRATES
             )
         ),
+        onTemplateSelected = {},
+        onAddTemplateRequested = {},
+        onEditTemplateRequested = {},
+        onTemplateDeleteRequested = {}
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun TemplateManagerScreenEmptyPreview() {
+    TemplateManagerScreen(
+        currentLanguage = AppLanguage.System,
+        templates = emptyList(),
         onTemplateSelected = {},
         onAddTemplateRequested = {},
         onEditTemplateRequested = {},
