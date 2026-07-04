@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
@@ -155,7 +154,7 @@ fun TemplateManagerScreen(
         FloatingActionButton(
             onClick = { showCreateDialog = true },
             modifier = Modifier
-                .align(androidx.compose.ui.Alignment.BottomEnd)
+                .align(Alignment.BottomEnd)
                 .padding(16.dp)
         ) {
             Icon(
@@ -251,7 +250,7 @@ private fun TemplateListRow(
             .fillMaxWidth()
             .clickable(onClick = onSelect)
             .padding(vertical = 2.dp),
-        shape = RoundedCornerShape(12.dp),
+        shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         )

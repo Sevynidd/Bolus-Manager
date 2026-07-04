@@ -30,6 +30,7 @@ import kotlin.math.sin
 
 private val LabelArcPadding = 32.dp
 private val ChartTopPadding = 8.dp
+private val ArcStrokeWidth = 50.dp
 
 data class ArcData(
     val animation: Animatable<Float, AnimationVector1D>,
@@ -90,7 +91,7 @@ fun AnimatedGapPieChart(
     Canvas(
         modifier = localModifier.scale(1f)
     ) {
-        val stroke = Stroke(width = 50f, cap = StrokeCap.Round)
+        val stroke = Stroke(width = ArcStrokeWidth.toPx(), cap = StrokeCap.Round)
         val canvasRadius = min(size.width, size.height) / 2f
 
         // Pre-measure every label so we can reserve space for the widest one.
