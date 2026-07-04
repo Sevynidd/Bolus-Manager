@@ -12,7 +12,6 @@ Android app built with Jetpack Compose for managing diabetes-relevant factors, t
 - [Calculation Logic](#calculation-logic)
 - [Validation & Input Behavior](#validation--input-behavior)
 - [Tech Stack](#tech-stack)
-- [Project Structure (Excerpt)](#project-structure-excerpt)
 - [Requirements](#requirements)
 - [Installation & Getting Started](#installation--getting-started)
 - [Screenshot](#screenshot)
@@ -160,24 +159,6 @@ This lets the second share account for a different time window than the first.
 - Lifecycle Compose + ViewModel Compose
 - KSP
 - JUnit / AndroidX Test
-
-## Project Structure (Excerpt)
-
-- `app/src/main/java/sevynidd/diabetesapp/MainActivity.kt` - App startup, theme wiring, settings/factor flows
-- `app/src/main/java/sevynidd/diabetesapp/screens/MainWindow.kt` - Scaffold, navigation, save trigger, and settings sub-screens
-- `app/src/main/java/sevynidd/diabetesapp/screens/factors/FactorScreen.kt` - Factor UI with dynamic time ranges
-- `app/src/main/java/sevynidd/diabetesapp/screens/factors/ScheduleFactorScreen.kt` - Schedule editor with pie chart and time picker
-- `app/src/main/java/sevynidd/diabetesapp/screens/calculate/CalculateScreen.kt` - Normal/split bolus calculation UI
-- `app/src/main/java/sevynidd/diabetesapp/screens/calculate/TemplateManagerScreen.kt` - Template selection and management for bolus calculation
-- `app/src/main/java/sevynidd/diabetesapp/screens/settings/` - Theme, language, and bread-unit settings
-- `app/src/main/java/sevynidd/diabetesapp/calculation/` - Plain-Kotlin bolus calculation logic (factor resolution, split-bolus math)
-- `app/src/main/java/sevynidd/diabetesapp/data/database/` - Room (`DiabetesDatabase`, entities, DAOs, repositories)
-- `app/src/main/java/sevynidd/diabetesapp/data/model/FactorsData.kt` - UI-friendly factor model
-- `app/src/main/java/sevynidd/diabetesapp/data/settings/ThemeMode.kt` - Persisted theme mode
-- `app/src/main/java/sevynidd/diabetesapp/data/AppSettingsStore.kt` - Persistence of theme, contrast, language, and bread units
-- `app/src/main/java/sevynidd/diabetesapp/navigation/Navigation.kt` - Destinations and transitions
-- `app/src/main/java/sevynidd/diabetesapp/localization/Localization.kt` - Translation logic for EN/DE/FR/PL/System
-- `app/src/main/java/sevynidd/diabetesapp/libraries/gappedPieChart/` - Pie chart components
 
 ## Requirements
 
