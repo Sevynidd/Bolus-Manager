@@ -7,6 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
+/** The app's Room database: the factor profile and saved bolus templates. */
 @Database(
     entities = [FactorProfileEntity::class, BolusTemplateEntity::class],
     version = 5,
@@ -20,6 +21,7 @@ abstract class DiabetesDatabase : RoomDatabase() {
         @Volatile
         private var instance: DiabetesDatabase? = null
 
+        /** Returns the process-wide singleton database instance, creating it on first access. */
         fun getInstance(context: Context): DiabetesDatabase {
             return instance ?: synchronized(this) {
                 instance ?: Room.databaseBuilder(

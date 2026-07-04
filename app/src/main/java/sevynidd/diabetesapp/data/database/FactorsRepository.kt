@@ -5,13 +5,16 @@ import kotlinx.coroutines.flow.map
 import sevynidd.diabetesapp.data.model.FactorsData
 import java.util.Locale
 
+/** Bridges the persisted [FactorProfileEntity] and the UI-friendly [FactorsData] model. */
 class FactorsRepository(
     private val dao: FactorProfileDao
 ) {
+    /** The current factor profile as a [FactorsData], falling back to defaults if unset. */
     val factorsFlow: Flow<FactorsData> = dao.observeProfile().map { entity ->
         entity?.toFactorsData() ?: FactorsData()
     }
 
+    /** Persists [data] as the (single) factor profile. */
     suspend fun saveFactors(data: FactorsData) {
         dao.upsertProfile(data.toEntity())
     }

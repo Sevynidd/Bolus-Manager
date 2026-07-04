@@ -2,6 +2,7 @@ package sevynidd.diabetesapp.localization
 
 import java.util.Locale
 
+/** A language the UI can be displayed in, or [System] to follow the device locale. */
 enum class AppLanguage {
     System,
     English,
@@ -10,6 +11,7 @@ enum class AppLanguage {
     Polish
 }
 
+/** A user-facing string that [translate] resolves to localized text. */
 enum class TranslationKey {
     Appearance,
     ThemeMode,
@@ -77,6 +79,7 @@ enum class TranslationKey {
     TemplateDuplicateNameError
 }
 
+/** The localized text for [key] in [language]; [AppLanguage.System] resolves to the device locale. */
 fun translate(key: TranslationKey, language: AppLanguage): String {
     val effectiveLanguage = resolveAppLanguage(language)
     return when (effectiveLanguage) {

@@ -24,6 +24,7 @@ private val Context.appSettingsDataStore: DataStore<Preferences> by preferencesD
     }
 )
 
+/** The user's persisted app-wide preferences, with defaults applied for any unset value. */
 data class AppSettings(
     val themeMode: ThemeMode = ThemeMode.System,
     val contrastLevel: ContrastLevel = ContrastLevel.Normal,
@@ -32,6 +33,7 @@ data class AppSettings(
     val periodeFactorPercent: Double = DEFAULT_PERIODE_FACTOR_PERCENT
 )
 
+/** Reads and writes [AppSettings] to DataStore, migrating them from the legacy SharedPreferences store. */
 class AppSettingsStore(private val context: Context) {
     private object Keys {
         val THEME_MODE = stringPreferencesKey("theme_mode")
@@ -42,6 +44,7 @@ class AppSettingsStore(private val context: Context) {
         val PERIODE_FACTOR_PERCENT = stringPreferencesKey("periode_factor_percent")
     }
 
+    /** The current [AppSettings], updating whenever a stored value changes. */
     val settingsFlow: Flow<AppSettings> = context.appSettingsDataStore.data.map { preferences ->
         AppSettings(
             themeMode = preferences[Keys.THEME_MODE].toEnumOrDefault(ThemeMode.System),
@@ -53,30 +56,35 @@ class AppSettingsStore(private val context: Context) {
         )
     }
 
+    /** Persists the selected [themeMode]. */
     suspend fun setThemeMode(themeMode: ThemeMode) {
         context.appSettingsDataStore.edit { preferences ->
             preferences[Keys.THEME_MODE] = themeMode.name
         }
     }
 
+    /** Persists the selected [contrastLevel]. */
     suspend fun setContrastLevel(contrastLevel: ContrastLevel) {
         context.appSettingsDataStore.edit { preferences ->
             preferences[Keys.CONTRAST_LEVEL] = contrastLevel.name
         }
     }
 
+    /** Persists the selected [language]. */
     suspend fun setLanguage(language: AppLanguage) {
         context.appSettingsDataStore.edit { preferences ->
             preferences[Keys.LANGUAGE] = language.name
         }
     }
 
+    /** Persists the configured grams-per-bread-unit value used by bolus calculations. */
     suspend fun setBreadUnits(breadUnits: Double) {
         context.appSettingsDataStore.edit { preferences ->
             preferences[Keys.BREAD_UNITS] = breadUnits.toString()
         }
     }
 
+    /** Persists the configured "Periode" factor surcharge, as a percentage. */
     suspend fun setPeriodeFactorPercent(percentage: Double) {
         context.appSettingsDataStore.edit { preferences ->
             preferences[Keys.PERIODE_FACTOR_PERCENT] = percentage.toString()

@@ -4,6 +4,11 @@ import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
+/**
+ * A saved carbohydrate-amount shortcut a user can reapply on the Calculate screen. Uniqueness
+ * is enforced on [nameNormalized] (trimmed, lowercased [name]) rather than [name] itself, so
+ * templates can't collide only by casing/whitespace.
+ */
 @Entity(
     tableName = "bolus_template",
     indices = [Index(value = ["nameNormalized"], unique = true)]

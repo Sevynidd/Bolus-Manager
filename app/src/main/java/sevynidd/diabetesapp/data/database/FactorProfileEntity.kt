@@ -3,6 +3,10 @@ package sevynidd.diabetesapp.data.database
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
+/**
+ * The persisted, single-row factor profile: per-time-window correction factors, the time
+ * boundaries between them, and the basal rate/time. `null` numeric fields mean "not yet set".
+ */
 @Entity(tableName = "factor_profile")
 data class FactorProfileEntity(
     @PrimaryKey val id: Int = SINGLE_PROFILE_ID,
