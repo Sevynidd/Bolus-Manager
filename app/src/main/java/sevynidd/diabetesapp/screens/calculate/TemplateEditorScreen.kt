@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
@@ -197,7 +198,13 @@ private fun EmojiPreview(emoji: String?) {
         contentAlignment = Alignment.Center
     ) {
         if (emoji != null) {
-            Text(text = emoji, style = MaterialTheme.typography.displayMedium)
+            Text(
+                text = emoji,
+                style = MaterialTheme.typography.displayMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(horizontal = 8.dp)
+            )
         } else {
             Icon(
                 imageVector = Icons.Filled.RestaurantMenu,
