@@ -80,6 +80,14 @@ The project is in active development, but already has a working workflow for:
 - Language: `System`, `Deutsch`, `English`, `Français`, `Polski`
 - Dedicated setting for **bread units**
 - Dedicated setting for the **Period** factor surcharge percentage
+- **App update** screen: checks the project's GitHub releases for a newer
+  version, then downloads and installs the APK directly
+  - Shows the currently installed version and, once checked, the latest
+    release's tag and notes
+  - Downloads the release's `.apk` asset via Android's `DownloadManager` with
+    progress feedback, then hands it to the system package installer
+  - Prompts the user to grant the "install unknown apps" permission if it
+    hasn't been granted yet
 - Animated navigation within settings
 
 ### UI & Navigation
@@ -136,6 +144,16 @@ Auto-save is triggered on:
 - The app going to the background (`ON_STOP`)
 
 Configuration changes (e.g. rotation) do not incorrectly trigger the background save (`isChangingConfigurations`).
+
+### In-App Updates
+
+The Settings → App update screen queries
+`https://api.github.com/repos/Sevynidd/Bolus-Manager/releases/latest` and
+compares its tag against the installed `versionName`. If the release
+publishes a `.apk` asset and its version is newer, the user can download and
+install it without leaving the app. This requires the `INTERNET` and
+`REQUEST_INSTALL_PACKAGES` permissions and a `FileProvider` (declared in
+`AndroidManifest.xml`) to hand the downloaded file to the system installer.
 
 ## Calculation Logic
 

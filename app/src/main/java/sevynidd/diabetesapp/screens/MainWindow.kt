@@ -65,6 +65,8 @@ import sevynidd.diabetesapp.screens.settings.BreadUnitsSettingsScreen
 import sevynidd.diabetesapp.screens.settings.SettingsScreen
 import sevynidd.diabetesapp.screens.settings.ThemeSettingsScreen
 import sevynidd.diabetesapp.screens.settings.LanguageSettingsScreen
+import sevynidd.diabetesapp.screens.settings.UpdateCheckViewModel
+import sevynidd.diabetesapp.screens.settings.UpdateSettingsScreen
 import sevynidd.diabetesapp.ui.theme.ContrastLevel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -98,6 +100,7 @@ fun BolusManagerMainWindow(
     var calculateBolusMode by rememberSaveable { mutableStateOf(BolusMode.Normal) }
     val factorEditorViewModel: FactorEditSessionViewModel = viewModel()
     val factorEditorState = factorEditorViewModel.uiState
+    val updateCheckViewModel: UpdateCheckViewModel = viewModel()
     val context = LocalContext.current
     val activity = remember(context) { context.findActivity() }
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -207,6 +210,9 @@ fun BolusManagerMainWindow(
 
                     AppDestinations.SETTINGS if settingsDestination == SettingsDestination.BreadUnits ->
                         translate(TranslationKey.BreadUnits, currentLanguage)
+
+                    AppDestinations.SETTINGS if settingsDestination == SettingsDestination.Updates ->
+                        translate(TranslationKey.AppUpdateTitle, currentLanguage)
 
                     AppDestinations.FACTORS if factorsDestination == FactorsDestination.EditSchedule ->
                         translate(TranslationKey.ActionSchedule, currentLanguage)
@@ -397,7 +403,8 @@ fun BolusManagerMainWindow(
                                 onPeriodFactorPercentChange = onPeriodFactorPercentChange,
                                 onNavigateToTheme = { settingsDestination = SettingsDestination.Theme },
                                 onNavigateToLanguage = { settingsDestination = SettingsDestination.Language },
-                                onNavigateToBreadUnits = { settingsDestination = SettingsDestination.BreadUnits }
+                                onNavigateToBreadUnits = { settingsDestination = SettingsDestination.BreadUnits },
+                                onNavigateToUpdates = { settingsDestination = SettingsDestination.Updates }
                             )
 
                             SettingsDestination.Theme -> ThemeSettingsScreen(
@@ -423,6 +430,16 @@ fun BolusManagerMainWindow(
                                 currentLanguage = currentLanguage,
                                 onBreadUnitsChange = onBreadUnitsChange,
                                 onBackClick = { settingsDestination = SettingsDestination.Main }
+                            )
+
+                            SettingsDestination.Updates -> UpdateSettingsScreen(
+                                modifier = contentModifier,
+                                currentLanguage = currentLanguage,
+                                uiState = updateCheckViewModel.uiState,
+                                canRequestPackageInstalls = updateCheckViewModel.canRequestPackageInstalls(),
+                                onCheckForUpdateRequested = updateCheckViewModel::checkForUpdate,
+                                onDownloadAndInstallRequested = updateCheckViewModel::downloadAndInstall,
+                                onRequestInstallPermission = updateCheckViewModel::requestInstallPermission
                             )
                         }
                     }
