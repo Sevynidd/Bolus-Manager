@@ -45,7 +45,8 @@ enum class FactorsDestination {
 
 enum class CalculateDestination {
     Main,
-    Templates
+    Templates,
+    TemplateEditor
 }
 
 fun settingsDestinationTransition(
@@ -80,7 +81,7 @@ fun calculateDestinationTransition(
     initialState: CalculateDestination,
     targetState: CalculateDestination
 ): ContentTransform {
-    val isForward = initialState == CalculateDestination.Main && targetState != CalculateDestination.Main
+    val isForward = targetState.ordinal > initialState.ordinal
     return if (isForward) {
         (slideInHorizontally { fullWidth -> fullWidth } + fadeIn()) togetherWith
             (slideOutHorizontally { fullWidth -> -fullWidth / 4 } + fadeOut())

@@ -69,6 +69,9 @@ The project is in active development, but already has a working workflow for:
   - Names are unique regardless of casing/whitespace
   - Selecting a template prefills the carbohydrate field for the active tab and
     marks the template as recently used
+  - Added and edited on a dedicated full-screen editor with a live emoji
+    preview; emoji entry uses the device's own keyboard/emoji picker rather
+    than a fixed, curated set of choices
 
 ### Settings
 

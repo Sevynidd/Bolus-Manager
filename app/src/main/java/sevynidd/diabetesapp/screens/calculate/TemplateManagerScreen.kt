@@ -4,15 +4,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Add
@@ -22,27 +19,21 @@ import androidx.compose.material.icons.filled.SortByAlpha
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
 import sevynidd.diabetesapp.data.database.BolusTemplateEntity
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
@@ -54,22 +45,18 @@ enum class TemplateSortOrder {
     RecentlyUsed
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun TemplateManagerScreen(
     modifier: Modifier = Modifier,
     currentLanguage: AppLanguage,
     templates: List<BolusTemplateEntity>,
     onTemplateSelected: (template: BolusTemplateEntity) -> Unit,
-    onTemplateAddRequested: suspend (name: String, emoji: String?, carbohydrates: Double) -> Boolean,
-    onTemplateUpdateRequested: suspend (BolusTemplateEntity) -> Boolean,
+    onAddTemplateRequested: () -> Unit,
+    onEditTemplateRequested: (BolusTemplateEntity) -> Unit,
     onTemplateDeleteRequested: (BolusTemplateEntity) -> Unit
 ) {
-    val coroutineScope = rememberCoroutineScope()
     var sortOrder by remember { mutableStateOf(TemplateSortOrder.RecentlyUsed) }
-    var templateBeingEdited by remember { mutableStateOf<BolusTemplateEntity?>(null) }
     var templateBeingDeleted by remember { mutableStateOf<BolusTemplateEntity?>(null) }
-    var showCreateDialog by remember { mutableStateOf(false) }
 
     val sortedTemplates = remember(templates, sortOrder) {
         when (sortOrder) {
@@ -145,7 +132,7 @@ fun TemplateManagerScreen(
                             template = template,
                             currentLanguage = currentLanguage,
                             onSelect = { onTemplateSelected(template) },
-                            onEdit = { templateBeingEdited = template },
+                            onEdit = { onEditTemplateRequested(template) },
                             onDelete = { templateBeingDeleted = template }
                         )
                     }
@@ -154,7 +141,7 @@ fun TemplateManagerScreen(
         }
 
         FloatingActionButton(
-            onClick = { showCreateDialog = true },
+            onClick = onAddTemplateRequested,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
@@ -164,54 +151,6 @@ fun TemplateManagerScreen(
                 contentDescription = translate(TranslationKey.TemplateAdd, currentLanguage)
             )
         }
-    }
-
-    if (showCreateDialog) {
-        TemplateEditorDialog(
-            currentLanguage = currentLanguage,
-            titleKey = TranslationKey.TemplateAdd,
-            initialName = "",
-            initialEmoji = null,
-            initialCarbohydrates = "",
-            templates = templates,
-            onDismissRequest = { showCreateDialog = false },
-            onConfirm = { name, emoji, carbohydrates ->
-                coroutineScope.launch {
-                    val didSave = onTemplateAddRequested(name, emoji, carbohydrates)
-                    if (didSave) {
-                        showCreateDialog = false
-                    }
-                }
-            }
-        )
-    }
-
-    val editedTemplate = templateBeingEdited
-    if (editedTemplate != null) {
-        TemplateEditorDialog(
-            currentLanguage = currentLanguage,
-            titleKey = TranslationKey.TemplateEdit,
-            initialName = editedTemplate.name,
-            initialEmoji = editedTemplate.emoji,
-            initialCarbohydrates = editedTemplate.carbohydrates.toLocalizedInput(),
-            templates = templates,
-            editingId = editedTemplate.id,
-            onDismissRequest = { templateBeingEdited = null },
-            onConfirm = { name, emoji, carbohydrates ->
-                coroutineScope.launch {
-                    val didSave = onTemplateUpdateRequested(
-                        editedTemplate.copy(
-                            name = name,
-                            emoji = emoji,
-                            carbohydrates = carbohydrates
-                        )
-                    )
-                    if (didSave) {
-                        templateBeingEdited = null
-                    }
-                }
-            }
-        )
     }
 
     val deletedTemplate = templateBeingDeleted
@@ -298,142 +237,6 @@ private fun TemplateListRow(
     }
 }
 
-@Composable
-private fun TemplateEditorDialog(
-    currentLanguage: AppLanguage,
-    titleKey: TranslationKey,
-    initialName: String,
-    initialEmoji: String?,
-    initialCarbohydrates: String,
-    templates: List<BolusTemplateEntity>,
-    editingId: Long? = null,
-    onDismissRequest: () -> Unit,
-    onConfirm: (name: String, emoji: String?, carbohydrates: Double) -> Unit
-) {
-    var name by remember(initialName) { mutableStateOf(initialName) }
-    var selectedEmoji by remember(initialEmoji) { mutableStateOf(initialEmoji) }
-    var carbohydrates by remember(initialCarbohydrates) { mutableStateOf(initialCarbohydrates) }
-
-    val normalizedName = name.trim().lowercase()
-    val hasDuplicateName = normalizedName.isNotBlank() && templates.any {
-        it.id != editingId && it.nameNormalized == normalizedName
-    }
-    val carbohydratesValue = carbohydrates.replace(',', '.').toDoubleOrNull()
-    val isValid = name.trim().isNotEmpty() && carbohydratesValue != null && !hasDuplicateName
-
-    AlertDialog(
-        onDismissRequest = onDismissRequest,
-        title = { Text(text = translate(titleKey, currentLanguage)) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = {
-                        Text(
-                            text = translate(
-                                TranslationKey.TemplateName,
-                                currentLanguage
-                            )
-                        )
-                    },
-                    singleLine = true,
-                    isError = hasDuplicateName,
-                    supportingText = {
-                        if (hasDuplicateName) {
-                            Text(
-                                translate(
-                                    TranslationKey.TemplateDuplicateNameError,
-                                    currentLanguage
-                                )
-                            )
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Text(
-                    text = translate(TranslationKey.TemplateEmoji, currentLanguage),
-                    style = MaterialTheme.typography.labelMedium
-                )
-
-                EmojiPickerRow(
-                    selectedEmoji = selectedEmoji,
-                    onEmojiSelected = { selectedEmoji = it }
-                )
-
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-
-                OutlinedTextField(
-                    value = carbohydrates,
-                    onValueChange = { newValue ->
-                        if (newValue.isEmpty() || newValue.matches(Regex("^\\d*[.,]?\\d*$"))) {
-                            carbohydrates = newValue
-                        }
-                    },
-                    label = {
-                        Text(
-                            text = translate(
-                                TranslationKey.Carbohydrates,
-                                currentLanguage
-                            )
-                        )
-                    },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    carbohydratesValue?.let { parsedCarbohydrates ->
-                        if (isValid) {
-                            onConfirm(name.trim(), selectedEmoji, parsedCarbohydrates)
-                        }
-                    }
-                },
-                enabled = isValid
-            ) {
-                Text(text = translate(TranslationKey.ActionSave, currentLanguage))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismissRequest) {
-                Text(text = translate(TranslationKey.ActionCancel, currentLanguage))
-            }
-        }
-    )
-}
-
-@Composable
-private fun EmojiPickerRow(
-    selectedEmoji: String?,
-    onEmojiSelected: (String?) -> Unit
-) {
-    val options = listOf("🍎", "🍌", "🍞", "🍝", "🍚", "🍕", "🍫", "🥛")
-
-    FlowRow(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        FilterChip(
-            selected = selectedEmoji == null,
-            onClick = { onEmojiSelected(null) },
-            label = { Text("-") }
-        )
-
-        options.forEach { emoji ->
-            FilterChip(
-                selected = selectedEmoji == emoji,
-                onClick = { onEmojiSelected(emoji) },
-                label = { Text(emoji) }
-            )
-        }
-    }
-}
-
 private fun BolusTemplateEntity.displayLabel(): String {
     return if (emoji.isNullOrBlank()) name else "$emoji $name"
 }
@@ -470,8 +273,8 @@ private fun TemplateManagerScreenPreview() {
             )
         ),
         onTemplateSelected = {},
-        onTemplateAddRequested = { _, _, _ -> true },
-        onTemplateUpdateRequested = { true },
+        onAddTemplateRequested = {},
+        onEditTemplateRequested = {},
         onTemplateDeleteRequested = {}
     )
 }
