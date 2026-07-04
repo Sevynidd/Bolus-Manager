@@ -18,6 +18,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -31,6 +32,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
@@ -72,14 +74,16 @@ fun BolusManagerMainWindow(
     contrastLevel: ContrastLevel = ContrastLevel.Normal,
     currentLanguage: AppLanguage = AppLanguage.System,
     breadUnits: Double = 12.0,
-    periodeFactorPercent: Double = 0.0,
+    periodFactorPercent: Double = 0.0,
     factorData: FactorsData = FactorsData(),
     onThemeModeChange: (ThemeMode) -> Unit = {},
     onContrastLevelChange: (ContrastLevel) -> Unit = {},
     onLanguageChange: (AppLanguage) -> Unit = {},
     onBreadUnitsChange: (Double) -> Unit = {},
-    onPeriodeFactorPercentChange: (Double) -> Unit = {},
+    onPeriodFactorPercentChange: (Double) -> Unit = {},
     onFactorSaveRequested: (FactorsData) -> Unit = {},
+    lastDestination: AppDestinations? = null,
+    onLastDestinationChange: (AppDestinations) -> Unit = {},
     templates: List<BolusTemplateEntity> = emptyList(),
     onTemplateAddRequested: suspend (name: String, emoji: String?, carbohydrates: Double) -> Boolean = { _, _, _ -> false },
     onTemplateUpdateRequested: suspend (BolusTemplateEntity) -> Boolean = { false },
@@ -115,6 +119,14 @@ fun BolusManagerMainWindow(
         }
 
         currentDestination = destination
+        onLastDestinationChange(destination)
+    }
+
+    // `lastDestination` is null until the persisted value loads; applying it only once it
+    // resolves (rather than seeding the rememberSaveable default above) avoids briefly snapping
+    // back to FACTORS before the real value arrives.
+    LaunchedEffect(lastDestination) {
+        lastDestination?.let { currentDestination = it }
     }
 
     val requestBackgroundSave by rememberUpdatedState {
@@ -175,8 +187,12 @@ fun BolusManagerMainWindow(
             }
         }
     ) {
+        val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+
         Scaffold(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .nestedScroll(scrollBehavior.nestedScrollConnection),
             topBar = {
                 val topBarTitle = when (currentDestination) {
                     AppDestinations.SETTINGS if settingsDestination == SettingsDestination.Theme ->
@@ -258,7 +274,8 @@ fun BolusManagerMainWindow(
                                 )
                             }
                         }
-                    }
+                    },
+                    scrollBehavior = scrollBehavior
                 )
             }
         ) { innerPadding ->
@@ -283,7 +300,7 @@ fun BolusManagerMainWindow(
                                 currentLanguage = currentLanguage,
                                 factors = factorEditorState.factors,
                                 onFactorsChange = factorEditorViewModel::updateDraft,
-                                onPeriodeEnabledChange = factorEditorViewModel::updatePeriodeEnabled
+                                onPeriodEnabledChange = factorEditorViewModel::updatePeriodEnabled
                             )
 
                             FactorsDestination.EditSchedule -> ScheduleFactorScreen(
@@ -309,7 +326,7 @@ fun BolusManagerMainWindow(
                                 currentLanguage = currentLanguage,
                                 factors = factorEditorState.factors,
                                 breadUnits = breadUnits,
-                                periodeFactorPercent = periodeFactorPercent,
+                                periodFactorPercent = periodFactorPercent,
                                 templatePrefillCarbohydrates = templatePrefillCarbohydrates,
                                 templatePrefillToken = templatePrefillToken,
                                 selectedMode = calculateBolusMode,
@@ -345,8 +362,8 @@ fun BolusManagerMainWindow(
                             SettingsDestination.Main -> SettingsScreen(
                                 modifier = contentModifier,
                                 currentLanguage = currentLanguage,
-                                currentPeriodeFactorPercent = periodeFactorPercent,
-                                onPeriodeFactorPercentChange = onPeriodeFactorPercentChange,
+                                currentPeriodFactorPercent = periodFactorPercent,
+                                onPeriodFactorPercentChange = onPeriodFactorPercentChange,
                                 onNavigateToTheme = { settingsDestination = SettingsDestination.Theme },
                                 onNavigateToLanguage = { settingsDestination = SettingsDestination.Language },
                                 onNavigateToBreadUnits = { settingsDestination = SettingsDestination.BreadUnits }

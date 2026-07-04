@@ -12,6 +12,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
@@ -30,6 +31,7 @@ import kotlin.math.sin
 
 private val LabelArcPadding = 32.dp
 private val ChartTopPadding = 8.dp
+private val ArcStrokeWidth = 50.dp
 
 data class ArcData(
     val animation: Animatable<Float, AnimationVector1D>,
@@ -54,22 +56,24 @@ fun AnimatedGapPieChart(
         .padding(top = ChartTopPadding)
         .size(screenWidth)
     val total = pieDataPoints.fold(0f) { acc, pieData -> acc + pieData.amount }.div(remainingDegrees)
-    var currentSum = 0f
     val textMeasurer = rememberTextMeasurer()
     val titleTextStyle = AppTypography.labelLarge.copy(color = MaterialTheme.colorScheme.onSurface)
     val valueTextStyle = AppTypography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurface)
     val valueLineTopPadding = 2.dp
-    val arcs = pieDataPoints.mapIndexed { index, pieData ->
-        val startAngle = currentSum + (index * gapDegrees)
-        currentSum += pieData.amount / total
-        ArcData(
-            targetSweepAngle = (pieData.amount / total),
-            animation = Animatable(0f),
-            startAngle = -90 + startAngle,
-            color = pieData.color,
-            title = pieData.title,
-            value = pieData.value
-        )
+    val arcs = remember(pieDataPoints) {
+        var currentSum = 0f
+        pieDataPoints.mapIndexed { index, pieData ->
+            val startAngle = currentSum + (index * gapDegrees)
+            currentSum += pieData.amount / total
+            ArcData(
+                targetSweepAngle = (pieData.amount / total),
+                animation = Animatable(0f),
+                startAngle = -90 + startAngle,
+                color = pieData.color,
+                title = pieData.title,
+                value = pieData.value
+            )
+        }
     }
 
     LaunchedEffect(arcs) {
@@ -90,7 +94,7 @@ fun AnimatedGapPieChart(
     Canvas(
         modifier = localModifier.scale(1f)
     ) {
-        val stroke = Stroke(width = 50f, cap = StrokeCap.Round)
+        val stroke = Stroke(width = ArcStrokeWidth.toPx(), cap = StrokeCap.Round)
         val canvasRadius = min(size.width, size.height) / 2f
 
         // Pre-measure every label so we can reserve space for the widest one.

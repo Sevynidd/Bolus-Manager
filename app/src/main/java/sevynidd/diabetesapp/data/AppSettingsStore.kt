@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.data.settings.ThemeMode
+import sevynidd.diabetesapp.navigation.AppDestinations
 import sevynidd.diabetesapp.ui.theme.ContrastLevel
 
 private const val DATASTORE_NAME = "app_settings"
@@ -30,7 +31,7 @@ data class AppSettings(
     val contrastLevel: ContrastLevel = ContrastLevel.Normal,
     val language: AppLanguage = AppLanguage.System,
     val breadUnits: Double = DEFAULT_BREAD_UNITS,
-    val periodeFactorPercent: Double = DEFAULT_PERIODE_FACTOR_PERCENT
+    val periodFactorPercent: Double = DEFAULT_PERIOD_FACTOR_PERCENT
 )
 
 /** Reads and writes [AppSettings] to DataStore, migrating them from the legacy SharedPreferences store. */
@@ -41,7 +42,9 @@ class AppSettingsStore(private val context: Context) {
         // Keep legacy key name so existing language value migrates seamlessly.
         val LANGUAGE = stringPreferencesKey(LEGACY_LANGUAGE_KEY)
         val BREAD_UNITS = stringPreferencesKey("bread_units")
-        val PERIODE_FACTOR_PERCENT = stringPreferencesKey("periode_factor_percent")
+        // Keep legacy key name so existing period-factor values migrate seamlessly.
+        val PERIOD_FACTOR_PERCENT = stringPreferencesKey("periode_factor_percent")
+        val LAST_DESTINATION = stringPreferencesKey("last_destination")
     }
 
     /** The current [AppSettings], updating whenever a stored value changes. */
@@ -51,8 +54,8 @@ class AppSettingsStore(private val context: Context) {
             contrastLevel = preferences[Keys.CONTRAST_LEVEL].toEnumOrDefault(ContrastLevel.Normal),
             language = preferences[Keys.LANGUAGE].toEnumOrDefault(AppLanguage.System),
             breadUnits = preferences[Keys.BREAD_UNITS].toDoubleOrDefault(DEFAULT_BREAD_UNITS),
-            periodeFactorPercent = preferences[Keys.PERIODE_FACTOR_PERCENT]
-                .toDoubleOrDefault(DEFAULT_PERIODE_FACTOR_PERCENT)
+            periodFactorPercent = preferences[Keys.PERIOD_FACTOR_PERCENT]
+                .toDoubleOrDefault(DEFAULT_PERIOD_FACTOR_PERCENT)
         )
     }
 
@@ -84,10 +87,28 @@ class AppSettingsStore(private val context: Context) {
         }
     }
 
-    /** Persists the configured "Periode" factor surcharge, as a percentage. */
-    suspend fun setPeriodeFactorPercent(percentage: Double) {
+    /** Persists the configured "Period" factor surcharge, as a percentage. */
+    suspend fun setPeriodFactorPercent(percentage: Double) {
         context.appSettingsDataStore.edit { preferences ->
-            preferences[Keys.PERIODE_FACTOR_PERCENT] = percentage.toString()
+            preferences[Keys.PERIOD_FACTOR_PERCENT] = percentage.toString()
+        }
+    }
+
+    /**
+     * The top-level screen that was open when the app was last closed. `null` means it hasn't
+     * been read from disk yet (kept separate from [settingsFlow] so callers can tell "not loaded
+     * yet" apart from "loaded, and it's [AppDestinations.FACTORS]" instead of silently defaulting).
+     */
+    val lastDestinationFlow: Flow<AppDestinations?> = context.appSettingsDataStore.data.map { preferences ->
+        preferences[Keys.LAST_DESTINATION]?.let { name ->
+            AppDestinations.entries.firstOrNull { it.name == name }
+        }
+    }
+
+    /** Persists [destination] as the screen to reopen to on the next app start. */
+    suspend fun setLastDestination(destination: AppDestinations) {
+        context.appSettingsDataStore.edit { preferences ->
+            preferences[Keys.LAST_DESTINATION] = destination.name
         }
     }
 }
@@ -104,5 +125,5 @@ private fun String?.toDoubleOrDefault(defaultValue: Double): Double {
 }
 
 private const val DEFAULT_BREAD_UNITS = 12.0
-private const val DEFAULT_PERIODE_FACTOR_PERCENT = 0.0
+private const val DEFAULT_PERIOD_FACTOR_PERCENT = 0.0
 

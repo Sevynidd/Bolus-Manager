@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -35,14 +35,14 @@ import java.util.Locale
 fun SettingsScreen(
     modifier: Modifier = Modifier,
     currentLanguage: AppLanguage = AppLanguage.System,
-    currentPeriodeFactorPercent: Double = 0.0,
-    onPeriodeFactorPercentChange: (Double) -> Unit = {},
+    currentPeriodFactorPercent: Double = 0.0,
+    onPeriodFactorPercentChange: (Double) -> Unit = {},
     onNavigateToTheme: () -> Unit = {},
     onNavigateToLanguage: () -> Unit = {},
     onNavigateToBreadUnits: () -> Unit = {}
 ) {
-    var draftPeriodePercent by rememberSaveable(currentPeriodeFactorPercent) {
-        mutableStateOf(currentPeriodeFactorPercent.toLocalizedInput())
+    var draftPeriodPercent by rememberSaveable(currentPeriodFactorPercent) {
+        mutableStateOf(currentPeriodFactorPercent.toLocalizedInput())
     }
 
     Column(
@@ -77,23 +77,23 @@ fun SettingsScreen(
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
-                    text = translate(TranslationKey.PeriodeFactorPercent, currentLanguage),
+                    text = translate(TranslationKey.PeriodFactorPercent, currentLanguage),
                     style = MaterialTheme.typography.titleSmall,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
 
                 OutlinedTextField(
-                    value = draftPeriodePercent,
+                    value = draftPeriodPercent,
                     onValueChange = { newValue ->
                         if (newValue.isEmpty() || newValue.matches(PercentageInputRegex)) {
-                            draftPeriodePercent = newValue
+                            draftPeriodPercent = newValue
                             newValue.replace(',', '.')
                                 .toDoubleOrNull()
                                 ?.takeIf { it >= 0.0 }
-                                ?.let(onPeriodeFactorPercentChange)
+                                ?.let(onPeriodFactorPercentChange)
                         }
                     },
-                    label = { Text(translate(TranslationKey.PeriodeFactorPercent, currentLanguage)) },
+                    label = { Text(translate(TranslationKey.PeriodFactorPercent, currentLanguage)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
@@ -129,7 +129,7 @@ private fun SettingsCardItem(
                 style = MaterialTheme.typography.titleSmall
             )
             Icon(
-                imageVector = Icons.Filled.ChevronRight,
+                imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
                 contentDescription = null
             )
         }

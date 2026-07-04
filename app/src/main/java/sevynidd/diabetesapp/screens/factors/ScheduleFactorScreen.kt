@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import sevynidd.diabetesapp.data.model.FactorsData
@@ -77,8 +78,12 @@ fun ScheduleFactorScreen(
         onFactorsChange(factors.withUpdatedTime(slot, selectedMinutes))
     }
 
+    val isDarkTheme = MaterialTheme.colorScheme.surface.luminance() < MID_LUMINANCE
+    val segmentColors = remember(isDarkTheme) { pieSegmentColors(isDarkTheme) }
+
     val pieDataPoints = remember(
         currentLanguage,
+        segmentColors,
         morningTimeMinutes,
         breakfastTimeMinutes,
         lunchTimeMinutes,
@@ -90,43 +95,43 @@ fun ScheduleFactorScreen(
         listOf(
             PieData(
                 max(1, morningTimeMinutes),
-                color = Color(0xFF9400D3),
+                color = segmentColors[0],
                 title = translate(TranslationKey.FactorMorning, currentLanguage),
                 value = formatTimeLabel(morningTimeMinutes)
             ),
             PieData(
                 max(1, breakfastTimeMinutes),
-                color = Color(0xFF42A1D5),
+                color = segmentColors[1],
                 title = translate(TranslationKey.FactorBreakfast, currentLanguage),
                 value = formatTimeLabel(breakfastTimeMinutes)
             ),
             PieData(
                 max(1, lunchTimeMinutes),
-                color = Color(0xFF8D9311),
+                color = segmentColors[2],
                 title = translate(TranslationKey.FactorLunch, currentLanguage),
                 value = formatTimeLabel(lunchTimeMinutes)
             ),
             PieData(
                 max(1, afternoonTimeMinutes),
-                color = Color(0xFF009688),
+                color = segmentColors[3],
                 title = translate(TranslationKey.FactorAfternoon, currentLanguage),
                 value = formatTimeLabel(afternoonTimeMinutes)
             ),
             PieData(
                 max(1, dinnerTimeMinutes),
-                color = Color(0xFFFF7F00),
+                color = segmentColors[4],
                 title = translate(TranslationKey.FactorDinner, currentLanguage),
                 value = formatTimeLabel(dinnerTimeMinutes)
             ),
             PieData(
                 max(1, lateTimeMinutes),
-                color = Color(0xFFE91E63),
+                color = segmentColors[5],
                 title = translate(TranslationKey.FactorLate, currentLanguage),
                 value = formatTimeLabel(lateTimeMinutes)
             ),
             PieData(
                 max(1, nightTimeMinutes),
-                color = Color(0xFF3949AB),
+                color = segmentColors[6],
                 title = translate(TranslationKey.FactorNight, currentLanguage),
                 value = formatTimeLabel(nightTimeMinutes)
             )
@@ -316,6 +321,58 @@ private fun slotTitle(slot: ScheduleTimeSlot, currentLanguage: AppLanguage): Str
     }
 }
 
+// Named hex color constants — detekt's MagicNumber check still flags a subset of these hex
+// literals depending on declaration order, even though each one is already a well-named constant.
+@Suppress("MagicNumber")
+private object PieSegmentColors {
+    val morningDark = Color(0xFFCF94E8)
+    val breakfastDark = Color(0xFF8AC6EA)
+    val lunchDark = Color(0xFFCBCE6E)
+    val afternoonDark = Color(0xFF80CBC4)
+    val dinnerDark = Color(0xFFFFB877)
+    val lateDark = Color(0xFFF48FB1)
+    val nightDark = Color(0xFF9FA8DA)
+
+    val morningLight = Color(0xFF9400D3)
+    val breakfastLight = Color(0xFF42A1D5)
+    val lunchLight = Color(0xFF8D9311)
+    val afternoonLight = Color(0xFF009688)
+    val dinnerLight = Color(0xFFFF7F00)
+    val lateLight = Color(0xFFE91E63)
+    val nightLight = Color(0xFF3949AB)
+}
+
+/**
+ * The 7 pie-chart segment colors for morning/breakfast/lunch/afternoon/dinner/late/night, in
+ * that order. Kept as a dedicated categorical palette rather than the theme's primary/secondary/
+ * tertiary roles: this app's generated Material scheme is a monochromatic rust/brown palette, so
+ * routing the chart through those roles would make all 7 slices look nearly identical. [isDarkTheme]
+ * selects a lighter, less saturated variant so segments stay legible against a dark surface.
+ */
+private fun pieSegmentColors(isDarkTheme: Boolean): List<Color> {
+    return if (isDarkTheme) {
+        listOf(
+            PieSegmentColors.morningDark,
+            PieSegmentColors.breakfastDark,
+            PieSegmentColors.lunchDark,
+            PieSegmentColors.afternoonDark,
+            PieSegmentColors.dinnerDark,
+            PieSegmentColors.lateDark,
+            PieSegmentColors.nightDark
+        )
+    } else {
+        listOf(
+            PieSegmentColors.morningLight,
+            PieSegmentColors.breakfastLight,
+            PieSegmentColors.lunchLight,
+            PieSegmentColors.afternoonLight,
+            PieSegmentColors.dinnerLight,
+            PieSegmentColors.lateLight,
+            PieSegmentColors.nightLight
+        )
+    }
+}
+
 private fun formatTimeLabel(totalMinutes: Int): String {
     val hour = (totalMinutes / 60) % 24
     val minute = totalMinutes % 60
@@ -394,4 +451,5 @@ private fun normalizeAscendingSchedule(
 }
 
 private const val MINUTES_PER_DAY = 24 * 60
+private const val MID_LUMINANCE = 0.5f
 

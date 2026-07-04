@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.dp
 import sevynidd.diabetesapp.calculation.ActiveFactorInfo
 import sevynidd.diabetesapp.calculation.MINUTES_PER_DAY
 import sevynidd.diabetesapp.calculation.activeFactorForTime
-import sevynidd.diabetesapp.calculation.applyPeriodeMultiplier
+import sevynidd.diabetesapp.calculation.applyPeriodMultiplier
 import sevynidd.diabetesapp.calculation.calculateBolusUnits
 import sevynidd.diabetesapp.calculation.calculateSplitBolus
 import sevynidd.diabetesapp.calculation.SplitBolusResult
@@ -60,7 +60,7 @@ fun CalculateScreen(
     currentLanguage: AppLanguage = AppLanguage.System,
     factors: FactorsData = FactorsData(),
     breadUnits: Double = 12.0,
-    periodeFactorPercent: Double = 0.0,
+    periodFactorPercent: Double = 0.0,
     templatePrefillCarbohydrates: Double? = null,
     templatePrefillToken: Int = 0,
     selectedMode: BolusMode = BolusMode.Normal,
@@ -85,7 +85,7 @@ fun CalculateScreen(
     val now = LocalTime.now()
     val nowMinutes = (now.hour * 60) + now.minute
     val activeFactorInfo = activeFactorForTime(factors, nowMinutes)
-    val activeFactor = applyPeriodeMultiplier(activeFactorInfo.factor, factors.isPeriodeEnabled, periodeFactorPercent)
+    val activeFactor = applyPeriodMultiplier(activeFactorInfo.factor, factors.isPeriodEnabled, periodFactorPercent)
     val activeFactorText = activeFactorInfo.toDisplayText(currentLanguage, activeFactor)
     val effectiveBreadUnits = breadUnits.takeIf { it > 0.0 } ?: 12.0
 
@@ -104,7 +104,7 @@ fun CalculateScreen(
     val splitDurationOffsetMinutes = splitDurationValue?.roundToInt()?.coerceAtLeast(0) ?: 120
     val futureFactorTimeMinutes = (nowMinutes + splitDurationOffsetMinutes) % MINUTES_PER_DAY
     val futureFactorInfo = activeFactorForTime(factors, futureFactorTimeMinutes)
-    val futureFactor = applyPeriodeMultiplier(futureFactorInfo.factor, factors.isPeriodeEnabled, periodeFactorPercent)
+    val futureFactor = applyPeriodMultiplier(futureFactorInfo.factor, factors.isPeriodEnabled, periodFactorPercent)
     val futureFactorText = futureFactorInfo.toDisplayText(currentLanguage, futureFactor)
 
     val splitBolus = splitBolusOrNull(

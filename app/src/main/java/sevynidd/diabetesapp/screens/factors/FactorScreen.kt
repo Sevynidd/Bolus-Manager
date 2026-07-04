@@ -11,9 +11,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -53,9 +53,9 @@ fun FactorScreen(
     currentLanguage: AppLanguage = AppLanguage.System,
     factors: FactorsData = FactorsData(),
     onFactorsChange: (FactorsData) -> Unit = {},
-    onPeriodeEnabledChange: (Boolean) -> Unit = {}
+    onPeriodEnabledChange: (Boolean) -> Unit = {}
 ) {
-    var isPeriodeEnabled by rememberSaveable(factors.isPeriodeEnabled) { mutableStateOf(factors.isPeriodeEnabled) }
+    var isPeriodEnabled by rememberSaveable(factors.isPeriodEnabled) { mutableStateOf(factors.isPeriodEnabled) }
     var morningFactor by rememberSaveable(factors.morningFactor) { mutableStateOf(factors.morningFactor) }
     var breakfastFactor by rememberSaveable(factors.breakfastFactor) { mutableStateOf(factors.breakfastFactor) }
     var lunchFactor by rememberSaveable(factors.lunchFactor) { mutableStateOf(factors.lunchFactor) }
@@ -68,7 +68,7 @@ fun FactorScreen(
     fun emitFactorsChanged() {
         onFactorsChange(
             FactorsData(
-                isPeriodeEnabled = isPeriodeEnabled,
+                isPeriodEnabled = isPeriodEnabled,
                 morningFactor = morningFactor,
                 breakfastFactor = breakfastFactor,
                 lunchFactor = lunchFactor,
@@ -172,14 +172,15 @@ fun FactorScreen(
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = translate(TranslationKey.PeriodeLabel, currentLanguage),
-                    style = MaterialTheme.typography.labelLarge
+                    text = translate(TranslationKey.PeriodLabel, currentLanguage),
+                    style = MaterialTheme.typography.labelLarge,
+                    modifier = Modifier.padding(end = 8.dp)
                 )
-                Checkbox(
-                    checked = isPeriodeEnabled,
+                Switch(
+                    checked = isPeriodEnabled,
                     onCheckedChange = { checked ->
-                        isPeriodeEnabled = checked
-                        onPeriodeEnabledChange(checked)
+                        isPeriodEnabled = checked
+                        onPeriodEnabledChange(checked)
                     }
                 )
             }

@@ -39,6 +39,7 @@ class MainActivity : ComponentActivity() {
             val settings by appSettingsStore.settingsFlow.collectAsState(initial = AppSettings())
             val factors by factorsRepository.factorsFlow.collectAsState(initial = FactorsData())
             val templates by templatesRepository.templatesFlow.collectAsState(initial = emptyList())
+            val lastDestination by appSettingsStore.lastDestinationFlow.collectAsState(initial = null)
             val coroutineScope = rememberCoroutineScope()
 
             val darkTheme = when (settings.themeMode) {
@@ -57,7 +58,7 @@ class MainActivity : ComponentActivity() {
                     contrastLevel = settings.contrastLevel,
                     currentLanguage = settings.language,
                     breadUnits = settings.breadUnits,
-                    periodeFactorPercent = settings.periodeFactorPercent,
+                    periodFactorPercent = settings.periodFactorPercent,
                     onThemeModeChange = { themeMode ->
                         coroutineScope.launch { appSettingsStore.setThemeMode(themeMode) }
                     },
@@ -70,8 +71,12 @@ class MainActivity : ComponentActivity() {
                     onBreadUnitsChange = { breadUnits ->
                         coroutineScope.launch { appSettingsStore.setBreadUnits(breadUnits) }
                     },
-                    onPeriodeFactorPercentChange = { percentage ->
-                        coroutineScope.launch { appSettingsStore.setPeriodeFactorPercent(percentage) }
+                    onPeriodFactorPercentChange = { percentage ->
+                        coroutineScope.launch { appSettingsStore.setPeriodFactorPercent(percentage) }
+                    },
+                    lastDestination = lastDestination,
+                    onLastDestinationChange = { destination ->
+                        coroutineScope.launch { appSettingsStore.setLastDestination(destination) }
                     },
                     factorData = factors,
                     onFactorSaveRequested = { updatedFactors ->

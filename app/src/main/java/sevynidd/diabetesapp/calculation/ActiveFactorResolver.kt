@@ -83,13 +83,13 @@ fun activeFactorForTime(factors: FactorsData, nowMinutes: Int): ActiveFactorInfo
 }
 
 /**
- * Applies the "Periode" surcharge to [factor]: when [isPeriodeEnabled], scales it up by
- * [periodeFactorPercent] percent (negative percentages are treated as `0`); otherwise returns
+ * Applies the "Period" surcharge to [factor]: when [isPeriodEnabled], scales it up by
+ * [periodFactorPercent] percent (negative percentages are treated as `0`); otherwise returns
  * [factor] unchanged. Returns `null` if [factor] is `null`.
  */
-fun applyPeriodeMultiplier(factor: Double?, isPeriodeEnabled: Boolean, periodeFactorPercent: Double): Double? {
-    if (!isPeriodeEnabled) return factor
-    val sanitizedPercent = periodeFactorPercent.coerceAtLeast(0.0)
+fun applyPeriodMultiplier(factor: Double?, isPeriodEnabled: Boolean, periodFactorPercent: Double): Double? {
+    if (!isPeriodEnabled) return factor
+    val sanitizedPercent = periodFactorPercent.coerceAtLeast(0.0)
     return factor?.times(1.0 + (sanitizedPercent / FULL_PERCENT))
 }
 
