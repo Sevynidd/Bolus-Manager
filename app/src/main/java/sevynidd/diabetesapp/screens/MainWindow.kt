@@ -74,13 +74,13 @@ fun BolusManagerMainWindow(
     contrastLevel: ContrastLevel = ContrastLevel.Normal,
     currentLanguage: AppLanguage = AppLanguage.System,
     breadUnits: Double = 12.0,
-    periodeFactorPercent: Double = 0.0,
+    periodFactorPercent: Double = 0.0,
     factorData: FactorsData = FactorsData(),
     onThemeModeChange: (ThemeMode) -> Unit = {},
     onContrastLevelChange: (ContrastLevel) -> Unit = {},
     onLanguageChange: (AppLanguage) -> Unit = {},
     onBreadUnitsChange: (Double) -> Unit = {},
-    onPeriodeFactorPercentChange: (Double) -> Unit = {},
+    onPeriodFactorPercentChange: (Double) -> Unit = {},
     onFactorSaveRequested: (FactorsData) -> Unit = {},
     lastDestination: AppDestinations? = null,
     onLastDestinationChange: (AppDestinations) -> Unit = {},
@@ -300,7 +300,7 @@ fun BolusManagerMainWindow(
                                 currentLanguage = currentLanguage,
                                 factors = factorEditorState.factors,
                                 onFactorsChange = factorEditorViewModel::updateDraft,
-                                onPeriodeEnabledChange = factorEditorViewModel::updatePeriodeEnabled
+                                onPeriodEnabledChange = factorEditorViewModel::updatePeriodEnabled
                             )
 
                             FactorsDestination.EditSchedule -> ScheduleFactorScreen(
@@ -326,7 +326,7 @@ fun BolusManagerMainWindow(
                                 currentLanguage = currentLanguage,
                                 factors = factorEditorState.factors,
                                 breadUnits = breadUnits,
-                                periodeFactorPercent = periodeFactorPercent,
+                                periodFactorPercent = periodFactorPercent,
                                 templatePrefillCarbohydrates = templatePrefillCarbohydrates,
                                 templatePrefillToken = templatePrefillToken,
                                 selectedMode = calculateBolusMode,
@@ -362,8 +362,8 @@ fun BolusManagerMainWindow(
                             SettingsDestination.Main -> SettingsScreen(
                                 modifier = contentModifier,
                                 currentLanguage = currentLanguage,
-                                currentPeriodeFactorPercent = periodeFactorPercent,
-                                onPeriodeFactorPercentChange = onPeriodeFactorPercentChange,
+                                currentPeriodFactorPercent = periodFactorPercent,
+                                onPeriodFactorPercentChange = onPeriodFactorPercentChange,
                                 onNavigateToTheme = { settingsDestination = SettingsDestination.Theme },
                                 onNavigateToLanguage = { settingsDestination = SettingsDestination.Language },
                                 onNavigateToBreadUnits = { settingsDestination = SettingsDestination.BreadUnits }

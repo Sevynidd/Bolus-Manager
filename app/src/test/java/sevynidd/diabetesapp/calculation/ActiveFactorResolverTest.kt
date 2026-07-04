@@ -56,29 +56,29 @@ class ActiveFactorResolverTest {
     }
 
     @Test
-    fun `periode multiplier scales the factor up by the given percent`() {
-        val result = applyPeriodeMultiplier(factor = 2.0, isPeriodeEnabled = true, periodeFactorPercent = 20.0)
+    fun `period multiplier scales the factor up by the given percent`() {
+        val result = applyPeriodMultiplier(factor = 2.0, isPeriodEnabled = true, periodFactorPercent = 20.0)
 
         assertEquals(2.4, result!!, 0.0001)
     }
 
     @Test
-    fun `periode multiplier is a no-op when disabled`() {
-        val result = applyPeriodeMultiplier(factor = 2.0, isPeriodeEnabled = false, periodeFactorPercent = 50.0)
+    fun `period multiplier is a no-op when disabled`() {
+        val result = applyPeriodMultiplier(factor = 2.0, isPeriodEnabled = false, periodFactorPercent = 50.0)
 
         assertEquals(2.0, result!!, 0.0001)
     }
 
     @Test
-    fun `periode multiplier treats a negative percent as zero`() {
-        val result = applyPeriodeMultiplier(factor = 2.0, isPeriodeEnabled = true, periodeFactorPercent = -50.0)
+    fun `period multiplier treats a negative percent as zero`() {
+        val result = applyPeriodMultiplier(factor = 2.0, isPeriodEnabled = true, periodFactorPercent = -50.0)
 
         assertEquals(2.0, result!!, 0.0001)
     }
 
     @Test
-    fun `periode multiplier passes through a null factor`() {
-        val result = applyPeriodeMultiplier(factor = null, isPeriodeEnabled = true, periodeFactorPercent = 20.0)
+    fun `period multiplier passes through a null factor`() {
+        val result = applyPeriodMultiplier(factor = null, isPeriodEnabled = true, periodFactorPercent = 20.0)
 
         assertNull(result)
     }

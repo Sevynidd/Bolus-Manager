@@ -35,14 +35,14 @@ import java.util.Locale
 fun SettingsScreen(
     modifier: Modifier = Modifier,
     currentLanguage: AppLanguage = AppLanguage.System,
-    currentPeriodeFactorPercent: Double = 0.0,
-    onPeriodeFactorPercentChange: (Double) -> Unit = {},
+    currentPeriodFactorPercent: Double = 0.0,
+    onPeriodFactorPercentChange: (Double) -> Unit = {},
     onNavigateToTheme: () -> Unit = {},
     onNavigateToLanguage: () -> Unit = {},
     onNavigateToBreadUnits: () -> Unit = {}
 ) {
-    var draftPeriodePercent by rememberSaveable(currentPeriodeFactorPercent) {
-        mutableStateOf(currentPeriodeFactorPercent.toLocalizedInput())
+    var draftPeriodPercent by rememberSaveable(currentPeriodFactorPercent) {
+        mutableStateOf(currentPeriodFactorPercent.toLocalizedInput())
     }
 
     Column(
@@ -77,23 +77,23 @@ fun SettingsScreen(
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
-                    text = translate(TranslationKey.PeriodeFactorPercent, currentLanguage),
+                    text = translate(TranslationKey.PeriodFactorPercent, currentLanguage),
                     style = MaterialTheme.typography.titleSmall,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
 
                 OutlinedTextField(
-                    value = draftPeriodePercent,
+                    value = draftPeriodPercent,
                     onValueChange = { newValue ->
                         if (newValue.isEmpty() || newValue.matches(PercentageInputRegex)) {
-                            draftPeriodePercent = newValue
+                            draftPeriodPercent = newValue
                             newValue.replace(',', '.')
                                 .toDoubleOrNull()
                                 ?.takeIf { it >= 0.0 }
-                                ?.let(onPeriodeFactorPercentChange)
+                                ?.let(onPeriodFactorPercentChange)
                         }
                     },
-                    label = { Text(translate(TranslationKey.PeriodeFactorPercent, currentLanguage)) },
+                    label = { Text(translate(TranslationKey.PeriodFactorPercent, currentLanguage)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()

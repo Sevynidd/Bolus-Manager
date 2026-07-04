@@ -58,7 +58,7 @@ class MainActivity : ComponentActivity() {
                     contrastLevel = settings.contrastLevel,
                     currentLanguage = settings.language,
                     breadUnits = settings.breadUnits,
-                    periodeFactorPercent = settings.periodeFactorPercent,
+                    periodFactorPercent = settings.periodFactorPercent,
                     onThemeModeChange = { themeMode ->
                         coroutineScope.launch { appSettingsStore.setThemeMode(themeMode) }
                     },
@@ -71,8 +71,8 @@ class MainActivity : ComponentActivity() {
                     onBreadUnitsChange = { breadUnits ->
                         coroutineScope.launch { appSettingsStore.setBreadUnits(breadUnits) }
                     },
-                    onPeriodeFactorPercentChange = { percentage ->
-                        coroutineScope.launch { appSettingsStore.setPeriodeFactorPercent(percentage) }
+                    onPeriodFactorPercentChange = { percentage ->
+                        coroutineScope.launch { appSettingsStore.setPeriodFactorPercent(percentage) }
                     },
                     lastDestination = lastDestination,
                     onLastDestinationChange = { destination ->

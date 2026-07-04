@@ -1,5 +1,6 @@
 package sevynidd.diabetesapp.data.database
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -10,7 +11,11 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "factor_profile")
 data class FactorProfileEntity(
     @PrimaryKey val id: Int = SINGLE_PROFILE_ID,
-    val isPeriodeEnabled: Boolean = false,
+    // Column name kept as the original "isPeriodeEnabled" from migration 4->5 (see
+    // DiabetesDatabase.MIGRATION_4_5) so existing installs don't need a new migration just to
+    // rename the Kotlin-side property to the correct English spelling.
+    @ColumnInfo(name = "isPeriodeEnabled")
+    val isPeriodEnabled: Boolean = false,
     val morningFactor: Double? = null,
     val breakfastFactor: Double? = null,
     val lunchFactor: Double? = null,

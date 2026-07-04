@@ -48,8 +48,8 @@ class FactorEditSessionViewModel(
         }
     }
 
-    fun updatePeriodeEnabled(isEnabled: Boolean) {
-        val updatedFactors = uiState.factors.copy(isPeriodeEnabled = isEnabled)
+    fun updatePeriodEnabled(isEnabled: Boolean) {
+        val updatedFactors = uiState.factors.copy(isPeriodEnabled = isEnabled)
         if (uiState.factors != updatedFactors) {
             updateState(
                 uiState.copy(
@@ -77,7 +77,7 @@ class FactorEditSessionViewModel(
 private fun SavedStateHandle.restoreUiState(): FactorEditSessionUiState {
     return FactorEditSessionUiState(
         factors = FactorsData(
-            isPeriodeEnabled = get<Boolean>(IS_PERIODE_ENABLED_KEY) ?: false,
+            isPeriodEnabled = get<Boolean>(IS_PERIOD_ENABLED_KEY) ?: false,
             morningFactor = get<String>(MORNING_FACTOR_KEY).orEmpty(),
             breakfastFactor = get<String>(BREAKFAST_FACTOR_KEY).orEmpty(),
             lunchFactor = get<String>(LUNCH_FACTOR_KEY).orEmpty(),
@@ -101,7 +101,7 @@ private fun SavedStateHandle.restoreUiState(): FactorEditSessionUiState {
 }
 
 private fun SavedStateHandle.persistUiState(state: FactorEditSessionUiState) {
-    set(IS_PERIODE_ENABLED_KEY, state.factors.isPeriodeEnabled)
+    set(IS_PERIOD_ENABLED_KEY, state.factors.isPeriodEnabled)
     set(MORNING_FACTOR_KEY, state.factors.morningFactor)
     set(BREAKFAST_FACTOR_KEY, state.factors.breakfastFactor)
     set(LUNCH_FACTOR_KEY, state.factors.lunchFactor)
@@ -123,7 +123,7 @@ private fun SavedStateHandle.persistUiState(state: FactorEditSessionUiState) {
 }
 
 private const val MORNING_FACTOR_KEY = "factor_editor_morning"
-private const val IS_PERIODE_ENABLED_KEY = "factor_editor_is_periode_enabled"
+private const val IS_PERIOD_ENABLED_KEY = "factor_editor_is_period_enabled"
 private const val BREAKFAST_FACTOR_KEY = "factor_editor_breakfast"
 private const val LUNCH_FACTOR_KEY = "factor_editor_lunch"
 private const val AFTERNOON_FACTOR_KEY = "factor_editor_afternoon"

@@ -31,7 +31,7 @@ data class AppSettings(
     val contrastLevel: ContrastLevel = ContrastLevel.Normal,
     val language: AppLanguage = AppLanguage.System,
     val breadUnits: Double = DEFAULT_BREAD_UNITS,
-    val periodeFactorPercent: Double = DEFAULT_PERIODE_FACTOR_PERCENT
+    val periodFactorPercent: Double = DEFAULT_PERIOD_FACTOR_PERCENT
 )
 
 /** Reads and writes [AppSettings] to DataStore, migrating them from the legacy SharedPreferences store. */
@@ -42,7 +42,8 @@ class AppSettingsStore(private val context: Context) {
         // Keep legacy key name so existing language value migrates seamlessly.
         val LANGUAGE = stringPreferencesKey(LEGACY_LANGUAGE_KEY)
         val BREAD_UNITS = stringPreferencesKey("bread_units")
-        val PERIODE_FACTOR_PERCENT = stringPreferencesKey("periode_factor_percent")
+        // Keep legacy key name so existing period-factor values migrate seamlessly.
+        val PERIOD_FACTOR_PERCENT = stringPreferencesKey("periode_factor_percent")
         val LAST_DESTINATION = stringPreferencesKey("last_destination")
     }
 
@@ -53,8 +54,8 @@ class AppSettingsStore(private val context: Context) {
             contrastLevel = preferences[Keys.CONTRAST_LEVEL].toEnumOrDefault(ContrastLevel.Normal),
             language = preferences[Keys.LANGUAGE].toEnumOrDefault(AppLanguage.System),
             breadUnits = preferences[Keys.BREAD_UNITS].toDoubleOrDefault(DEFAULT_BREAD_UNITS),
-            periodeFactorPercent = preferences[Keys.PERIODE_FACTOR_PERCENT]
-                .toDoubleOrDefault(DEFAULT_PERIODE_FACTOR_PERCENT)
+            periodFactorPercent = preferences[Keys.PERIOD_FACTOR_PERCENT]
+                .toDoubleOrDefault(DEFAULT_PERIOD_FACTOR_PERCENT)
         )
     }
 
@@ -86,10 +87,10 @@ class AppSettingsStore(private val context: Context) {
         }
     }
 
-    /** Persists the configured "Periode" factor surcharge, as a percentage. */
-    suspend fun setPeriodeFactorPercent(percentage: Double) {
+    /** Persists the configured "Period" factor surcharge, as a percentage. */
+    suspend fun setPeriodFactorPercent(percentage: Double) {
         context.appSettingsDataStore.edit { preferences ->
-            preferences[Keys.PERIODE_FACTOR_PERCENT] = percentage.toString()
+            preferences[Keys.PERIOD_FACTOR_PERCENT] = percentage.toString()
         }
     }
 
@@ -124,5 +125,5 @@ private fun String?.toDoubleOrDefault(defaultValue: Double): Double {
 }
 
 private const val DEFAULT_BREAD_UNITS = 12.0
-private const val DEFAULT_PERIODE_FACTOR_PERCENT = 0.0
+private const val DEFAULT_PERIOD_FACTOR_PERCENT = 0.0
 
