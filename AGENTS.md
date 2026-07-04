@@ -57,6 +57,11 @@ considering a task done. Do not mark a task complete if `testDebugUnitTest` fail
 - Bolus/factor calculation logic lives in plain Kotlin classes/functions with no
   `android.*` or Compose imports. This is non-negotiable: it's what makes the
   calculation testable without an emulator.
+- Every top-level screen Composable (the ones wired into `navigation`/`MainWindow`)
+  keeps a `@Preview` (or `@PreviewScreenSizes`) next to it, called with representative
+  default parameter values, so the screen can always be inspected in Android Studio
+  without running the app. Add the preview in the same commit that adds the screen;
+  keep it working (update its args) whenever the screen's parameters change.
 
 ## Data / Persistence
 
@@ -134,3 +139,4 @@ considering a task done. Do not mark a task complete if `testDebugUnitTest` fail
   hardcoded strings, no dead/commented-out code left behind.
 - `README.md` reflects the change, and touched public declarations in
   `data`/domain/calculation code have up-to-date KDoc (see `Documentation`).
+- Every screen Composable still has a working `@Preview` (see `Architecture`).
