@@ -33,6 +33,13 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import sevynidd.diabetesapp.calculation.ActiveFactorInfo
+import sevynidd.diabetesapp.calculation.MINUTES_PER_DAY
+import sevynidd.diabetesapp.calculation.activeFactorForTime
+import sevynidd.diabetesapp.calculation.applyPeriodeMultiplier
+import sevynidd.diabetesapp.calculation.calculateBolusUnits
+import sevynidd.diabetesapp.calculation.calculateSplitBolus
+import sevynidd.diabetesapp.calculation.SplitBolusResult
 import sevynidd.diabetesapp.data.model.FactorsData
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
@@ -78,19 +85,13 @@ fun CalculateScreen(
     val now = LocalTime.now()
     val nowMinutes = (now.hour * 60) + now.minute
     val activeFactorInfo = activeFactorForTime(factors, nowMinutes)
-    val sanitizedPeriodeFactorPercent = periodeFactorPercent.coerceAtLeast(0.0)
-    val factorMultiplier = if (factors.isPeriodeEnabled) {
-        1.0 + (sanitizedPeriodeFactorPercent / 100.0)
-    } else {
-        1.0
-    }
-    val activeFactor = activeFactorInfo.factor?.times(factorMultiplier)
+    val activeFactor = applyPeriodeMultiplier(activeFactorInfo.factor, factors.isPeriodeEnabled, periodeFactorPercent)
     val activeFactorText = activeFactorInfo.toDisplayText(currentLanguage, activeFactor)
     val effectiveBreadUnits = breadUnits.takeIf { it > 0.0 } ?: 12.0
 
     val carbohydratesValue = carbohydrates.replace(',', '.').toDoubleOrNull()
     val calculatedUnits = if (carbohydratesValue != null && activeFactor != null) {
-        (carbohydratesValue / effectiveBreadUnits) * activeFactor
+        calculateBolusUnits(carbohydratesValue, effectiveBreadUnits, activeFactor)
     } else {
         null
     }
@@ -103,34 +104,16 @@ fun CalculateScreen(
     val splitDurationOffsetMinutes = splitDurationValue?.roundToInt()?.coerceAtLeast(0) ?: 120
     val futureFactorTimeMinutes = (nowMinutes + splitDurationOffsetMinutes) % MINUTES_PER_DAY
     val futureFactorInfo = activeFactorForTime(factors, futureFactorTimeMinutes)
-    val futureFactor = futureFactorInfo.factor?.times(factorMultiplier)
+    val futureFactor = applyPeriodeMultiplier(futureFactorInfo.factor, factors.isPeriodeEnabled, periodeFactorPercent)
     val futureFactorText = futureFactorInfo.toDisplayText(currentLanguage, futureFactor)
 
-    val splitImmediateCarbohydrates = if (splitCarbohydratesValue != null && splitImmediatePercentValue != null) {
-        splitCarbohydratesValue * splitImmediatePercentValue / 100.0
-    } else {
-        null
-    }
-    val splitRestCarbohydrates = if (splitCarbohydratesValue != null && splitRestPercentValue != null) {
-        splitCarbohydratesValue * splitRestPercentValue / 100.0
-    } else {
-        null
-    }
-    val splitImmediateUnits = if (splitImmediateCarbohydrates != null && activeFactor != null) {
-        (splitImmediateCarbohydrates / effectiveBreadUnits) * activeFactor
-    } else {
-        null
-    }
-    val splitRestUnits = if (splitRestCarbohydrates != null && futureFactor != null) {
-        (splitRestCarbohydrates / effectiveBreadUnits) * futureFactor
-    } else {
-        null
-    }
-    val splitTotalUnits = if (splitImmediateUnits != null && splitRestUnits != null) {
-        splitImmediateUnits + splitRestUnits
-    } else {
-        null
-    }
+    val splitBolus = splitBolusOrNull(
+        carbohydrates = splitCarbohydratesValue,
+        immediatePercent = splitImmediatePercentValue,
+        breadUnits = effectiveBreadUnits,
+        immediateFactor = activeFactor,
+        restFactor = futureFactor
+    )
 
     Column(
         modifier = modifier.verticalScroll(rememberScrollState()),
@@ -324,7 +307,7 @@ fun CalculateScreen(
                         }
 
                         OutlinedTextField(
-                            value = splitTotalUnits.toUiDecimalOrEmpty(),
+                            value = splitBolus?.totalUnits.toUiDecimalOrEmpty(),
                             onValueChange = {},
                             label = { Text(translate(TranslationKey.CalculatedUnits, currentLanguage)) },
                             readOnly = true,
@@ -337,7 +320,7 @@ fun CalculateScreen(
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             OutlinedTextField(
-                                value = splitImmediateUnits.toUiDecimalOrEmpty(),
+                                value = splitBolus?.immediateUnits.toUiDecimalOrEmpty(),
                                 onValueChange = {},
                                 label = { Text(translate(TranslationKey.BolusImmediateUnits, currentLanguage)) },
                                 readOnly = true,
@@ -346,7 +329,7 @@ fun CalculateScreen(
                             )
 
                             OutlinedTextField(
-                                value = splitRestUnits.toUiDecimalOrEmpty(),
+                                value = splitBolus?.restUnits.toUiDecimalOrEmpty(),
                                 onValueChange = {},
                                 label = { Text(translate(TranslationKey.BolusExtendedUnits, currentLanguage)) },
                                 readOnly = true,
@@ -410,72 +393,6 @@ private fun EditableNumberField(
     )
 }
 
-private data class ActiveFactorInfo(
-    val factor: Double?,
-    val durationMinutes: Int,
-    val factorLabel: TranslationKey
-)
-
-private fun activeFactorForTime(factors: FactorsData, nowMinutes: Int): ActiveFactorInfo {
-    val morning = factors.morningTimeMinutes
-    val breakfast = factors.breakfastTimeMinutes
-    val lunch = factors.lunchTimeMinutes
-    val afternoon = factors.afternoonTimeMinutes
-    val dinner = factors.dinnerTimeMinutes
-    val late = factors.lateTimeMinutes
-    val night = factors.nightTimeMinutes
-
-    val (factorText, duration, factorLabel) = when {
-        nowMinutes !in morning..<night -> Triple(
-            factors.nightFactor,
-            (MINUTES_PER_DAY - night) + morning,
-            TranslationKey.FactorNight
-        )
-
-        nowMinutes < breakfast -> Triple(
-            factors.morningFactor,
-            breakfast - morning,
-            TranslationKey.FactorMorning
-        )
-
-        nowMinutes < lunch -> Triple(
-            factors.breakfastFactor,
-            lunch - breakfast,
-            TranslationKey.FactorBreakfast
-        )
-
-        nowMinutes < afternoon -> Triple(
-            factors.lunchFactor,
-            afternoon - lunch,
-            TranslationKey.FactorLunch
-        )
-
-        nowMinutes < dinner -> Triple(
-            factors.afternoonFactor,
-            dinner - afternoon,
-            TranslationKey.FactorAfternoon
-        )
-
-        nowMinutes < late -> Triple(
-            factors.dinnerFactor,
-            late - dinner,
-            TranslationKey.FactorDinner
-        )
-
-        else -> Triple(
-            factors.lateFactor,
-            night - late,
-            TranslationKey.FactorLate
-        )
-    }
-
-    return ActiveFactorInfo(
-        factor = factorText.replace(',', '.').toDoubleOrNull(),
-        durationMinutes = duration.coerceAtLeast(1),
-        factorLabel = factorLabel
-    )
-}
-
 private fun ActiveFactorInfo.toDisplayText(language: AppLanguage, factorValue: Double? = factor): String {
     val factorName = translate(factorLabel, language)
     val valueText = factorValue.toUiDecimalOrEmpty()
@@ -498,7 +415,22 @@ private fun sanitizePercentageInput(input: String): String? {
     return input.toIntOrNull()?.coerceAtMost(100)?.toString() ?: input
 }
 
-private const val MINUTES_PER_DAY = 24 * 60
+private fun splitBolusOrNull(
+    carbohydrates: Double?,
+    immediatePercent: Int?,
+    breadUnits: Double,
+    immediateFactor: Double?,
+    restFactor: Double?
+): SplitBolusResult? {
+    val carbsAndPercent = carbohydrates?.let { carbs -> immediatePercent?.let { percent -> carbs to percent } }
+    val factors = immediateFactor?.let { immediate -> restFactor?.let { rest -> immediate to rest } }
+    return carbsAndPercent?.let { (carbs, percent) ->
+        factors?.let { (immediate, rest) ->
+            calculateSplitBolus(carbs, percent, breadUnits, immediate, rest)
+        }
+    }
+}
+
 private val DecimalInputRegex = Regex("^\\d*[.,]?\\d*$")
 private val PercentageInputRegex = Regex("^\\d{0,3}$")
 
