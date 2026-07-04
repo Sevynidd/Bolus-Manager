@@ -93,12 +93,19 @@ jobs:
       if: matrix.build-mode == 'manual'
       uses: gradle/actions/setup-gradle@v6
 
+    # CodeQL's Kotlin extractor only supports Kotlin < 2.3.30; this project is
+    # pinned to 2.4.0 (see gradle/libs.versions.toml), so compileDebugKotlin
+    # fails under CodeQL's bundled compiler until CodeQL catches up. Treat the
+    # java-kotlin build/analysis as non-blocking rather than gate CI on it,
+    # matching how detekt.yml's SARIF scan is already continue-on-error.
     - name: Run manual build steps
       if: matrix.build-mode == 'manual'
       shell: bash
+      continue-on-error: ${{ matrix.language == 'java-kotlin' }}
       run: ./gradlew assembleDebug --stacktrace
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v4
+      continue-on-error: ${{ matrix.language == 'java-kotlin' }}
       with:
         category: "/language:${{matrix.language}}"
