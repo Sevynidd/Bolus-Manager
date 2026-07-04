@@ -39,6 +39,7 @@ class MainActivity : ComponentActivity() {
             val settings by appSettingsStore.settingsFlow.collectAsState(initial = AppSettings())
             val factors by factorsRepository.factorsFlow.collectAsState(initial = FactorsData())
             val templates by templatesRepository.templatesFlow.collectAsState(initial = emptyList())
+            val lastDestination by appSettingsStore.lastDestinationFlow.collectAsState(initial = null)
             val coroutineScope = rememberCoroutineScope()
 
             val darkTheme = when (settings.themeMode) {
@@ -72,6 +73,10 @@ class MainActivity : ComponentActivity() {
                     },
                     onPeriodeFactorPercentChange = { percentage ->
                         coroutineScope.launch { appSettingsStore.setPeriodeFactorPercent(percentage) }
+                    },
+                    lastDestination = lastDestination,
+                    onLastDestinationChange = { destination ->
+                        coroutineScope.launch { appSettingsStore.setLastDestination(destination) }
                     },
                     factorData = factors,
                     onFactorSaveRequested = { updatedFactors ->

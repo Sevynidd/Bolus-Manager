@@ -80,6 +80,8 @@ fun BolusManagerMainWindow(
     onBreadUnitsChange: (Double) -> Unit = {},
     onPeriodeFactorPercentChange: (Double) -> Unit = {},
     onFactorSaveRequested: (FactorsData) -> Unit = {},
+    lastDestination: AppDestinations? = null,
+    onLastDestinationChange: (AppDestinations) -> Unit = {},
     templates: List<BolusTemplateEntity> = emptyList(),
     onTemplateAddRequested: suspend (name: String, emoji: String?, carbohydrates: Double) -> Boolean = { _, _, _ -> false },
     onTemplateUpdateRequested: suspend (BolusTemplateEntity) -> Boolean = { false },
@@ -115,6 +117,14 @@ fun BolusManagerMainWindow(
         }
 
         currentDestination = destination
+        onLastDestinationChange(destination)
+    }
+
+    // `lastDestination` is null until the persisted value loads; applying it only once it
+    // resolves (rather than seeding the rememberSaveable default above) avoids briefly snapping
+    // back to FACTORS before the real value arrives.
+    LaunchedEffect(lastDestination) {
+        lastDestination?.let { currentDestination = it }
     }
 
     val requestBackgroundSave by rememberUpdatedState {
