@@ -180,28 +180,21 @@ fun FactorScreen(
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = translate(TranslationKey.LabelFactor, currentLanguage),
-                style = MaterialTheme.typography.titleLarge
+                text = translate(TranslationKey.PeriodLabel, currentLanguage),
+                style = MaterialTheme.typography.labelLarge,
+                modifier = Modifier.padding(end = 8.dp)
             )
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = translate(TranslationKey.PeriodLabel, currentLanguage),
-                    style = MaterialTheme.typography.labelLarge,
-                    modifier = Modifier.padding(end = 8.dp)
-                )
-                Switch(
-                    checked = isPeriodEnabled,
-                    onCheckedChange = { checked ->
-                        isPeriodEnabled = checked
-                        onPeriodEnabledChange(checked)
-                    }
-                )
-            }
+            Switch(
+                checked = isPeriodEnabled,
+                onCheckedChange = { checked ->
+                    isPeriodEnabled = checked
+                    onPeriodEnabledChange(checked)
+                }
+            )
         }
 
         Card(

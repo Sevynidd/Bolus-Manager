@@ -35,8 +35,10 @@ enum class TranslationKey {
     ActionSave,
     ActionCancel,
     ActionClose,
+    ActionBack,
     ActionTemplates,
     ActionDelete,
+    ActionMoreOptions,
     FactorMorning,
     FactorBreakfast,
     FactorLunch,
@@ -121,8 +123,10 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ActionSave -> "Save"
             TranslationKey.ActionCancel -> "Cancel"
             TranslationKey.ActionClose -> "Close"
+            TranslationKey.ActionBack -> "Back"
             TranslationKey.ActionTemplates -> "Templates"
             TranslationKey.ActionDelete -> "Delete"
+            TranslationKey.ActionMoreOptions -> "More options"
             TranslationKey.FactorMorning -> "Morning"
             TranslationKey.FactorBreakfast -> "Breakfast"
             TranslationKey.FactorLunch -> "Lunch"
@@ -203,8 +207,10 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ActionSave -> "Speichern"
             TranslationKey.ActionCancel -> "Abbrechen"
             TranslationKey.ActionClose -> "Schließen"
+            TranslationKey.ActionBack -> "Zurück"
             TranslationKey.ActionTemplates -> "Vorlagen"
             TranslationKey.ActionDelete -> "Löschen"
+            TranslationKey.ActionMoreOptions -> "Weitere Optionen"
             TranslationKey.FactorMorning -> "Morgen"
             TranslationKey.FactorBreakfast -> "Frühstück"
             TranslationKey.FactorLunch -> "Mittagessen"
@@ -285,8 +291,10 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ActionSave -> "Enregistrer"
             TranslationKey.ActionCancel -> "Annuler"
             TranslationKey.ActionClose -> "Fermer"
+            TranslationKey.ActionBack -> "Retour"
             TranslationKey.ActionTemplates -> "Modeles"
             TranslationKey.ActionDelete -> "Supprimer"
+            TranslationKey.ActionMoreOptions -> "Plus d'options"
             TranslationKey.FactorMorning -> "Matin"
             TranslationKey.FactorBreakfast -> "Petit-déjeuner"
             TranslationKey.FactorLunch -> "Dejeuner"
@@ -367,8 +375,10 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ActionSave -> "Zapisz"
             TranslationKey.ActionCancel -> "Anuluj"
             TranslationKey.ActionClose -> "Zamknij"
+            TranslationKey.ActionBack -> "Wstecz"
             TranslationKey.ActionTemplates -> "Szablony"
             TranslationKey.ActionDelete -> "Usuń"
+            TranslationKey.ActionMoreOptions -> "Więcej opcji"
             TranslationKey.FactorMorning -> "Rano"
             TranslationKey.FactorBreakfast -> "Śniadanie"
             TranslationKey.FactorLunch -> "Obiad"

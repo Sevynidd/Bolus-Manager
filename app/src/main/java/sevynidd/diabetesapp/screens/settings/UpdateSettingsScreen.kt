@@ -4,22 +4,37 @@ import android.content.Intent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.CloudDownload
+import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.filled.ErrorOutline
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
@@ -27,8 +42,11 @@ import sevynidd.diabetesapp.data.update.GitHubRelease
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
+import kotlin.math.roundToInt
 
 private const val RELEASE_NOTES_MAX_LINES = 6
+private const val PERCENT_MULTIPLIER = 100
+private val CheckingIndicatorSize = 20.dp
 
 @Composable
 fun UpdateSettingsScreen(
@@ -40,21 +58,17 @@ fun UpdateSettingsScreen(
     onDownloadAndInstallRequested: () -> Unit = {},
     onRequestInstallPermission: () -> Unit = {}
 ) {
+    val context = LocalContext.current
+
     Column(
         modifier = modifier.verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        SettingsInfoCard {
-            Text(
-                text = translate(TranslationKey.AppUpdateCurrentVersion, currentLanguage),
-                style = MaterialTheme.typography.titleSmall
-            )
-            Text(
-                text = uiState.currentVersion,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
+        UpdateInfoRow(
+            icon = Icons.Filled.Info,
+            title = translate(TranslationKey.AppUpdateCurrentVersion, currentLanguage),
+            supportingText = uiState.currentVersion
+        )
 
         SettingsInfoCard {
             UpdateStatusContent(
@@ -67,21 +81,53 @@ fun UpdateSettingsScreen(
             )
         }
 
-        GitHubRepoLink(currentLanguage = currentLanguage)
+        UpdateInfoRow(
+            icon = Icons.Filled.Code,
+            title = translate(TranslationKey.AppUpdateViewOnGitHub, currentLanguage),
+            trailingIcon = Icons.AutoMirrored.Filled.OpenInNew,
+            onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, GITHUB_REPO_URL.toUri())) }
+        )
     }
 }
 
 @Composable
-private fun GitHubRepoLink(currentLanguage: AppLanguage) {
-    val context = LocalContext.current
+private fun UpdateInfoRow(
+    icon: ImageVector,
+    title: String,
+    supportingText: String? = null,
+    trailingIcon: ImageVector? = null,
+    onClick: (() -> Unit)? = null
+) {
+    val rowModifier = Modifier
+        .clip(MaterialTheme.shapes.large)
+        .let { base -> if (onClick != null) base.clickable(onClick = onClick) else base }
 
-    Text(
-        text = translate(TranslationKey.AppUpdateViewOnGitHub, currentLanguage),
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.primary,
-        textDecoration = TextDecoration.Underline,
-        modifier = Modifier.clickable {
-            context.startActivity(Intent(Intent.ACTION_VIEW, GITHUB_REPO_URL.toUri()))
+    ListItem(
+        modifier = rowModifier,
+        colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+        leadingContent = {
+            Icon(imageVector = icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+        },
+        headlineContent = {
+            Text(text = title, style = MaterialTheme.typography.titleSmall)
+        },
+        supportingContent = supportingText?.let { text ->
+            {
+                Text(
+                    text = text,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        },
+        trailingContent = trailingIcon?.let { trailing ->
+            {
+                Icon(
+                    imageVector = trailing,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
     )
 }
@@ -104,6 +150,17 @@ private fun SettingsInfoCard(content: @Composable ColumnScope.() -> Unit) {
 }
 
 @Composable
+private fun StatusRow(icon: ImageVector, text: String, tint: Color) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Icon(imageVector = icon, contentDescription = null, tint = tint)
+        Text(text = text, style = MaterialTheme.typography.bodyMedium)
+    }
+}
+
+@Composable
 private fun UpdateStatusContent(
     currentLanguage: AppLanguage,
     uiState: UpdateCheckUiState,
@@ -120,17 +177,23 @@ private fun UpdateStatusContent(
         }
 
         UpdateCheckPhase.Checking -> {
-            CircularProgressIndicator()
-            Text(
-                text = translate(TranslationKey.AppUpdateChecking, currentLanguage),
-                style = MaterialTheme.typography.bodyMedium
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                CircularProgressIndicator(modifier = Modifier.size(CheckingIndicatorSize))
+                Text(
+                    text = translate(TranslationKey.AppUpdateChecking, currentLanguage),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         }
 
         UpdateCheckPhase.UpToDate -> {
-            Text(
+            StatusRow(
+                icon = Icons.Filled.CheckCircle,
                 text = translate(TranslationKey.AppUpdateUpToDate, currentLanguage),
-                style = MaterialTheme.typography.bodyMedium
+                tint = MaterialTheme.colorScheme.primary
             )
             Button(onClick = onCheckForUpdateRequested) {
                 Text(translate(TranslationKey.AppUpdateCheckButton, currentLanguage))
@@ -146,19 +209,7 @@ private fun UpdateStatusContent(
         }
 
         UpdateCheckPhase.Downloading -> {
-            val progress = uiState.downloadProgress
-            if (progress != null) {
-                LinearProgressIndicator(
-                    progress = { progress },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            } else {
-                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-            }
-            Text(
-                text = translate(TranslationKey.AppUpdateDownloading, currentLanguage),
-                style = MaterialTheme.typography.bodyMedium
-            )
+            DownloadingContent(currentLanguage = currentLanguage, progress = uiState.downloadProgress)
         }
 
         UpdateCheckPhase.ReadyToInstall -> {
@@ -170,9 +221,10 @@ private fun UpdateStatusContent(
         }
 
         UpdateCheckPhase.Error -> {
-            Text(
+            StatusRow(
+                icon = Icons.Filled.ErrorOutline,
                 text = translate(TranslationKey.AppUpdateError, currentLanguage),
-                style = MaterialTheme.typography.bodyMedium
+                tint = MaterialTheme.colorScheme.error
             )
             Button(onClick = onCheckForUpdateRequested) {
                 Text(translate(TranslationKey.AppUpdateRetryButton, currentLanguage))
@@ -182,14 +234,36 @@ private fun UpdateStatusContent(
 }
 
 @Composable
+private fun DownloadingContent(currentLanguage: AppLanguage, progress: Float?) {
+    if (progress != null) {
+        LinearProgressIndicator(
+            progress = { progress },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Text(
+            text = "${translate(TranslationKey.AppUpdateDownloading, currentLanguage)} " +
+                "${(progress * PERCENT_MULTIPLIER).roundToInt()}%",
+            style = MaterialTheme.typography.bodyMedium
+        )
+    } else {
+        LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+        Text(
+            text = translate(TranslationKey.AppUpdateDownloading, currentLanguage),
+            style = MaterialTheme.typography.bodyMedium
+        )
+    }
+}
+
+@Composable
 private fun UpdateAvailableContent(
     currentLanguage: AppLanguage,
     release: GitHubRelease?,
     onDownloadAndInstallRequested: () -> Unit
 ) {
-    Text(
+    StatusRow(
+        icon = Icons.Filled.CloudDownload,
         text = translate(TranslationKey.AppUpdateAvailable, currentLanguage),
-        style = MaterialTheme.typography.titleSmall
+        tint = MaterialTheme.colorScheme.primary
     )
 
     if (release != null) {
@@ -221,9 +295,10 @@ private fun ReadyToInstallContent(
     onRequestInstallPermission: () -> Unit
 ) {
     if (canRequestPackageInstalls) {
-        Text(
+        StatusRow(
+            icon = Icons.Filled.CheckCircle,
             text = translate(TranslationKey.AppUpdateReadyToInstall, currentLanguage),
-            style = MaterialTheme.typography.bodyMedium
+            tint = MaterialTheme.colorScheme.primary
         )
     } else {
         Text(

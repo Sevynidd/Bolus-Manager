@@ -50,12 +50,6 @@ fun BreadUnitsSettingsScreen(
             )
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = translate(TranslationKey.BreadUnits, currentLanguage),
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-
                 OutlinedTextField(
                     value = draftValue,
                     onValueChange = { newValue ->

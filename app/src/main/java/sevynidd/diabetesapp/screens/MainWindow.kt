@@ -3,7 +3,10 @@ package sevynidd.diabetesapp.screens
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -16,10 +19,14 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -31,10 +38,12 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -113,6 +122,27 @@ fun BolusManagerMainWindow(
         factorEditorViewModel.leaveEditMode(shouldSave)
     }
 
+    val canNavigateUpWithinDestination = (
+        currentDestination == AppDestinations.SETTINGS && settingsDestination != SettingsDestination.Main
+        ) ||
+        (currentDestination == AppDestinations.FACTORS && factorsDestination == FactorsDestination.EditSchedule) ||
+        (currentDestination == AppDestinations.CALCULATE && calculateDestination != CalculateDestination.Main)
+
+    fun navigateUpWithinDestination() {
+        when (currentDestination) {
+            AppDestinations.SETTINGS -> settingsDestination = SettingsDestination.Main
+            AppDestinations.FACTORS -> factorsDestination = FactorsDestination.Main
+            AppDestinations.CALCULATE -> {
+                calculateDestination = when (calculateDestination) {
+                    CalculateDestination.TemplateEditor -> CalculateDestination.Templates
+                    else -> CalculateDestination.Main
+                }
+            }
+        }
+    }
+
+    BackHandler(enabled = canNavigateUpWithinDestination) { navigateUpWithinDestination() }
+
     fun navigateTo(destination: AppDestinations) {
         if (destination == currentDestination) return
 
@@ -175,31 +205,17 @@ fun BolusManagerMainWindow(
         }
     }
 
-    NavigationSuiteScaffold(
-        navigationSuiteItems = {
-            AppDestinations.entries.forEach {
-                item(
-                    icon = {
-                        Icon(
-                            imageVector = it.icon,
-                            contentDescription = null
-                        )
-                    },
-                    label = { Text(destinationLabel(it, currentLanguage)) },
-                    selected = it == currentDestination,
-                    onClick = {
-                        navigateTo(it)
-                    }
-                )
-            }
-        }
-    ) {
+    val navigationLayoutType = NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(currentWindowAdaptiveInfo())
+
+    val mainContent: @Composable (bottomContentPadding: Dp, contentWindowInsets: WindowInsets) -> Unit =
+        { bottomContentPadding, contentWindowInsets ->
         val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
         Scaffold(
             modifier = Modifier
                 .fillMaxSize()
                 .nestedScroll(scrollBehavior.nestedScrollConnection),
+            contentWindowInsets = contentWindowInsets,
             topBar = {
                 val topBarTitle = when (currentDestination) {
                     AppDestinations.SETTINGS if settingsDestination == SettingsDestination.Theme ->
@@ -232,21 +248,12 @@ fun BolusManagerMainWindow(
                 TopAppBar(
                     title = { Text(topBarTitle) },
                     navigationIcon = {
-                        if (currentDestination == AppDestinations.SETTINGS && settingsDestination != SettingsDestination.Main){
-                            IconButton(onClick = { settingsDestination = SettingsDestination.Main }) {
-                                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                            }
-                        } else if (currentDestination == AppDestinations.FACTORS && factorsDestination == FactorsDestination.EditSchedule) {
-                            IconButton(onClick = { factorsDestination = FactorsDestination.Main }) {
-                                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                            }
-                        } else if (currentDestination == AppDestinations.CALCULATE && calculateDestination != CalculateDestination.Main) {
-                            val previousCalculateDestination = when (calculateDestination) {
-                                CalculateDestination.TemplateEditor -> CalculateDestination.Templates
-                                else -> CalculateDestination.Main
-                            }
-                            IconButton(onClick = { calculateDestination = previousCalculateDestination }) {
-                                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        if (canNavigateUpWithinDestination) {
+                            IconButton(onClick = { navigateUpWithinDestination() }) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = translate(TranslationKey.ActionBack, currentLanguage)
+                                )
                             }
                         }
                     },
@@ -302,7 +309,7 @@ fun BolusManagerMainWindow(
             val contentModifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(start = 16.dp, top = 16.dp, end = 16.dp)
+                .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = bottomContentPadding)
 
             when (currentDestination) {
                 AppDestinations.FACTORS -> {
@@ -445,6 +452,39 @@ fun BolusManagerMainWindow(
                     }
                 }
             }
+        }
+    }
+
+    if (navigationLayoutType == NavigationSuiteType.NavigationBar) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            mainContent(floatingNavigationBarReservedHeight(), WindowInsets(0, 0, 0, 0))
+            FloatingNavigationBar(
+                currentDestination = currentDestination,
+                currentLanguage = currentLanguage,
+                onDestinationSelected = { navigateTo(it) },
+                modifier = Modifier.align(Alignment.BottomCenter)
+            )
+        }
+    } else {
+        NavigationSuiteScaffold(
+            navigationSuiteItems = {
+                AppDestinations.entries.forEach {
+                    item(
+                        icon = {
+                            Icon(
+                                imageVector = it.icon,
+                                contentDescription = null
+                            )
+                        },
+                        label = { Text(destinationLabel(it, currentLanguage)) },
+                        selected = it == currentDestination,
+                        onClick = { navigateTo(it) }
+                    )
+                }
+            },
+            layoutType = navigationLayoutType
+        ) {
+            mainContent(0.dp, ScaffoldDefaults.contentWindowInsets)
         }
     }
 }
