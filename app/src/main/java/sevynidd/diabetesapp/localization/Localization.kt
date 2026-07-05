@@ -37,6 +37,7 @@ enum class TranslationKey {
     ActionClose,
     ActionTemplates,
     ActionDelete,
+    ActionMoreOptions,
     FactorMorning,
     FactorBreakfast,
     FactorLunch,
@@ -123,6 +124,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ActionClose -> "Close"
             TranslationKey.ActionTemplates -> "Templates"
             TranslationKey.ActionDelete -> "Delete"
+            TranslationKey.ActionMoreOptions -> "More options"
             TranslationKey.FactorMorning -> "Morning"
             TranslationKey.FactorBreakfast -> "Breakfast"
             TranslationKey.FactorLunch -> "Lunch"
@@ -205,6 +207,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ActionClose -> "Schließen"
             TranslationKey.ActionTemplates -> "Vorlagen"
             TranslationKey.ActionDelete -> "Löschen"
+            TranslationKey.ActionMoreOptions -> "Weitere Optionen"
             TranslationKey.FactorMorning -> "Morgen"
             TranslationKey.FactorBreakfast -> "Frühstück"
             TranslationKey.FactorLunch -> "Mittagessen"
@@ -287,6 +290,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ActionClose -> "Fermer"
             TranslationKey.ActionTemplates -> "Modeles"
             TranslationKey.ActionDelete -> "Supprimer"
+            TranslationKey.ActionMoreOptions -> "Plus d'options"
             TranslationKey.FactorMorning -> "Matin"
             TranslationKey.FactorBreakfast -> "Petit-déjeuner"
             TranslationKey.FactorLunch -> "Dejeuner"
@@ -369,6 +373,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ActionClose -> "Zamknij"
             TranslationKey.ActionTemplates -> "Szablony"
             TranslationKey.ActionDelete -> "Usuń"
+            TranslationKey.ActionMoreOptions -> "Więcej opcji"
             TranslationKey.FactorMorning -> "Rano"
             TranslationKey.FactorBreakfast -> "Śniadanie"
             TranslationKey.FactorLunch -> "Obiad"

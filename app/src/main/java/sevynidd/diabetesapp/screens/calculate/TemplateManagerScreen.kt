@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -14,25 +13,26 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.RestaurantMenu
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -238,70 +238,81 @@ private fun TemplateListRow(
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
-    Card(
+    ListItem(
         modifier = Modifier
-            .fillMaxWidth()
+            .clip(MaterialTheme.shapes.large)
             .clickable(onClick = onSelect),
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-        )
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 12.dp, end = 4.dp, top = 10.dp, bottom = 10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            TemplateAvatar(emoji = template.emoji)
-
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Text(
-                    text = template.name,
-                    style = MaterialTheme.typography.titleSmall,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                CarbsBadge(
-                    label = translate(TranslationKey.Carbohydrates, currentLanguage),
-                    value = template.carbohydrates.toLocalizedInput()
-                )
-            }
-
-            IconButton(onClick = onEdit) {
-                Icon(
-                    imageVector = Icons.Filled.Edit,
-                    contentDescription = translate(TranslationKey.ActionEdit, currentLanguage)
-                )
-            }
-
-            IconButton(onClick = onDelete) {
-                Icon(
-                    imageVector = Icons.Filled.Delete,
-                    contentDescription = translate(TranslationKey.ActionDelete, currentLanguage),
-                    tint = MaterialTheme.colorScheme.error
-                )
-            }
+        colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+        leadingContent = { TemplateAvatar(emoji = template.emoji) },
+        headlineContent = {
+            Text(
+                text = template.name,
+                style = MaterialTheme.typography.titleSmall,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        },
+        supportingContent = {
+            Text(
+                text = "${translate(TranslationKey.Carbohydrates, currentLanguage)}: " +
+                    template.carbohydrates.toLocalizedInput(),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        },
+        trailingContent = {
+            TemplateRowMenu(
+                currentLanguage = currentLanguage,
+                onEdit = onEdit,
+                onDelete = onDelete
+            )
         }
-    }
+    )
 }
 
 @Composable
-private fun CarbsBadge(label: String, value: String) {
-    Surface(
-        shape = RoundedCornerShape(CarbsBadgeCornerRadius),
-        color = MaterialTheme.colorScheme.secondaryContainer
-    ) {
-        Text(
-            text = "$label: $value",
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSecondaryContainer,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
-        )
+private fun TemplateRowMenu(
+    currentLanguage: AppLanguage,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
+) {
+    var isMenuExpanded by remember { mutableStateOf(false) }
+
+    Box {
+        IconButton(onClick = { isMenuExpanded = true }) {
+            Icon(
+                imageVector = Icons.Filled.MoreVert,
+                contentDescription = translate(TranslationKey.ActionMoreOptions, currentLanguage)
+            )
+        }
+
+        DropdownMenu(
+            expanded = isMenuExpanded,
+            onDismissRequest = { isMenuExpanded = false }
+        ) {
+            DropdownMenuItem(
+                text = { Text(translate(TranslationKey.ActionEdit, currentLanguage)) },
+                leadingIcon = { Icon(imageVector = Icons.Filled.Edit, contentDescription = null) },
+                onClick = {
+                    isMenuExpanded = false
+                    onEdit()
+                }
+            )
+            DropdownMenuItem(
+                text = { Text(translate(TranslationKey.ActionDelete, currentLanguage)) },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.Delete,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                },
+                onClick = {
+                    isMenuExpanded = false
+                    onDelete()
+                }
+            )
+        }
     }
 }
 
@@ -347,7 +358,6 @@ private val EmptyStateIconSize = 40.dp
 private val EmptyStateBadgeSize = 88.dp
 private val TemplateAvatarSize = 44.dp
 private val TemplateAvatarIconSize = 20.dp
-private val CarbsBadgeCornerRadius = 8.dp
 private val FabClearanceHeight = 96.dp
 private const val PREVIEW_BREAD_ROLL_CARBOHYDRATES = 30.0
 private const val PREVIEW_PIZZA_SLICE_CARBOHYDRATES = 45.0
