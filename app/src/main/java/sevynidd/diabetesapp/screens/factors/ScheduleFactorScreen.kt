@@ -77,6 +77,7 @@ fun ScheduleFactorScreen(
 
     val nowMinutes = (now.hour * 60) + now.minute
     val activeFactorLabel = activeFactorForTime(factors, nowMinutes).factorLabel
+    val activeChartIndex = remember(activeFactorLabel) { pieIndexForFactorLabel(activeFactorLabel) }
 
     Column(
         modifier = modifier.verticalScroll(rememberScrollState()),
@@ -91,7 +92,8 @@ fun ScheduleFactorScreen(
             currentLanguage = currentLanguage,
             pieDataPoints = pieDataPoints,
             activeWindowLabel = translate(activeFactorLabel, currentLanguage),
-            nowMinutes = nowMinutes
+            nowMinutes = nowMinutes,
+            activeChartIndex = activeChartIndex
         )
 
         ScheduleTimesCard(
@@ -240,7 +242,8 @@ private fun ScheduleChartCard(
     currentLanguage: AppLanguage,
     pieDataPoints: List<PieData>,
     activeWindowLabel: String,
-    nowMinutes: Int
+    nowMinutes: Int,
+    activeChartIndex: Int?
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -257,7 +260,8 @@ private fun ScheduleChartCard(
             Box(contentAlignment = Alignment.Center) {
                 AnimatedGapPieChart(
                     modifier = Modifier.size(ChartSize),
-                    pieDataPoints = pieDataPoints
+                    pieDataPoints = pieDataPoints,
+                    activeIndex = activeChartIndex
                 )
                 ScheduleChartCenterLabel(
                     nowLabel = translate(TranslationKey.ActiveNowBadge, currentLanguage),

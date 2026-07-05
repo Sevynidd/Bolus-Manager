@@ -23,7 +23,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import sevynidd.diabetesapp.calculation.ScheduleTimeSlot
 import sevynidd.diabetesapp.libraries.gappedPieChart.PieData
+import sevynidd.diabetesapp.localization.TranslationKey
 
 internal val LegendDotSize = 10.dp
 private val LegendItemMinWidth = 130.dp
@@ -157,6 +159,26 @@ private object PieSegmentColors {
     val dinnerLight = Color(0xFFFF7F00)
     val lateLight = Color(0xFFE91E63)
     val nightLight = Color(0xFF3949AB)
+}
+
+/**
+ * Maps the label returned by `activeFactorForTime` to its position in the pie chart's data
+ * points, which are built in morning/breakfast/lunch/afternoon/dinner/late/night order — the
+ * same order as [ScheduleTimeSlot]'s waking-hour entries. Returns `null` for labels outside that
+ * set (there is no `Basal` slice), so the chart can highlight the arc matching the current time.
+ */
+internal fun pieIndexForFactorLabel(factorLabel: TranslationKey): Int? {
+    val slot = when (factorLabel) {
+        TranslationKey.FactorMorning -> ScheduleTimeSlot.Morning
+        TranslationKey.FactorBreakfast -> ScheduleTimeSlot.Breakfast
+        TranslationKey.FactorLunch -> ScheduleTimeSlot.Lunch
+        TranslationKey.FactorAfternoon -> ScheduleTimeSlot.Afternoon
+        TranslationKey.FactorDinner -> ScheduleTimeSlot.Dinner
+        TranslationKey.FactorLate -> ScheduleTimeSlot.Late
+        TranslationKey.FactorNight -> ScheduleTimeSlot.Night
+        else -> return null
+    }
+    return slot.ordinal
 }
 
 /**
