@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.ContextWrapper
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -20,7 +21,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -32,10 +36,12 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -197,25 +203,9 @@ fun BolusManagerMainWindow(
         }
     }
 
-    NavigationSuiteScaffold(
-        navigationSuiteItems = {
-            AppDestinations.entries.forEach {
-                item(
-                    icon = {
-                        Icon(
-                            imageVector = it.icon,
-                            contentDescription = null
-                        )
-                    },
-                    label = { Text(destinationLabel(it, currentLanguage)) },
-                    selected = it == currentDestination,
-                    onClick = {
-                        navigateTo(it)
-                    }
-                )
-            }
-        }
-    ) {
+    val navigationLayoutType = NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(currentWindowAdaptiveInfo())
+
+    val mainContent: @Composable (bottomContentPadding: Dp) -> Unit = { bottomContentPadding ->
         val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
         Scaffold(
@@ -315,7 +305,7 @@ fun BolusManagerMainWindow(
             val contentModifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(start = 16.dp, top = 16.dp, end = 16.dp)
+                .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = bottomContentPadding)
 
             when (currentDestination) {
                 AppDestinations.FACTORS -> {
@@ -458,6 +448,39 @@ fun BolusManagerMainWindow(
                     }
                 }
             }
+        }
+    }
+
+    if (navigationLayoutType == NavigationSuiteType.NavigationBar) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            mainContent(FloatingNavigationBarReservedHeight)
+            FloatingNavigationBar(
+                currentDestination = currentDestination,
+                currentLanguage = currentLanguage,
+                onDestinationSelected = { navigateTo(it) },
+                modifier = Modifier.align(Alignment.BottomCenter)
+            )
+        }
+    } else {
+        NavigationSuiteScaffold(
+            navigationSuiteItems = {
+                AppDestinations.entries.forEach {
+                    item(
+                        icon = {
+                            Icon(
+                                imageVector = it.icon,
+                                contentDescription = null
+                            )
+                        },
+                        label = { Text(destinationLabel(it, currentLanguage)) },
+                        selected = it == currentDestination,
+                        onClick = { navigateTo(it) }
+                    )
+                }
+            },
+            layoutType = navigationLayoutType
+        ) {
+            mainContent(0.dp)
         }
     }
 }
