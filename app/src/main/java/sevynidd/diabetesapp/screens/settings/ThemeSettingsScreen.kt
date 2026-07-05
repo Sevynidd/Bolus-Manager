@@ -1,21 +1,20 @@
 package sevynidd.diabetesapp.screens.settings
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -39,49 +38,51 @@ fun ThemeSettingsScreen(
         modifier = modifier.verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = MaterialTheme.shapes.large,
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-            )
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = translate(TranslationKey.ThemeMode, currentLanguage),
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
+        ThemeModeCard(
+            currentThemeMode = currentThemeMode,
+            currentLanguage = currentLanguage,
+            onThemeModeChange = onThemeModeChange
+        )
 
+        ContrastLevelCard(
+            currentContrastLevel = currentContrastLevel,
+            currentLanguage = currentLanguage,
+            onContrastLevelChange = onContrastLevelChange
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ThemeModeCard(
+    currentThemeMode: ThemeMode,
+    currentLanguage: AppLanguage,
+    onThemeModeChange: (ThemeMode) -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(
+                text = translate(TranslationKey.ThemeMode, currentLanguage),
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                 ThemeMode.entries.forEachIndexed { index, mode ->
-                    SettingsRadioOption(
+                    val shape = SegmentedButtonDefaults.itemShape(index, ThemeMode.entries.size)
+                    SegmentedButton(
+                        shape = shape,
                         selected = currentThemeMode == mode,
-                        label = themeModeLabel(mode, currentLanguage),
-                        onClick = { onThemeModeChange(mode) }
-                    )
-                }
-            }
-        }
-
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = MaterialTheme.shapes.large,
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-            )
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = translate(TranslationKey.ContrastLevel, currentLanguage),
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-
-                ContrastLevel.entries.forEachIndexed { index, level ->
-                    SettingsRadioOption(
-                        selected = currentContrastLevel == level,
-                        label = contrastLevelLabel(level, currentLanguage),
-                        onClick = { onContrastLevelChange(level) }
+                        onClick = { onThemeModeChange(mode) },
+                        label = { Text(themeModeLabel(mode, currentLanguage)) }
                     )
                 }
             }
@@ -89,28 +90,41 @@ fun ThemeSettingsScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SettingsRadioOption(
-    selected: Boolean,
-    label: String,
-    onClick: () -> Unit
+private fun ContrastLevelCard(
+    currentContrastLevel: ContrastLevel,
+    currentLanguage: AppLanguage,
+    onContrastLevelChange: (ContrastLevel) -> Unit
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        )
     ) {
-        RadioButton(
-            selected = selected,
-            onClick = onClick
-        )
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(start = 8.dp)
-        )
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(
+                text = translate(TranslationKey.ContrastLevel, currentLanguage),
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                ContrastLevel.entries.forEachIndexed { index, level ->
+                    val shape = SegmentedButtonDefaults.itemShape(index, ContrastLevel.entries.size)
+                    SegmentedButton(
+                        shape = shape,
+                        selected = currentContrastLevel == level,
+                        onClick = { onContrastLevelChange(level) },
+                        label = { Text(contrastLevelLabel(level, currentLanguage)) }
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -135,4 +149,3 @@ private fun contrastLevelLabel(level: ContrastLevel, language: AppLanguage): Str
 private fun ThemeSettingsScreenPreview() {
     ThemeSettingsScreen()
 }
-

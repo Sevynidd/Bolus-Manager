@@ -3,19 +3,20 @@ package sevynidd.diabetesapp.screens.settings
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import sevynidd.diabetesapp.localization.AppLanguage
@@ -40,29 +41,38 @@ fun LanguageSettingsScreen(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerLow
             )
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
+            Column {
                 AppLanguage.entries.forEachIndexed { index, language ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { onLanguageChange(language) }
-                            .padding(vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        RadioButton(
-                            selected = currentLanguage == language,
-                            onClick = { onLanguageChange(language) }
-                        )
-                        Text(
-                            text = appLanguageLabel(language, currentLanguage),
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.padding(start = 8.dp)
-                        )
+                    if (index != 0) {
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     }
+                    LanguageOptionRow(
+                        selected = currentLanguage == language,
+                        label = appLanguageLabel(language, currentLanguage),
+                        onClick = { onLanguageChange(language) }
+                    )
                 }
             }
         }
     }
+}
+
+@Composable
+private fun LanguageOptionRow(
+    selected: Boolean,
+    label: String,
+    onClick: () -> Unit
+) {
+    ListItem(
+        modifier = Modifier.clickable(onClick = onClick),
+        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+        headlineContent = {
+            Text(text = label, style = MaterialTheme.typography.bodyLarge)
+        },
+        trailingContent = {
+            RadioButton(selected = selected, onClick = onClick)
+        }
+    )
 }
 
 private fun appLanguageLabel(targetLanguage: AppLanguage, currentLanguage: AppLanguage): String {
@@ -80,4 +90,3 @@ private fun appLanguageLabel(targetLanguage: AppLanguage, currentLanguage: AppLa
 private fun LanguageSettingsScreenPreview() {
     LanguageSettingsScreen()
 }
-
