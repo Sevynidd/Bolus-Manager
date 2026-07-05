@@ -15,7 +15,6 @@ Android app built with Jetpack Compose for managing diabetes-relevant factors, t
 - [Requirements](#requirements)
 - [Installation & Getting Started](#installation--getting-started)
 - [Screenshot](#screenshot)
-- [Roadmap](#roadmap)
 - [License](#license)
 
 ## Current Status
@@ -238,13 +237,6 @@ Set-Location "<repo-path>"
 ## Screenshot
 
 <img src="docs/app.png" width="400" alt="App Screenshot">
-
-## Roadmap
-
-- Additional medical rules and plausibility checks for calculations
-- Optional: export/import of profiles
-- Optional: cloud sync / backup
-- UI polish for the Calculate and Settings screens
 
 ## License
 
