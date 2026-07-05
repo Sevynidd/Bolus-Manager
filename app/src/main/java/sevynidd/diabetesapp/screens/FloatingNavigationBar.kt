@@ -27,14 +27,15 @@ import sevynidd.diabetesapp.navigation.destinationLabel
 
 private val BarHeight = 72.dp
 private val BarHorizontalMargin = 24.dp
-private val BarVerticalMargin = 12.dp
+private val BarTopMargin = 12.dp
+private val BarBottomMargin = 28.dp
 private val BarElevation = 6.dp
 private val ItemIndicatorCornerRadius = 20.dp
 private val ItemIndicatorPaddingHorizontal = 20.dp
 private val ItemIndicatorPaddingVertical = 4.dp
 
 /** Total vertical space [FloatingNavigationBar] occupies, so callers can reserve room for it. */
-val FloatingNavigationBarReservedHeight = BarHeight + (BarVerticalMargin * 2)
+val FloatingNavigationBarReservedHeight = BarHeight + BarTopMargin + BarBottomMargin
 
 /**
  * The app's main tab switcher, styled as a floating rounded pill inset from the screen edges
@@ -51,7 +52,12 @@ fun FloatingNavigationBar(
 ) {
     Surface(
         modifier = modifier
-            .padding(horizontal = BarHorizontalMargin, vertical = BarVerticalMargin)
+            .padding(
+                start = BarHorizontalMargin,
+                end = BarHorizontalMargin,
+                top = BarTopMargin,
+                bottom = BarBottomMargin
+            )
             .fillMaxWidth()
             .height(BarHeight),
         shape = RoundedCornerShape(percent = 50),
