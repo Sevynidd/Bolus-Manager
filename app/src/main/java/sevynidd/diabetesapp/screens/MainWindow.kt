@@ -6,6 +6,7 @@ import android.content.ContextWrapper
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -18,6 +19,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -205,13 +207,15 @@ fun BolusManagerMainWindow(
 
     val navigationLayoutType = NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(currentWindowAdaptiveInfo())
 
-    val mainContent: @Composable (bottomContentPadding: Dp) -> Unit = { bottomContentPadding ->
+    val mainContent: @Composable (bottomContentPadding: Dp, contentWindowInsets: WindowInsets) -> Unit =
+        { bottomContentPadding, contentWindowInsets ->
         val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
         Scaffold(
             modifier = Modifier
                 .fillMaxSize()
                 .nestedScroll(scrollBehavior.nestedScrollConnection),
+            contentWindowInsets = contentWindowInsets,
             topBar = {
                 val topBarTitle = when (currentDestination) {
                     AppDestinations.SETTINGS if settingsDestination == SettingsDestination.Theme ->
@@ -453,7 +457,7 @@ fun BolusManagerMainWindow(
 
     if (navigationLayoutType == NavigationSuiteType.NavigationBar) {
         Box(modifier = Modifier.fillMaxSize()) {
-            mainContent(floatingNavigationBarReservedHeight())
+            mainContent(floatingNavigationBarReservedHeight(), WindowInsets(0, 0, 0, 0))
             FloatingNavigationBar(
                 currentDestination = currentDestination,
                 currentLanguage = currentLanguage,
@@ -480,7 +484,7 @@ fun BolusManagerMainWindow(
             },
             layoutType = navigationLayoutType
         ) {
-            mainContent(0.dp)
+            mainContent(0.dp, ScaffoldDefaults.contentWindowInsets)
         }
     }
 }

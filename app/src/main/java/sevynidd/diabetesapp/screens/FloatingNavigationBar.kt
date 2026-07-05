@@ -7,12 +7,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -39,14 +43,31 @@ private val ItemIndicatorPaddingHorizontal = 20.dp
 private val ItemIndicatorPaddingVertical = 4.dp
 
 /**
- * Total vertical space [FloatingNavigationBar] occupies — its own height and margin, plus
- * whatever the system navigation bar reserves below it — so callers can pad content to avoid
- * sitting underneath it.
+ * The system-bar/cutout insets [FloatingNavigationBar] keeps itself clear of: the navigation bar
+ * (bottom in portrait, a side in landscape on some devices) unioned with the display cutout
+ * (typically a top notch in portrait, but can land on a side edge in landscape), restricted to
+ * the bottom and horizontal sides since this is a bottom-anchored bar that never needs top
+ * clearance.
+ */
+@Composable
+private fun floatingNavigationBarInsets(): WindowInsets {
+    return WindowInsets.navigationBars
+        .union(WindowInsets.displayCutout)
+        .only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal)
+}
+
+/**
+ * The bar's total vertical footprint — its own height and margin, plus however much the system
+ * reserves below it right now (see [floatingNavigationBarInsets]) — that callers should apply as
+ * bottom content padding. [FloatingNavigationBar] is rendered outside of `Scaffold` (in a plain
+ * `Box`), so callers must also set `Scaffold`'s own `contentWindowInsets` to zero: otherwise both
+ * this and `Scaffold`'s `innerPadding` would reserve the system inset, doubling the gap above
+ * the bar.
  */
 @Composable
 fun floatingNavigationBarReservedHeight(): Dp {
-    val navigationBarInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-    return BarHeight + BarBottomMargin + navigationBarInset
+    val bottomInset = floatingNavigationBarInsets().asPaddingValues().calculateBottomPadding()
+    return BarHeight + BarBottomMargin + bottomInset
 }
 
 /**
@@ -64,7 +85,7 @@ fun FloatingNavigationBar(
 ) {
     Surface(
         modifier = modifier
-            .navigationBarsPadding()
+            .windowInsetsPadding(floatingNavigationBarInsets())
             .padding(start = BarHorizontalMargin, end = BarHorizontalMargin, bottom = BarBottomMargin)
             .fillMaxWidth()
             .height(BarHeight),
