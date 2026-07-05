@@ -41,12 +41,6 @@ fun LanguageSettingsScreen(
             )
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = translate(TranslationKey.Language, currentLanguage),
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-
                 AppLanguage.entries.forEachIndexed { index, language ->
                     Row(
                         modifier = Modifier

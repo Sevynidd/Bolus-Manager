@@ -87,11 +87,6 @@ fun TemplateManagerScreen(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(
-                text = translate(TranslationKey.TemplatesTitle, currentLanguage),
-                style = MaterialTheme.typography.titleLarge
-            )
-
             if (templates.isNotEmpty()) {
                 TemplateSortSelector(
                     sortOrder = sortOrder,

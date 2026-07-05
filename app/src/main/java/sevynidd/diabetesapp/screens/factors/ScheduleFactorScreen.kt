@@ -83,11 +83,6 @@ fun ScheduleFactorScreen(
         modifier = modifier.verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text(
-            text = translate(TranslationKey.ActionSchedule, currentLanguage),
-            style = MaterialTheme.typography.titleLarge
-        )
-
         ScheduleChartCard(
             currentLanguage = currentLanguage,
             pieDataPoints = pieDataPoints,

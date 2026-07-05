@@ -62,11 +62,6 @@ fun SettingsScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(
-                text = translate(TranslationKey.DestinationSettings, currentLanguage),
-                style = MaterialTheme.typography.titleLarge
-            )
-
             SettingsCardItem(
                 title = translate(TranslationKey.Appearance, currentLanguage),
                 onClick = onNavigateToTheme

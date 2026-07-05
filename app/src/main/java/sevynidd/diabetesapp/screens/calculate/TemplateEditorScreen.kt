@@ -74,7 +74,6 @@ fun TemplateEditorScreen(
     }
     val carbohydratesValue = carbohydrates.replace(',', '.').toDoubleOrNull()
     val isValid = name.trim().isNotEmpty() && carbohydratesValue != null && !hasDuplicateName
-    val titleKey = if (template != null) TranslationKey.TemplateEdit else TranslationKey.TemplateAdd
 
     fun save() {
         val parsedCarbohydrates = carbohydratesValue ?: return
@@ -101,11 +100,6 @@ fun TemplateEditorScreen(
         modifier = modifier.verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text(
-            text = translate(titleKey, currentLanguage),
-            style = MaterialTheme.typography.titleLarge
-        )
-
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = MaterialTheme.shapes.large,
