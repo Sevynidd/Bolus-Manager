@@ -3,6 +3,7 @@ package sevynidd.diabetesapp.screens
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -112,6 +113,27 @@ fun BolusManagerMainWindow(
     fun leaveFactorsEditMode(shouldSave: Boolean) {
         factorEditorViewModel.leaveEditMode(shouldSave)
     }
+
+    val canNavigateUpWithinDestination = (
+        currentDestination == AppDestinations.SETTINGS && settingsDestination != SettingsDestination.Main
+        ) ||
+        (currentDestination == AppDestinations.FACTORS && factorsDestination == FactorsDestination.EditSchedule) ||
+        (currentDestination == AppDestinations.CALCULATE && calculateDestination != CalculateDestination.Main)
+
+    fun navigateUpWithinDestination() {
+        when (currentDestination) {
+            AppDestinations.SETTINGS -> settingsDestination = SettingsDestination.Main
+            AppDestinations.FACTORS -> factorsDestination = FactorsDestination.Main
+            AppDestinations.CALCULATE -> {
+                calculateDestination = when (calculateDestination) {
+                    CalculateDestination.TemplateEditor -> CalculateDestination.Templates
+                    else -> CalculateDestination.Main
+                }
+            }
+        }
+    }
+
+    BackHandler(enabled = canNavigateUpWithinDestination) { navigateUpWithinDestination() }
 
     fun navigateTo(destination: AppDestinations) {
         if (destination == currentDestination) return
@@ -232,21 +254,12 @@ fun BolusManagerMainWindow(
                 TopAppBar(
                     title = { Text(topBarTitle) },
                     navigationIcon = {
-                        if (currentDestination == AppDestinations.SETTINGS && settingsDestination != SettingsDestination.Main){
-                            IconButton(onClick = { settingsDestination = SettingsDestination.Main }) {
-                                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                            }
-                        } else if (currentDestination == AppDestinations.FACTORS && factorsDestination == FactorsDestination.EditSchedule) {
-                            IconButton(onClick = { factorsDestination = FactorsDestination.Main }) {
-                                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                            }
-                        } else if (currentDestination == AppDestinations.CALCULATE && calculateDestination != CalculateDestination.Main) {
-                            val previousCalculateDestination = when (calculateDestination) {
-                                CalculateDestination.TemplateEditor -> CalculateDestination.Templates
-                                else -> CalculateDestination.Main
-                            }
-                            IconButton(onClick = { calculateDestination = previousCalculateDestination }) {
-                                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        if (canNavigateUpWithinDestination) {
+                            IconButton(onClick = { navigateUpWithinDestination() }) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = translate(TranslationKey.ActionBack, currentLanguage)
+                                )
                             }
                         }
                     },

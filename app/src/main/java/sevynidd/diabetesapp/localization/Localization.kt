@@ -35,6 +35,7 @@ enum class TranslationKey {
     ActionSave,
     ActionCancel,
     ActionClose,
+    ActionBack,
     ActionTemplates,
     ActionDelete,
     ActionMoreOptions,
@@ -122,6 +123,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ActionSave -> "Save"
             TranslationKey.ActionCancel -> "Cancel"
             TranslationKey.ActionClose -> "Close"
+            TranslationKey.ActionBack -> "Back"
             TranslationKey.ActionTemplates -> "Templates"
             TranslationKey.ActionDelete -> "Delete"
             TranslationKey.ActionMoreOptions -> "More options"
@@ -205,6 +207,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ActionSave -> "Speichern"
             TranslationKey.ActionCancel -> "Abbrechen"
             TranslationKey.ActionClose -> "Schließen"
+            TranslationKey.ActionBack -> "Zurück"
             TranslationKey.ActionTemplates -> "Vorlagen"
             TranslationKey.ActionDelete -> "Löschen"
             TranslationKey.ActionMoreOptions -> "Weitere Optionen"
@@ -288,6 +291,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ActionSave -> "Enregistrer"
             TranslationKey.ActionCancel -> "Annuler"
             TranslationKey.ActionClose -> "Fermer"
+            TranslationKey.ActionBack -> "Retour"
             TranslationKey.ActionTemplates -> "Modeles"
             TranslationKey.ActionDelete -> "Supprimer"
             TranslationKey.ActionMoreOptions -> "Plus d'options"
@@ -371,6 +375,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ActionSave -> "Zapisz"
             TranslationKey.ActionCancel -> "Anuluj"
             TranslationKey.ActionClose -> "Zamknij"
+            TranslationKey.ActionBack -> "Wstecz"
             TranslationKey.ActionTemplates -> "Szablony"
             TranslationKey.ActionDelete -> "Usuń"
             TranslationKey.ActionMoreOptions -> "Więcej opcji"
