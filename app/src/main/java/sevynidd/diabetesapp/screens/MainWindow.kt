@@ -453,7 +453,7 @@ fun BolusManagerMainWindow(
 
     if (navigationLayoutType == NavigationSuiteType.NavigationBar) {
         Box(modifier = Modifier.fillMaxSize()) {
-            mainContent(FloatingNavigationBarReservedHeight)
+            mainContent(floatingNavigationBarReservedHeight())
             FloatingNavigationBar(
                 currentDestination = currentDestination,
                 currentLanguage = currentLanguage,

@@ -6,8 +6,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -20,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.navigation.AppDestinations
@@ -27,15 +32,22 @@ import sevynidd.diabetesapp.navigation.destinationLabel
 
 private val BarHeight = 72.dp
 private val BarHorizontalMargin = 24.dp
-private val BarTopMargin = 12.dp
-private val BarBottomMargin = 28.dp
+private val BarBottomMargin = 16.dp
 private val BarElevation = 6.dp
 private val ItemIndicatorCornerRadius = 20.dp
 private val ItemIndicatorPaddingHorizontal = 20.dp
 private val ItemIndicatorPaddingVertical = 4.dp
 
-/** Total vertical space [FloatingNavigationBar] occupies, so callers can reserve room for it. */
-val FloatingNavigationBarReservedHeight = BarHeight + BarTopMargin + BarBottomMargin
+/**
+ * Total vertical space [FloatingNavigationBar] occupies — its own height and margin, plus
+ * whatever the system navigation bar reserves below it — so callers can pad content to avoid
+ * sitting underneath it.
+ */
+@Composable
+fun floatingNavigationBarReservedHeight(): Dp {
+    val navigationBarInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    return BarHeight + BarBottomMargin + navigationBarInset
+}
 
 /**
  * The app's main tab switcher, styled as a floating rounded pill inset from the screen edges
@@ -52,12 +64,8 @@ fun FloatingNavigationBar(
 ) {
     Surface(
         modifier = modifier
-            .padding(
-                start = BarHorizontalMargin,
-                end = BarHorizontalMargin,
-                top = BarTopMargin,
-                bottom = BarBottomMargin
-            )
+            .navigationBarsPadding()
+            .padding(start = BarHorizontalMargin, end = BarHorizontalMargin, bottom = BarBottomMargin)
             .fillMaxWidth()
             .height(BarHeight),
         shape = RoundedCornerShape(percent = 50),
@@ -103,7 +111,9 @@ private fun FloatingNavigationBarItem(
     }
 
     Column(
-        modifier = modifier.clickable(onClick = onClick),
+        modifier = modifier
+            .clip(RoundedCornerShape(ItemIndicatorCornerRadius))
+            .clickable(onClick = onClick),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
