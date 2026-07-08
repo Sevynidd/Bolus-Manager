@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.Grain
 import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Percent
 import androidx.compose.material.icons.filled.Update
@@ -50,16 +51,22 @@ private val FooterIconSize = 18.dp
 private val FooterIconTextGap = 8.dp
 private val ChevronIconSize = 16.dp
 
+/** Navigation callbacks for [SettingsScreen], grouped to keep the screen's own parameter list short. */
+data class SettingsNavigationCallbacks(
+    val onNavigateToTheme: () -> Unit = {},
+    val onNavigateToLanguage: () -> Unit = {},
+    val onNavigateToBreadUnits: () -> Unit = {},
+    val onNavigateToNotifications: () -> Unit = {},
+    val onNavigateToUpdates: () -> Unit = {}
+)
+
 @Composable
 fun SettingsScreen(
     modifier: Modifier = Modifier,
     currentLanguage: AppLanguage = AppLanguage.System,
     currentPeriodFactorPercent: Double = 0.0,
     onPeriodFactorPercentChange: (Double) -> Unit = {},
-    onNavigateToTheme: () -> Unit = {},
-    onNavigateToLanguage: () -> Unit = {},
-    onNavigateToBreadUnits: () -> Unit = {},
-    onNavigateToUpdates: () -> Unit = {}
+    navigation: SettingsNavigationCallbacks = SettingsNavigationCallbacks()
 ) {
     Column(modifier = modifier) {
         Column(
@@ -72,19 +79,25 @@ fun SettingsScreen(
                 SettingsNavigationItem(
                     icon = Icons.Filled.Palette,
                     title = translate(TranslationKey.Appearance, currentLanguage),
-                    onClick = onNavigateToTheme
+                    onClick = navigation.onNavigateToTheme
                 )
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 SettingsNavigationItem(
                     icon = Icons.Filled.Language,
                     title = translate(TranslationKey.Language, currentLanguage),
-                    onClick = onNavigateToLanguage
+                    onClick = navigation.onNavigateToLanguage
                 )
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 SettingsNavigationItem(
                     icon = Icons.Filled.Grain,
                     title = translate(TranslationKey.BreadUnits, currentLanguage),
-                    onClick = onNavigateToBreadUnits
+                    onClick = navigation.onNavigateToBreadUnits
+                )
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                SettingsNavigationItem(
+                    icon = Icons.Filled.Notifications,
+                    title = translate(TranslationKey.NotificationSettingsTitle, currentLanguage),
+                    onClick = navigation.onNavigateToNotifications
                 )
             }
 
@@ -97,7 +110,7 @@ fun SettingsScreen(
 
         AppUpdateFooterLink(
             currentLanguage = currentLanguage,
-            onClick = onNavigateToUpdates
+            onClick = navigation.onNavigateToUpdates
         )
     }
 }

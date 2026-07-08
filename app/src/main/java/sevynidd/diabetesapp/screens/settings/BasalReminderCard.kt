@@ -1,4 +1,4 @@
-package sevynidd.diabetesapp.screens.factors
+package sevynidd.diabetesapp.screens.settings
 
 import android.Manifest
 import android.content.Context

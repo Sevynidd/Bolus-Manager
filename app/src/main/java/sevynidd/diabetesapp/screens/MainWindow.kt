@@ -69,9 +69,10 @@ import sevynidd.diabetesapp.screens.calculate.TemplateEditorScreen
 import sevynidd.diabetesapp.screens.calculate.TemplateManagerScreen
 import sevynidd.diabetesapp.screens.factors.FactorEditSessionViewModel
 import sevynidd.diabetesapp.screens.factors.FactorScreen
-import sevynidd.diabetesapp.screens.factors.ScheduleFactorCallbacks
 import sevynidd.diabetesapp.screens.factors.ScheduleFactorScreen
 import sevynidd.diabetesapp.screens.settings.BreadUnitsSettingsScreen
+import sevynidd.diabetesapp.screens.settings.NotificationSettingsScreen
+import sevynidd.diabetesapp.screens.settings.SettingsNavigationCallbacks
 import sevynidd.diabetesapp.screens.settings.SettingsScreen
 import sevynidd.diabetesapp.screens.settings.ThemeSettingsScreen
 import sevynidd.diabetesapp.screens.settings.LanguageSettingsScreen
@@ -228,6 +229,9 @@ fun BolusManagerMainWindow(
                     AppDestinations.SETTINGS if settingsDestination == SettingsDestination.BreadUnits ->
                         translate(TranslationKey.BreadUnits, currentLanguage)
 
+                    AppDestinations.SETTINGS if settingsDestination == SettingsDestination.Notifications ->
+                        translate(TranslationKey.NotificationSettingsTitle, currentLanguage)
+
                     AppDestinations.SETTINGS if settingsDestination == SettingsDestination.Updates ->
                         translate(TranslationKey.AppUpdateTitle, currentLanguage)
 
@@ -335,10 +339,7 @@ fun BolusManagerMainWindow(
                                 modifier = contentModifier,
                                 currentLanguage = currentLanguage,
                                 factors = factorEditorState.factors,
-                                callbacks = ScheduleFactorCallbacks(
-                                    onFactorsChange = factorEditorViewModel::updateDraft,
-                                    onBasalReminderEnabledChange = factorEditorViewModel::updateBasalReminderEnabled
-                                )
+                                onFactorsChange = factorEditorViewModel::updateDraft
                             )
                         }
                     }
@@ -412,10 +413,15 @@ fun BolusManagerMainWindow(
                                 currentLanguage = currentLanguage,
                                 currentPeriodFactorPercent = periodFactorPercent,
                                 onPeriodFactorPercentChange = onPeriodFactorPercentChange,
-                                onNavigateToTheme = { settingsDestination = SettingsDestination.Theme },
-                                onNavigateToLanguage = { settingsDestination = SettingsDestination.Language },
-                                onNavigateToBreadUnits = { settingsDestination = SettingsDestination.BreadUnits },
-                                onNavigateToUpdates = { settingsDestination = SettingsDestination.Updates }
+                                navigation = SettingsNavigationCallbacks(
+                                    onNavigateToTheme = { settingsDestination = SettingsDestination.Theme },
+                                    onNavigateToLanguage = { settingsDestination = SettingsDestination.Language },
+                                    onNavigateToBreadUnits = { settingsDestination = SettingsDestination.BreadUnits },
+                                    onNavigateToNotifications = {
+                                        settingsDestination = SettingsDestination.Notifications
+                                    },
+                                    onNavigateToUpdates = { settingsDestination = SettingsDestination.Updates }
+                                )
                             )
 
                             SettingsDestination.Theme -> ThemeSettingsScreen(
@@ -441,6 +447,13 @@ fun BolusManagerMainWindow(
                                 currentLanguage = currentLanguage,
                                 onBreadUnitsChange = onBreadUnitsChange,
                                 onBackClick = { settingsDestination = SettingsDestination.Main }
+                            )
+
+                            SettingsDestination.Notifications -> NotificationSettingsScreen(
+                                modifier = contentModifier,
+                                currentLanguage = currentLanguage,
+                                isBasalReminderEnabled = factorEditorState.factors.basalReminderEnabled,
+                                onBasalReminderEnabledChange = factorEditorViewModel::updateBasalReminderEnabled
                             )
 
                             SettingsDestination.Updates -> UpdateSettingsScreen(

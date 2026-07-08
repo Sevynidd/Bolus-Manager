@@ -50,25 +50,19 @@ private data class ScheduleFieldItem(
     val dotColor: Color?
 )
 
-/** Change callbacks for [ScheduleFactorScreen], grouped to keep the screen's own parameter list short. */
-data class ScheduleFactorCallbacks(
-    val onFactorsChange: (FactorsData) -> Unit = {},
-    val onBasalReminderEnabledChange: (Boolean) -> Unit = {}
-)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScheduleFactorScreen(
     modifier: Modifier = Modifier,
     currentLanguage: AppLanguage = AppLanguage.System,
     factors: FactorsData = FactorsData(),
-    callbacks: ScheduleFactorCallbacks = ScheduleFactorCallbacks(),
+    onFactorsChange: (FactorsData) -> Unit = {},
     now: LocalTime = LocalTime.now()
 ) {
     var activePicker by rememberSaveable { mutableStateOf<ScheduleTimeSlot?>(null) }
 
     fun updateTime(slot: ScheduleTimeSlot, selectedMinutes: Int) {
-        callbacks.onFactorsChange(factors.withUpdatedTime(slot, selectedMinutes))
+        onFactorsChange(factors.withUpdatedTime(slot, selectedMinutes))
     }
 
     val isDarkTheme = MaterialTheme.colorScheme.surface.luminance() < MID_LUMINANCE
@@ -100,12 +94,6 @@ fun ScheduleFactorScreen(
         ScheduleTimesCard(
             scheduleFields = scheduleFields,
             onFieldClick = { activePicker = it }
-        )
-
-        BasalReminderCard(
-            currentLanguage = currentLanguage,
-            isEnabled = factors.basalReminderEnabled,
-            onEnabledChange = callbacks.onBasalReminderEnabledChange
         )
     }
 

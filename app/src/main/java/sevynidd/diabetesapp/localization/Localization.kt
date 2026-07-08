@@ -98,7 +98,8 @@ enum class TranslationKey {
     BasalReminderNotificationTitle,
     BasalReminderNotificationBody,
     BasalReminderChannelName,
-    BasalReminderExactAlarmHint
+    BasalReminderExactAlarmHint,
+    NotificationSettingsTitle
 }
 
 /** The localized text for [key] in [language]; [AppLanguage.System] resolves to the device locale. */
@@ -192,6 +193,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.BasalReminderNotificationBody -> "It's time for your basal rate."
             TranslationKey.BasalReminderChannelName -> "Basal rate reminders"
             TranslationKey.BasalReminderExactAlarmHint -> "Allow exact alarms in system settings"
+            TranslationKey.NotificationSettingsTitle -> "Notifications"
         }
 
         AppLanguage.German -> when (key) {
@@ -281,6 +283,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.BasalReminderNotificationBody -> "Zeit für deine Basisrate."
             TranslationKey.BasalReminderChannelName -> "Basisraten-Erinnerungen"
             TranslationKey.BasalReminderExactAlarmHint -> "Exakte Alarme in den Systemeinstellungen erlauben"
+            TranslationKey.NotificationSettingsTitle -> "Benachrichtigungen"
         }
 
         AppLanguage.French -> when (key) {
@@ -370,6 +373,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.BasalReminderNotificationBody -> "C'est l'heure de votre débit de base."
             TranslationKey.BasalReminderChannelName -> "Rappels du débit de base"
             TranslationKey.BasalReminderExactAlarmHint -> "Autoriser les alarmes exactes dans les paramètres système"
+            TranslationKey.NotificationSettingsTitle -> "Notifications"
         }
 
         AppLanguage.Polish -> when (key) {
@@ -459,6 +463,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.BasalReminderNotificationBody -> "Czas na Twoją wartość podstawową."
             TranslationKey.BasalReminderChannelName -> "Przypomnienia o wartości podstawowej"
             TranslationKey.BasalReminderExactAlarmHint -> "Zezwól na dokładne alarmy w ustawieniach systemowych"
+            TranslationKey.NotificationSettingsTitle -> "Powiadomienia"
         }
 
         AppLanguage.System -> error("SystemDefault must be resolved before translating")

@@ -43,10 +43,6 @@ The project is in active development, but already has a working workflow for:
   with a "Now" badge
 - **Period** toggle: scales every active factor up by a configurable percentage
   (set in Settings) while enabled
-- Optional daily **basal rate reminder** push notification, toggled on the
-  schedule screen: fires an exact alarm at the configured basal time,
-  requesting the notification and exact-alarm permissions as needed, and
-  reschedules itself for the next day (and after a device reboot)
 
 ### Calculate
 
@@ -83,6 +79,11 @@ The project is in active development, but already has a working workflow for:
 - Language: `System`, `Deutsch`, `English`, `Français`, `Polski`
 - Dedicated setting for **bread units**
 - Dedicated setting for the **Period** factor surcharge percentage
+- **Notifications** screen: optional daily **basal rate reminder** push
+  notification, toggled off by default. Fires an exact alarm at the basal
+  time configured on the Factors schedule screen, requesting the
+  notification and exact-alarm permissions as needed, and reschedules
+  itself for the next day (and after a device reboot)
 - **App update** screen: checks the project's GitHub releases for a newer
   version, then downloads and installs the APK directly
   - Shows the currently installed version and, once checked, the latest
