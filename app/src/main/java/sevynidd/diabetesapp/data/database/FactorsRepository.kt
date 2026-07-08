@@ -38,7 +38,8 @@ private fun FactorProfileEntity.toFactorsData(): FactorsData {
         dinnerTimeMinutes = dinnerTimeMinutes ?: (17 * 60),
         lateTimeMinutes = lateTimeMinutes ?: (20 * 60),
         nightTimeMinutes = nightTimeMinutes ?: (23 * 60),
-        basalTimeMinutes = basalTimeMinutes ?: (19 * 60)
+        basalTimeMinutes = basalTimeMinutes ?: (19 * 60),
+        basalReminderEnabled = basalReminderEnabled
     )
 }
 
@@ -61,7 +62,8 @@ private fun FactorsData.toEntity(): FactorProfileEntity {
         dinnerTimeMinutes = dinnerTimeMinutes,
         lateTimeMinutes = lateTimeMinutes,
         nightTimeMinutes = nightTimeMinutes,
-        basalTimeMinutes = basalTimeMinutes
+        basalTimeMinutes = basalTimeMinutes,
+        basalReminderEnabled = basalReminderEnabled
     )
 }
 

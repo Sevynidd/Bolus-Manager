@@ -31,7 +31,8 @@ data class FactorProfileEntity(
     val dinnerTimeMinutes: Int? = null,
     val lateTimeMinutes: Int? = null,
     val nightTimeMinutes: Int? = null,
-    val basalTimeMinutes: Int? = null
+    val basalTimeMinutes: Int? = null,
+    val basalReminderEnabled: Boolean = false
 ) {
     companion object {
         const val SINGLE_PROFILE_ID = 1

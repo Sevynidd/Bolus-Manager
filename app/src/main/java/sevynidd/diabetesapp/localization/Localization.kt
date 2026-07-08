@@ -93,7 +93,12 @@ enum class TranslationKey {
     AppUpdateOpenSettingsButton,
     AppUpdateError,
     AppUpdateRetryButton,
-    AppUpdateViewOnGitHub
+    AppUpdateViewOnGitHub,
+    BasalReminderEnabled,
+    BasalReminderNotificationTitle,
+    BasalReminderNotificationBody,
+    BasalReminderChannelName,
+    BasalReminderExactAlarmHint
 }
 
 /** The localized text for [key] in [language]; [AppLanguage.System] resolves to the device locale. */
@@ -182,6 +187,11 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.AppUpdateError -> "Couldn't check for updates. Please try again."
             TranslationKey.AppUpdateRetryButton -> "Retry"
             TranslationKey.AppUpdateViewOnGitHub -> "View source on GitHub"
+            TranslationKey.BasalReminderEnabled -> "Basal rate reminder"
+            TranslationKey.BasalReminderNotificationTitle -> "Basal rate reminder"
+            TranslationKey.BasalReminderNotificationBody -> "It's time for your basal rate."
+            TranslationKey.BasalReminderChannelName -> "Basal rate reminders"
+            TranslationKey.BasalReminderExactAlarmHint -> "Allow exact alarms in system settings"
         }
 
         AppLanguage.German -> when (key) {
@@ -266,6 +276,11 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.AppUpdateError -> "Update-Suche fehlgeschlagen. Bitte versuche es erneut."
             TranslationKey.AppUpdateRetryButton -> "Erneut versuchen"
             TranslationKey.AppUpdateViewOnGitHub -> "Quellcode auf GitHub ansehen"
+            TranslationKey.BasalReminderEnabled -> "Basisraten-Erinnerung"
+            TranslationKey.BasalReminderNotificationTitle -> "Basisraten-Erinnerung"
+            TranslationKey.BasalReminderNotificationBody -> "Zeit für deine Basisrate."
+            TranslationKey.BasalReminderChannelName -> "Basisraten-Erinnerungen"
+            TranslationKey.BasalReminderExactAlarmHint -> "Exakte Alarme in den Systemeinstellungen erlauben"
         }
 
         AppLanguage.French -> when (key) {
@@ -350,6 +365,11 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.AppUpdateError -> "Impossible de rechercher des mises à jour. Veuillez réessayer."
             TranslationKey.AppUpdateRetryButton -> "Réessayer"
             TranslationKey.AppUpdateViewOnGitHub -> "Voir le code source sur GitHub"
+            TranslationKey.BasalReminderEnabled -> "Rappel du débit de base"
+            TranslationKey.BasalReminderNotificationTitle -> "Rappel du débit de base"
+            TranslationKey.BasalReminderNotificationBody -> "C'est l'heure de votre débit de base."
+            TranslationKey.BasalReminderChannelName -> "Rappels du débit de base"
+            TranslationKey.BasalReminderExactAlarmHint -> "Autoriser les alarmes exactes dans les paramètres système"
         }
 
         AppLanguage.Polish -> when (key) {
@@ -434,6 +454,11 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.AppUpdateError -> "Nie udało się sprawdzić aktualizacji. Spróbuj ponownie."
             TranslationKey.AppUpdateRetryButton -> "Spróbuj ponownie"
             TranslationKey.AppUpdateViewOnGitHub -> "Zobacz kod źródłowy na GitHub"
+            TranslationKey.BasalReminderEnabled -> "Przypomnienie o wartości podstawowej"
+            TranslationKey.BasalReminderNotificationTitle -> "Przypomnienie o wartości podstawowej"
+            TranslationKey.BasalReminderNotificationBody -> "Czas na Twoją wartość podstawową."
+            TranslationKey.BasalReminderChannelName -> "Przypomnienia o wartości podstawowej"
+            TranslationKey.BasalReminderExactAlarmHint -> "Zezwól na dokładne alarmy w ustawieniach systemowych"
         }
 
         AppLanguage.System -> error("SystemDefault must be resolved before translating")

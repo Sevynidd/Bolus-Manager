@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -16,6 +17,7 @@ import sevynidd.diabetesapp.data.AppSettingsStore
 import sevynidd.diabetesapp.data.database.BolusTemplatesRepository
 import sevynidd.diabetesapp.data.database.DiabetesDatabase
 import sevynidd.diabetesapp.data.model.FactorsData
+import sevynidd.diabetesapp.data.notifications.BasalReminderScheduler
 import sevynidd.diabetesapp.data.settings.ThemeMode
 import sevynidd.diabetesapp.data.database.FactorsRepository
 import sevynidd.diabetesapp.screens.BolusManagerMainWindow
@@ -33,6 +35,7 @@ class MainActivity : ComponentActivity() {
         val templatesRepository = BolusTemplatesRepository(
             DiabetesDatabase.getInstance(applicationContext).bolusTemplateDao()
         )
+        val basalReminderScheduler = BasalReminderScheduler(applicationContext)
 
         setContent {
             val settings by appSettingsStore.settingsFlow.collectAsState(initial = AppSettings())
@@ -40,6 +43,14 @@ class MainActivity : ComponentActivity() {
             val templates by templatesRepository.templatesFlow.collectAsState(initial = emptyList())
             val lastDestination by appSettingsStore.lastDestinationFlow.collectAsState(initial = null)
             val coroutineScope = rememberCoroutineScope()
+
+            LaunchedEffect(factors.basalReminderEnabled, factors.basalTimeMinutes) {
+                if (factors.basalReminderEnabled) {
+                    basalReminderScheduler.scheduleDaily(factors.basalTimeMinutes)
+                } else {
+                    basalReminderScheduler.cancel()
+                }
+            }
 
             val darkTheme = when (settings.themeMode) {
                 ThemeMode.System -> isSystemInDarkTheme()

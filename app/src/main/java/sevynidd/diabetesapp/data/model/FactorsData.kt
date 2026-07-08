@@ -20,7 +20,8 @@ data class FactorsData(
     val dinnerTimeMinutes: Int = 17 * 60,
     val lateTimeMinutes: Int = 20 * 60,
     val nightTimeMinutes: Int = 23 * 60,
-    val basalTimeMinutes: Int = 19 * 60
+    val basalTimeMinutes: Int = 19 * 60,
+    val basalReminderEnabled: Boolean = false
 )
 
 

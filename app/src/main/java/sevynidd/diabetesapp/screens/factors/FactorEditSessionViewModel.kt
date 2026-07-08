@@ -60,6 +60,18 @@ class FactorEditSessionViewModel(
         }
     }
 
+    fun updateBasalReminderEnabled(isEnabled: Boolean) {
+        val updatedFactors = uiState.factors.copy(basalReminderEnabled = isEnabled)
+        if (uiState.factors != updatedFactors) {
+            updateState(
+                uiState.copy(
+                    factors = updatedFactors,
+                    pendingSave = uiState.pendingSave || !uiState.isEditMode
+                )
+            )
+        }
+    }
+
     fun consumePendingSave(): FactorsData? {
         if (uiState.isEditMode || !uiState.pendingSave) return null
 
@@ -93,7 +105,8 @@ private fun SavedStateHandle.restoreUiState(): FactorEditSessionUiState {
             dinnerTimeMinutes = get<Int>(DINNER_TIME_KEY) ?: (17 * 60),
             lateTimeMinutes = get<Int>(LATE_TIME_KEY) ?: (20 * 60),
             nightTimeMinutes = get<Int>(NIGHT_TIME_KEY) ?: (23 * 60),
-            basalTimeMinutes = get<Int>(BASAL_TIME_KEY) ?: (19 * 60)
+            basalTimeMinutes = get<Int>(BASAL_TIME_KEY) ?: (19 * 60),
+            basalReminderEnabled = get<Boolean>(BASAL_REMINDER_ENABLED_KEY) ?: false
         ),
         isEditMode = get<Boolean>(IS_EDIT_MODE_KEY) ?: false,
         pendingSave = get<Boolean>(PENDING_SAVE_KEY) ?: false
@@ -118,6 +131,7 @@ private fun SavedStateHandle.persistUiState(state: FactorEditSessionUiState) {
     set(LATE_TIME_KEY, state.factors.lateTimeMinutes)
     set(NIGHT_TIME_KEY, state.factors.nightTimeMinutes)
     set(BASAL_TIME_KEY, state.factors.basalTimeMinutes)
+    set(BASAL_REMINDER_ENABLED_KEY, state.factors.basalReminderEnabled)
     set(IS_EDIT_MODE_KEY, state.isEditMode)
     set(PENDING_SAVE_KEY, state.pendingSave)
 }
@@ -139,6 +153,7 @@ private const val DINNER_TIME_KEY = "factor_editor_dinner_time"
 private const val LATE_TIME_KEY = "factor_editor_late_time"
 private const val NIGHT_TIME_KEY = "factor_editor_night_time"
 private const val BASAL_TIME_KEY = "factor_editor_basal_time"
+private const val BASAL_REMINDER_ENABLED_KEY = "factor_editor_basal_reminder_enabled"
 private const val IS_EDIT_MODE_KEY = "factor_editor_is_edit_mode"
 private const val PENDING_SAVE_KEY = "factor_editor_pending_save"
 

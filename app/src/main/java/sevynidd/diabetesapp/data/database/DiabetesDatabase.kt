@@ -7,10 +7,13 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
+private const val SCHEMA_VERSION_5 = 5
+private const val SCHEMA_VERSION_6 = 6
+
 /** The app's Room database: the factor profile and saved bolus templates. */
 @Database(
     entities = [FactorProfileEntity::class, BolusTemplateEntity::class],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 abstract class DiabetesDatabase : RoomDatabase() {
@@ -29,7 +32,7 @@ abstract class DiabetesDatabase : RoomDatabase() {
                     DiabetesDatabase::class.java,
                     "diabetes_app.db"
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
                     .build().also { created ->
                     instance = created
                 }
@@ -86,6 +89,12 @@ abstract class DiabetesDatabase : RoomDatabase() {
         private val MIGRATION_4_5 = object : Migration(4, 5) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE factor_profile ADD COLUMN isPeriodeEnabled INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
+        private val MIGRATION_5_6 = object : Migration(SCHEMA_VERSION_5, SCHEMA_VERSION_6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE factor_profile ADD COLUMN basalReminderEnabled INTEGER NOT NULL DEFAULT 0")
             }
         }
     }

@@ -71,7 +71,9 @@ detekt {
 }
 
 tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
-    jvmTarget = "26"
+    // Detekt 1.23.8's bundled Kotlin compiler only accepts jvmTarget values up to 22, unlike the
+    // app's own compileOptions (VERSION_26) — this only affects Detekt's own analysis pass.
+    jvmTarget = "22"
     reports {
         sarif.required.set(true)
     }

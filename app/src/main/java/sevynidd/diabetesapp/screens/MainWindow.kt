@@ -69,6 +69,7 @@ import sevynidd.diabetesapp.screens.calculate.TemplateEditorScreen
 import sevynidd.diabetesapp.screens.calculate.TemplateManagerScreen
 import sevynidd.diabetesapp.screens.factors.FactorEditSessionViewModel
 import sevynidd.diabetesapp.screens.factors.FactorScreen
+import sevynidd.diabetesapp.screens.factors.ScheduleFactorCallbacks
 import sevynidd.diabetesapp.screens.factors.ScheduleFactorScreen
 import sevynidd.diabetesapp.screens.settings.BreadUnitsSettingsScreen
 import sevynidd.diabetesapp.screens.settings.SettingsScreen
@@ -334,7 +335,10 @@ fun BolusManagerMainWindow(
                                 modifier = contentModifier,
                                 currentLanguage = currentLanguage,
                                 factors = factorEditorState.factors,
-                                onFactorsChange = factorEditorViewModel::updateDraft
+                                callbacks = ScheduleFactorCallbacks(
+                                    onFactorsChange = factorEditorViewModel::updateDraft,
+                                    onBasalReminderEnabledChange = factorEditorViewModel::updateBasalReminderEnabled
+                                )
                             )
                         }
                     }

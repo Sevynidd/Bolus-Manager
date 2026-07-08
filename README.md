@@ -43,6 +43,10 @@ The project is in active development, but already has a working workflow for:
   with a "Now" badge
 - **Period** toggle: scales every active factor up by a configurable percentage
   (set in Settings) while enabled
+- Optional daily **basal rate reminder** push notification, toggled on the
+  schedule screen: fires an exact alarm at the configured basal time,
+  requesting the notification and exact-alarm permissions as needed, and
+  reschedules itself for the next day (and after a device reboot)
 
 ### Calculate
 
@@ -105,6 +109,7 @@ Stored in `diabetes_app.db`, table `factor_profile`:
 - All 7 factors
 - Basal rate
 - Whether the Period surcharge is enabled
+- Whether the basal rate reminder notification is enabled
 - All schedule times:
   - Morning
   - Breakfast
