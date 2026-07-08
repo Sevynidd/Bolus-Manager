@@ -47,6 +47,14 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v6
 
+    # gradle/gradle-daemon-jvm.properties pins the daemon to Java 26 so local
+    # `testDebugUnitTest` runs can execute the app's Java-26-target bytecode, but
+    # Detekt 1.23.8's own analysis engine crashes outright under a JDK 26 *host* JVM
+    # (unrelated to the app's jvmTarget). Repoint the daemon at the JDK already set up
+    # above for this job only — not committed back, so the app-wide pin is untouched.
+    - name: Point Gradle daemon at the job's JDK for Detekt
+      run: bash gradlew updateDaemonJvm --jvm-version=17
+
     # Runs Detekt using the project's own config and baseline (see app/build.gradle.kts)
     # continue-on-error is intentional: Detekt fails the Gradle build when it finds
     # issues, but the report is still written and we want to upload it regardless.
