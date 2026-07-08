@@ -12,13 +12,23 @@ import java.time.ZonedDateTime
 /** Schedules and cancels the daily exact alarm that triggers the basal-rate reminder. */
 class BasalReminderScheduler(private val context: Context) {
 
-    /** Arms an exact alarm for the next occurrence of [basalTimeMinutes] (minutes since midnight). */
+    /**
+     * Arms an alarm for the next occurrence of [basalTimeMinutes] (minutes since midnight).
+     * Uses an exact alarm when [canScheduleExactAlarms] allows it; otherwise falls back to an
+     * inexact alarm rather than calling `setExactAndAllowWhileIdle`, which throws a
+     * `SecurityException` on API 31+ without that permission (it isn't auto-granted on API 33+).
+     */
     fun scheduleDaily(basalTimeMinutes: Int) {
         val triggerAtMillis = nextDailyTriggerEpochMillis(basalTimeMinutes, ZonedDateTime.now())
         val pendingIntent = requireNotNull(alarmPendingIntent(PendingIntent.FLAG_UPDATE_CURRENT)) {
             "PendingIntent.getBroadcast only returns null with FLAG_NO_CREATE"
         }
-        context.alarmManager().setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent)
+        val alarmManager = context.alarmManager()
+        if (canScheduleExactAlarms()) {
+            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent)
+        } else {
+            alarmManager.set(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent)
+        }
     }
 
     /** Cancels any currently pending basal-reminder alarm. */
