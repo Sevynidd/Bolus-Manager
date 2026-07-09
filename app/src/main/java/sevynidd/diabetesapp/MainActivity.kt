@@ -1,10 +1,16 @@
 package sevynidd.diabetesapp
 
+import android.Manifest
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -12,9 +18,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import sevynidd.diabetesapp.data.AppSettings
@@ -27,6 +35,7 @@ import sevynidd.diabetesapp.data.notifications.BasalReminderScheduler
 import sevynidd.diabetesapp.data.notifications.EXTRA_OPEN_APP_UPDATE
 import sevynidd.diabetesapp.data.settings.ThemeMode
 import sevynidd.diabetesapp.data.database.FactorsRepository
+import sevynidd.diabetesapp.data.update.GitHubRelease
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
 import sevynidd.diabetesapp.screens.BolusManagerMainWindow
@@ -74,21 +83,37 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
+            val showAppUpdateNotification by rememberUpdatedState { release: GitHubRelease ->
+                AppUpdateNotifier.ensureChannel(
+                    context,
+                    translate(TranslationKey.AppUpdateChannelName, settings.language)
+                )
+                AppUpdateNotifier.show(
+                    context = context,
+                    title = translate(TranslationKey.AppUpdateAvailable, settings.language),
+                    body = translate(TranslationKey.AppUpdateNotificationBody, settings.language),
+                    versionTag = release.tagName,
+                    actionLabel = translate(TranslationKey.AppUpdateDownloadButton, settings.language)
+                )
+            }
+
+            val notificationPermissionLauncher = rememberLauncherForActivityResult(
+                ActivityResultContracts.RequestPermission()
+            ) { granted ->
+                if (granted) {
+                    updateCheckViewModel.uiState.latestRelease?.let(showAppUpdateNotification)
+                }
+            }
+
             LaunchedEffect(updateCheckViewModel.uiState.phase, updateCheckViewModel.uiState.latestRelease) {
                 val updateState = updateCheckViewModel.uiState
                 val latestRelease = updateState.latestRelease
                 if (updateState.phase == UpdateCheckPhase.UpdateAvailable && latestRelease != null) {
-                    AppUpdateNotifier.ensureChannel(
-                        context,
-                        translate(TranslationKey.AppUpdateChannelName, settings.language)
-                    )
-                    AppUpdateNotifier.show(
-                        context = context,
-                        title = translate(TranslationKey.AppUpdateAvailable, settings.language),
-                        body = translate(TranslationKey.AppUpdateNotificationBody, settings.language),
-                        versionTag = latestRelease.tagName,
-                        actionLabel = translate(TranslationKey.AppUpdateDownloadButton, settings.language)
-                    )
+                    if (context.hasNotificationPermission()) {
+                        showAppUpdateNotification(latestRelease)
+                    } else {
+                        notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    }
                 }
             }
 
@@ -167,4 +192,11 @@ private fun Intent.consumeOpenAppUpdateExtra(): Boolean {
     val shouldOpen = getBooleanExtra(EXTRA_OPEN_APP_UPDATE, false)
     removeExtra(EXTRA_OPEN_APP_UPDATE)
     return shouldOpen
+}
+
+private fun Context.hasNotificationPermission(): Boolean {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return true
+
+    return ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) ==
+        PackageManager.PERMISSION_GRANTED
 }
