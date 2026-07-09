@@ -53,6 +53,7 @@ class BasalReminderScheduler(private val context: Context) {
     private fun alarmPendingIntent(flags: Int): PendingIntent? {
         val intent = Intent(context, BasalReminderReceiver::class.java).apply {
             action = ACTION_BASAL_REMINDER_FIRED
+            setPackage(context.packageName)
         }
         return PendingIntent.getBroadcast(
             context,
