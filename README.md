@@ -110,6 +110,8 @@ mg/dl adds `2` units.
 
 ## Installation & Getting Started
 
+Install the App via .apk or
+
 1. Clone the repository
 2. Open the project in Android Studio
 3. Run a Gradle sync
