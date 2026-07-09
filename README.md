@@ -77,8 +77,8 @@ The project is in active development, but already has a working workflow for:
 - Theme mode: `System`, `Light`, `Dark`
 - Contrast level: `Normal`, `Medium`, `High`
 - Language: `System`, `Deutsch`, `English`, `Français`, `Polski`
-- Dedicated setting for **bread units**
-- Dedicated setting for the **Period** factor surcharge percentage
+- **Factor settings** screen: **bread units** and the **Period** factor
+  surcharge percentage, the two values that tune the bolus calculation itself
 - **Notifications** screen: optional daily **basal rate reminder** push
   notification, toggled off by default. Fires an exact alarm at the basal
   time configured on the Factors schedule screen, requesting the

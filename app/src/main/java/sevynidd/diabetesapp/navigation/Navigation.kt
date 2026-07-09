@@ -35,7 +35,7 @@ enum class SettingsDestination {
     Main,
     Theme,
     Language,
-    BreadUnits,
+    FactorSettings,
     Notifications,
     DataManagement,
     Updates

@@ -76,6 +76,7 @@ enum class TranslationKey {
     PeriodLabel,
     PeriodFactorPercent,
     BreadUnits,
+    FactorSettingsTitle,
 
     // Templates
     TemplatesTitle,
@@ -197,6 +198,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.PeriodLabel -> "Period?"
             TranslationKey.PeriodFactorPercent -> "Period increase (%)"
             TranslationKey.BreadUnits -> "Bread units"
+            TranslationKey.FactorSettingsTitle -> "Factor settings"
 
             // Templates
             TranslationKey.TemplatesTitle -> "Templates"
@@ -315,6 +317,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.PeriodLabel -> "Periode?"
             TranslationKey.PeriodFactorPercent -> "Periode-Erhöhung (%)"
             TranslationKey.BreadUnits -> "Broteinheiten"
+            TranslationKey.FactorSettingsTitle -> "Faktor-Einstellungen"
 
             // Templates
             TranslationKey.TemplatesTitle -> "Vorlagen"
@@ -435,6 +438,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.PeriodLabel -> "Période?"
             TranslationKey.PeriodFactorPercent -> "Augmentation Période (%)"
             TranslationKey.BreadUnits -> "Unités de pain"
+            TranslationKey.FactorSettingsTitle -> "Paramètres des facteurs"
 
             // Templates
             TranslationKey.TemplatesTitle -> "Modeles"
@@ -555,6 +559,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.PeriodLabel -> "Okres?"
             TranslationKey.PeriodFactorPercent -> "Zwiększenie Okres (%)"
             TranslationKey.BreadUnits -> "Wymienniki chlebowe"
+            TranslationKey.FactorSettingsTitle -> "Ustawienia współczynnika"
 
             // Templates
             TranslationKey.TemplatesTitle -> "Szablony"

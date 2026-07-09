@@ -70,7 +70,8 @@ import sevynidd.diabetesapp.screens.calculate.TemplateManagerScreen
 import sevynidd.diabetesapp.screens.factors.FactorEditSessionViewModel
 import sevynidd.diabetesapp.screens.factors.FactorScreen
 import sevynidd.diabetesapp.screens.factors.ScheduleFactorScreen
-import sevynidd.diabetesapp.screens.settings.BreadUnitsSettingsScreen
+import sevynidd.diabetesapp.screens.settings.FactorSettingsScreen
+import sevynidd.diabetesapp.screens.settings.FactorSettingsValues
 import sevynidd.diabetesapp.screens.settings.ImportExportSettingsScreen
 import sevynidd.diabetesapp.screens.settings.NotificationSettingsScreen
 import sevynidd.diabetesapp.screens.settings.SettingsNavigationCallbacks
@@ -235,8 +236,8 @@ fun BolusManagerMainWindow(
                     AppDestinations.SETTINGS if settingsDestination == SettingsDestination.Language ->
                         translate(TranslationKey.Language, currentLanguage)
 
-                    AppDestinations.SETTINGS if settingsDestination == SettingsDestination.BreadUnits ->
-                        translate(TranslationKey.BreadUnits, currentLanguage)
+                    AppDestinations.SETTINGS if settingsDestination == SettingsDestination.FactorSettings ->
+                        translate(TranslationKey.FactorSettingsTitle, currentLanguage)
 
                     AppDestinations.SETTINGS if settingsDestination == SettingsDestination.Notifications ->
                         translate(TranslationKey.NotificationSettingsTitle, currentLanguage)
@@ -423,12 +424,12 @@ fun BolusManagerMainWindow(
                             SettingsDestination.Main -> SettingsScreen(
                                 modifier = contentModifier,
                                 currentLanguage = currentLanguage,
-                                currentPeriodFactorPercent = periodFactorPercent,
-                                onPeriodFactorPercentChange = onPeriodFactorPercentChange,
                                 navigation = SettingsNavigationCallbacks(
                                     onNavigateToTheme = { settingsDestination = SettingsDestination.Theme },
                                     onNavigateToLanguage = { settingsDestination = SettingsDestination.Language },
-                                    onNavigateToBreadUnits = { settingsDestination = SettingsDestination.BreadUnits },
+                                    onNavigateToFactorSettings = {
+                                        settingsDestination = SettingsDestination.FactorSettings
+                                    },
                                     onNavigateToNotifications = {
                                         settingsDestination = SettingsDestination.Notifications
                                     },
@@ -456,12 +457,15 @@ fun BolusManagerMainWindow(
                                 onBackClick = { settingsDestination = SettingsDestination.Main }
                             )
 
-                            SettingsDestination.BreadUnits -> BreadUnitsSettingsScreen(
+                            SettingsDestination.FactorSettings -> FactorSettingsScreen(
                                 modifier = contentModifier,
-                                currentBreadUnits = breadUnits,
                                 currentLanguage = currentLanguage,
+                                values = FactorSettingsValues(
+                                    breadUnits = breadUnits,
+                                    periodFactorPercent = periodFactorPercent
+                                ),
                                 onBreadUnitsChange = onBreadUnitsChange,
-                                onBackClick = { settingsDestination = SettingsDestination.Main }
+                                onPeriodFactorPercentChange = onPeriodFactorPercentChange
                             )
 
                             SettingsDestination.Notifications -> NotificationSettingsScreen(

@@ -176,7 +176,6 @@
     <ID>NewLineAtEndOfFile:Theme.kt$sevynidd.diabetesapp.ui.theme.Theme.kt</ID>
     <ID>ReturnCount:FactorsRepository.kt$private fun Double?.toUiString(): String</ID>
     <ID>ReturnCount:SplitModeInputs.kt$private fun sanitizePercentageInput(input: String): String?</ID>
-    <ID>UnusedParameter:BreadUnitsSettingsScreen.kt$onBackClick: () -&gt; Unit = {}</ID>
     <ID>UnusedParameter:LanguageSettingsScreen.kt$onBackClick: () -&gt; Unit = {}</ID>
     <ID>UnusedParameter:ThemeSettingsScreen.kt$onBackClick: () -&gt; Unit = {}</ID>
   </CurrentIssues>

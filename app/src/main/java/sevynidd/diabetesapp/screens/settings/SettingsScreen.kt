@@ -11,16 +11,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
-import androidx.compose.material.icons.filled.Grain
 import androidx.compose.material.icons.filled.ImportExport
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material.icons.filled.Percent
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.Update
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -29,24 +27,17 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.translate
 import sevynidd.diabetesapp.localization.TranslationKey
-import java.util.Locale
 
 private val FooterIconSize = 18.dp
 private val FooterIconTextGap = 8.dp
@@ -56,7 +47,7 @@ private val ChevronIconSize = 16.dp
 data class SettingsNavigationCallbacks(
     val onNavigateToTheme: () -> Unit = {},
     val onNavigateToLanguage: () -> Unit = {},
-    val onNavigateToBreadUnits: () -> Unit = {},
+    val onNavigateToFactorSettings: () -> Unit = {},
     val onNavigateToNotifications: () -> Unit = {},
     val onNavigateToDataManagement: () -> Unit = {},
     val onNavigateToUpdates: () -> Unit = {}
@@ -66,8 +57,6 @@ data class SettingsNavigationCallbacks(
 fun SettingsScreen(
     modifier: Modifier = Modifier,
     currentLanguage: AppLanguage = AppLanguage.System,
-    currentPeriodFactorPercent: Double = 0.0,
-    onPeriodFactorPercentChange: (Double) -> Unit = {},
     navigation: SettingsNavigationCallbacks = SettingsNavigationCallbacks()
 ) {
     Column(modifier = modifier) {
@@ -103,17 +92,11 @@ fun SettingsScreen(
                 )
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 SettingsNavigationItem(
-                    icon = Icons.Filled.Grain,
-                    title = translate(TranslationKey.BreadUnits, currentLanguage),
-                    onClick = navigation.onNavigateToBreadUnits
+                    icon = Icons.Filled.Tune,
+                    title = translate(TranslationKey.FactorSettingsTitle, currentLanguage),
+                    onClick = navigation.onNavigateToFactorSettings
                 )
             }
-
-            PeriodFactorCard(
-                currentLanguage = currentLanguage,
-                currentPeriodFactorPercent = currentPeriodFactorPercent,
-                onPeriodFactorPercentChange = onPeriodFactorPercentChange
-            )
         }
 
         AppUpdateFooterLink(
@@ -166,53 +149,6 @@ private fun SettingsNavigationItem(
     )
 }
 
-@Composable
-private fun PeriodFactorCard(
-    currentLanguage: AppLanguage,
-    currentPeriodFactorPercent: Double,
-    onPeriodFactorPercentChange: (Double) -> Unit
-) {
-    var draftPeriodPercent by rememberSaveable(currentPeriodFactorPercent) {
-        mutableStateOf(currentPeriodFactorPercent.toLocalizedInput())
-    }
-
-    SettingsGroupCard {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Icon(
-                    imageVector = Icons.Filled.Percent,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
-                )
-                Text(
-                    text = translate(TranslationKey.PeriodFactorPercent, currentLanguage),
-                    style = MaterialTheme.typography.titleSmall
-                )
-            }
-
-            OutlinedTextField(
-                value = draftPeriodPercent,
-                onValueChange = { newValue ->
-                    if (newValue.isEmpty() || newValue.matches(PercentageInputRegex)) {
-                        draftPeriodPercent = newValue
-                        newValue.replace(',', '.')
-                            .toDoubleOrNull()
-                            ?.takeIf { it >= 0.0 }
-                            ?.let(onPeriodFactorPercentChange)
-                    }
-                },
-                label = { Text(translate(TranslationKey.PeriodFactorPercent, currentLanguage)) },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-    }
-}
-
 /**
  * A low-emphasis footer link pinned below the scrollable settings list, deliberately styled
  * unlike [SettingsNavigationItem] (no card background, smaller centered text) so it doesn't read
@@ -250,15 +186,6 @@ private fun AppUpdateFooterLink(
         }
     }
 }
-
-private fun Double.toLocalizedInput(): String {
-    return String.format(Locale.ROOT, "%.2f", this)
-        .replace('.', ',')
-        .trimEnd('0')
-        .trimEnd(',')
-}
-
-private val PercentageInputRegex = Regex("^\\d*[.,]?\\d*$")
 
 @Preview(showBackground = true)
 @Composable
