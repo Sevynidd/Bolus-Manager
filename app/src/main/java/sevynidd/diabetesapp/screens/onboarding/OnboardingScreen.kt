@@ -28,14 +28,14 @@ import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
 import sevynidd.diabetesapp.screens.factors.FactorScreen
-import sevynidd.diabetesapp.screens.settings.CorrectionSettingsScreen
-import sevynidd.diabetesapp.screens.settings.CorrectionSettingsValues
-import sevynidd.diabetesapp.screens.settings.FactorSettingsScreen
-import sevynidd.diabetesapp.screens.settings.FactorSettingsValues
-import sevynidd.diabetesapp.screens.settings.GenderSettingsScreen
-import sevynidd.diabetesapp.screens.settings.LanguageSettingsScreen
-import sevynidd.diabetesapp.screens.settings.NotificationSettingsScreen
-import sevynidd.diabetesapp.screens.settings.ThemeSettingsScreen
+import sevynidd.diabetesapp.screens.settings.appearance.ThemeSettingsScreen
+import sevynidd.diabetesapp.screens.settings.correction.CorrectionSettingsScreen
+import sevynidd.diabetesapp.screens.settings.correction.CorrectionSettingsValues
+import sevynidd.diabetesapp.screens.settings.factor.FactorSettingsScreen
+import sevynidd.diabetesapp.screens.settings.factor.FactorSettingsValues
+import sevynidd.diabetesapp.screens.settings.language.LanguageSettingsScreen
+import sevynidd.diabetesapp.screens.settings.notifications.NotificationSettingsScreen
+import sevynidd.diabetesapp.screens.settings.profile.GenderSettingsScreen
 
 /**
  * The first-run onboarding wizard: walks a new user through [OnboardingStep.entries] in order,

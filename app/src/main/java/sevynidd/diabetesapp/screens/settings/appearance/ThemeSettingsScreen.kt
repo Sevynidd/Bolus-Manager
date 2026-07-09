@@ -1,4 +1,4 @@
-package sevynidd.diabetesapp.screens.settings
+package sevynidd.diabetesapp.screens.settings.appearance
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

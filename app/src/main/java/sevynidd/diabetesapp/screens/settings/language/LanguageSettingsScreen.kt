@@ -1,4 +1,4 @@
-package sevynidd.diabetesapp.screens.settings
+package sevynidd.diabetesapp.screens.settings.language
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement

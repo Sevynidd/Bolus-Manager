@@ -1,4 +1,4 @@
-package sevynidd.diabetesapp.screens.settings
+package sevynidd.diabetesapp.screens.settings.notifications
 
 import android.Manifest
 import android.content.Context

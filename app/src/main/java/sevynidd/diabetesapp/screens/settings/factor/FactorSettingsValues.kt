@@ -1,4 +1,4 @@
-package sevynidd.diabetesapp.screens.settings
+package sevynidd.diabetesapp.screens.settings.factor
 
 /** The current values [FactorSettingsScreen] displays: bread units and the period surcharge percentage. */
 data class FactorSettingsValues(

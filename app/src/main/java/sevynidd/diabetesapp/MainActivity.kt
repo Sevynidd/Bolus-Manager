@@ -49,9 +49,9 @@ import sevynidd.diabetesapp.screens.BolusManagerMainWindow
 import sevynidd.diabetesapp.screens.onboarding.OnboardingCallbacks
 import sevynidd.diabetesapp.screens.onboarding.OnboardingScreen
 import sevynidd.diabetesapp.screens.onboarding.OnboardingValues
-import sevynidd.diabetesapp.screens.settings.CorrectionSettingsCallbacks
-import sevynidd.diabetesapp.screens.settings.UpdateCheckPhase
-import sevynidd.diabetesapp.screens.settings.UpdateCheckViewModel
+import sevynidd.diabetesapp.screens.settings.correction.CorrectionSettingsCallbacks
+import sevynidd.diabetesapp.screens.settings.update.UpdateCheckPhase
+import sevynidd.diabetesapp.screens.settings.update.UpdateCheckViewModel
 import sevynidd.diabetesapp.ui.theme.BolusManagerTheme
 
 class MainActivity : ComponentActivity() {

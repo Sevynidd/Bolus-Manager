@@ -4,7 +4,7 @@ import sevynidd.diabetesapp.data.model.FactorsData
 import sevynidd.diabetesapp.data.settings.appearance.ThemeMode
 import sevynidd.diabetesapp.data.settings.profile.Gender
 import sevynidd.diabetesapp.localization.AppLanguage
-import sevynidd.diabetesapp.screens.settings.CorrectionSettingsCallbacks
+import sevynidd.diabetesapp.screens.settings.correction.CorrectionSettingsCallbacks
 import sevynidd.diabetesapp.ui.theme.ContrastLevel
 
 /** Edit callbacks for [OnboardingScreen]'s steps, bundled to keep its parameter list short. */

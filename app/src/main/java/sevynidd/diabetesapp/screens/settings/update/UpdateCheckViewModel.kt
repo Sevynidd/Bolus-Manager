@@ -1,4 +1,4 @@
-package sevynidd.diabetesapp.screens.settings
+package sevynidd.diabetesapp.screens.settings.update
 
 import android.app.Application
 import android.content.pm.PackageManager

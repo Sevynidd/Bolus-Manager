@@ -72,20 +72,20 @@ import sevynidd.diabetesapp.screens.calculate.TemplateManagerScreen
 import sevynidd.diabetesapp.screens.factors.FactorEditSessionViewModel
 import sevynidd.diabetesapp.screens.factors.FactorScreen
 import sevynidd.diabetesapp.screens.factors.ScheduleFactorScreen
-import sevynidd.diabetesapp.screens.settings.CorrectionSettingsCallbacks
-import sevynidd.diabetesapp.screens.settings.CorrectionSettingsScreen
-import sevynidd.diabetesapp.screens.settings.CorrectionSettingsValues
-import sevynidd.diabetesapp.screens.settings.FactorSettingsScreen
-import sevynidd.diabetesapp.screens.settings.FactorSettingsValues
-import sevynidd.diabetesapp.screens.settings.GenderSettingsScreen
-import sevynidd.diabetesapp.screens.settings.ImportExportSettingsScreen
-import sevynidd.diabetesapp.screens.settings.NotificationSettingsScreen
 import sevynidd.diabetesapp.screens.settings.SettingsNavigationCallbacks
 import sevynidd.diabetesapp.screens.settings.SettingsScreen
-import sevynidd.diabetesapp.screens.settings.ThemeSettingsScreen
-import sevynidd.diabetesapp.screens.settings.LanguageSettingsScreen
-import sevynidd.diabetesapp.screens.settings.UpdateCheckViewModel
-import sevynidd.diabetesapp.screens.settings.UpdateSettingsScreen
+import sevynidd.diabetesapp.screens.settings.appearance.ThemeSettingsScreen
+import sevynidd.diabetesapp.screens.settings.correction.CorrectionSettingsCallbacks
+import sevynidd.diabetesapp.screens.settings.correction.CorrectionSettingsScreen
+import sevynidd.diabetesapp.screens.settings.correction.CorrectionSettingsValues
+import sevynidd.diabetesapp.screens.settings.datamanagement.ImportExportSettingsScreen
+import sevynidd.diabetesapp.screens.settings.factor.FactorSettingsScreen
+import sevynidd.diabetesapp.screens.settings.factor.FactorSettingsValues
+import sevynidd.diabetesapp.screens.settings.language.LanguageSettingsScreen
+import sevynidd.diabetesapp.screens.settings.notifications.NotificationSettingsScreen
+import sevynidd.diabetesapp.screens.settings.profile.GenderSettingsScreen
+import sevynidd.diabetesapp.screens.settings.update.UpdateCheckViewModel
+import sevynidd.diabetesapp.screens.settings.update.UpdateSettingsScreen
 import sevynidd.diabetesapp.ui.theme.ContrastLevel
 
 @OptIn(ExperimentalMaterial3Api::class)
