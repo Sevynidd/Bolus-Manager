@@ -107,6 +107,8 @@ enum class TranslationKey {
     AppUpdateError,
     AppUpdateRetryButton,
     AppUpdateViewOnGitHub,
+    AppUpdateChannelName,
+    AppUpdateNotificationBody,
 
     // Notifications
     BasalReminderEnabled,
@@ -226,6 +228,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.AppUpdateError -> "Couldn't check for updates. Please try again."
             TranslationKey.AppUpdateRetryButton -> "Retry"
             TranslationKey.AppUpdateViewOnGitHub -> "View source on GitHub"
+            TranslationKey.AppUpdateChannelName -> "App updates"
+            TranslationKey.AppUpdateNotificationBody -> "A new version is ready to install:"
 
             // Notifications
             TranslationKey.BasalReminderEnabled -> "Basal rate reminder"
@@ -342,6 +346,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.AppUpdateError -> "Update-Suche fehlgeschlagen. Bitte versuche es erneut."
             TranslationKey.AppUpdateRetryButton -> "Erneut versuchen"
             TranslationKey.AppUpdateViewOnGitHub -> "Quellcode auf GitHub ansehen"
+            TranslationKey.AppUpdateChannelName -> "App-Updates"
+            TranslationKey.AppUpdateNotificationBody -> "Eine neue Version ist bereit zur Installation:"
 
             // Notifications
             TranslationKey.BasalReminderEnabled -> "Basisraten-Erinnerung"
@@ -460,6 +466,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.AppUpdateError -> "Impossible de rechercher des mises à jour. Veuillez réessayer."
             TranslationKey.AppUpdateRetryButton -> "Réessayer"
             TranslationKey.AppUpdateViewOnGitHub -> "Voir le code source sur GitHub"
+            TranslationKey.AppUpdateChannelName -> "Mises à jour de l'application"
+            TranslationKey.AppUpdateNotificationBody -> "Une nouvelle version est prête à être installée :"
 
             // Notifications
             TranslationKey.BasalReminderEnabled -> "Rappel du débit de base"
@@ -578,6 +586,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.AppUpdateError -> "Nie udało się sprawdzić aktualizacji. Spróbuj ponownie."
             TranslationKey.AppUpdateRetryButton -> "Spróbuj ponownie"
             TranslationKey.AppUpdateViewOnGitHub -> "Zobacz kod źródłowy na GitHub"
+            TranslationKey.AppUpdateChannelName -> "Aktualizacje aplikacji"
+            TranslationKey.AppUpdateNotificationBody -> "Nowa wersja jest gotowa do zainstalowania:"
 
             // Notifications
             TranslationKey.BasalReminderEnabled -> "Przypomnienie o wartości podstawowej"

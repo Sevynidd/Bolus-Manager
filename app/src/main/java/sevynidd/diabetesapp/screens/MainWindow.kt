@@ -99,6 +99,7 @@ fun BolusManagerMainWindow(
     onFactorSaveRequested: (FactorsData) -> Unit = {},
     lastDestination: AppDestinations? = null,
     onLastDestinationChange: (AppDestinations) -> Unit = {},
+    openAppUpdateOnLaunch: Boolean = false,
     templates: List<BolusTemplateEntity> = emptyList(),
     onTemplateAddRequested: suspend (name: String, emoji: String?, carbohydrates: Double) -> Boolean = { _, _, _ -> false },
     onTemplateUpdateRequested: suspend (BolusTemplateEntity) -> Boolean = { false },
@@ -167,6 +168,13 @@ fun BolusManagerMainWindow(
     // back to FACTORS before the real value arrives.
     LaunchedEffect(lastDestination) {
         lastDestination?.let { currentDestination = it }
+    }
+
+    LaunchedEffect(openAppUpdateOnLaunch) {
+        if (openAppUpdateOnLaunch) {
+            currentDestination = AppDestinations.SETTINGS
+            settingsDestination = SettingsDestination.Updates
+        }
     }
 
     val requestBackgroundSave by rememberUpdatedState {

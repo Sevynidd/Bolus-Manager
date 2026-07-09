@@ -1,5 +1,6 @@
 package sevynidd.diabetesapp
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -9,24 +10,37 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import sevynidd.diabetesapp.data.AppSettings
 import sevynidd.diabetesapp.data.AppSettingsStore
 import sevynidd.diabetesapp.data.database.BolusTemplatesRepository
 import sevynidd.diabetesapp.data.database.DiabetesDatabase
 import sevynidd.diabetesapp.data.model.FactorsData
+import sevynidd.diabetesapp.data.notifications.AppUpdateNotifier
 import sevynidd.diabetesapp.data.notifications.BasalReminderScheduler
+import sevynidd.diabetesapp.data.notifications.EXTRA_OPEN_APP_UPDATE
 import sevynidd.diabetesapp.data.settings.ThemeMode
 import sevynidd.diabetesapp.data.database.FactorsRepository
+import sevynidd.diabetesapp.localization.TranslationKey
+import sevynidd.diabetesapp.localization.translate
 import sevynidd.diabetesapp.screens.BolusManagerMainWindow
+import sevynidd.diabetesapp.screens.settings.UpdateCheckPhase
+import sevynidd.diabetesapp.screens.settings.UpdateCheckViewModel
 import sevynidd.diabetesapp.ui.theme.BolusManagerTheme
 
 class MainActivity : ComponentActivity() {
+    private var openAppUpdateOnLaunch by mutableStateOf(false)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        openAppUpdateOnLaunch = intent.consumeOpenAppUpdateExtra()
 
         val appSettingsStore = AppSettingsStore(applicationContext)
         val factorsRepository = FactorsRepository(
@@ -43,12 +57,38 @@ class MainActivity : ComponentActivity() {
             val templates by templatesRepository.templatesFlow.collectAsState(initial = emptyList())
             val lastDestination by appSettingsStore.lastDestinationFlow.collectAsState(initial = null)
             val coroutineScope = rememberCoroutineScope()
+            val context = LocalContext.current
+            val updateCheckViewModel: UpdateCheckViewModel = viewModel()
 
             LaunchedEffect(factors.basalReminderEnabled, factors.basalTimeMinutes) {
                 if (factors.basalReminderEnabled) {
                     basalReminderScheduler.scheduleDaily(factors.basalTimeMinutes)
                 } else {
                     basalReminderScheduler.cancel()
+                }
+            }
+
+            LaunchedEffect(Unit) {
+                if (updateCheckViewModel.uiState.phase == UpdateCheckPhase.Idle) {
+                    updateCheckViewModel.checkForUpdate()
+                }
+            }
+
+            LaunchedEffect(updateCheckViewModel.uiState.phase, updateCheckViewModel.uiState.latestRelease) {
+                val updateState = updateCheckViewModel.uiState
+                val latestRelease = updateState.latestRelease
+                if (updateState.phase == UpdateCheckPhase.UpdateAvailable && latestRelease != null) {
+                    AppUpdateNotifier.ensureChannel(
+                        context,
+                        translate(TranslationKey.AppUpdateChannelName, settings.language)
+                    )
+                    AppUpdateNotifier.show(
+                        context = context,
+                        title = translate(TranslationKey.AppUpdateAvailable, settings.language),
+                        body = translate(TranslationKey.AppUpdateNotificationBody, settings.language),
+                        versionTag = latestRelease.tagName,
+                        actionLabel = translate(TranslationKey.AppUpdateDownloadButton, settings.language)
+                    )
                 }
             }
 
@@ -88,6 +128,7 @@ class MainActivity : ComponentActivity() {
                     onLastDestinationChange = { destination ->
                         coroutineScope.launch { appSettingsStore.setLastDestination(destination) }
                     },
+                    openAppUpdateOnLaunch = openAppUpdateOnLaunch,
                     factorData = factors,
                     onFactorSaveRequested = { updatedFactors ->
                         coroutineScope.launch { factorsRepository.saveFactors(updatedFactors) }
@@ -113,4 +154,17 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        openAppUpdateOnLaunch = intent.consumeOpenAppUpdateExtra()
+    }
+}
+
+/** Reads and clears [EXTRA_OPEN_APP_UPDATE] so a retained intent can't re-trigger navigation later. */
+private fun Intent.consumeOpenAppUpdateExtra(): Boolean {
+    val shouldOpen = getBooleanExtra(EXTRA_OPEN_APP_UPDATE, false)
+    removeExtra(EXTRA_OPEN_APP_UPDATE)
+    return shouldOpen
 }
