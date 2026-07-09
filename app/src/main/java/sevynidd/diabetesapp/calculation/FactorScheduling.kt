@@ -1,6 +1,7 @@
 package sevynidd.diabetesapp.calculation
 
 import sevynidd.diabetesapp.data.model.FactorSlot
+import java.util.Locale
 
 /**
  * Returns [this] list with the slot at [index] moved to [selectedMinutes] (clamped to a single
@@ -72,4 +73,14 @@ fun List<FactorSlot>.suggestedNewSlotTimeMinutes(): Int {
     }
 
     return (bestGapStart + bestGapSize / 2) % MINUTES_PER_DAY
+}
+
+private const val MINUTES_PER_HOUR = 60
+
+/** Formats [totalMinutes] (minutes since midnight, wrapped into a single day even if negative) as `HH:mm`. */
+fun formatTimeOfDay(totalMinutes: Int): String {
+    val normalized = ((totalMinutes % MINUTES_PER_DAY) + MINUTES_PER_DAY) % MINUTES_PER_DAY
+    val hours = normalized / MINUTES_PER_HOUR
+    val minutes = normalized % MINUTES_PER_HOUR
+    return String.format(Locale.ROOT, "%02d:%02d", hours, minutes)
 }

@@ -30,7 +30,9 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import sevynidd.diabetesapp.calculation.MINUTES_PER_DAY
 import sevynidd.diabetesapp.calculation.activeFactorForTime
+import sevynidd.diabetesapp.calculation.formatTimeOfDay
 import sevynidd.diabetesapp.calculation.withUpdatedTime
 import sevynidd.diabetesapp.data.model.FactorSlot
 import sevynidd.diabetesapp.data.model.FactorsData
@@ -40,7 +42,6 @@ import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
 import java.time.LocalTime
-import java.util.Locale
 import kotlin.math.max
 
 /** Which time field a schedule edit applies to: one of the dynamic factor slots, or the basal time. */
@@ -152,7 +153,7 @@ private fun buildPieDataPoints(factorSlots: List<FactorSlot>, segmentColors: Lis
             amount = max(1, duration),
             color = segmentColors[index % segmentColors.size],
             title = slot.name,
-            value = formatTimeLabel(slot.startTimeMinutes)
+            value = formatTimeOfDay(slot.startTimeMinutes)
         )
     }
 }
@@ -208,7 +209,7 @@ private fun ScheduleChartCard(
                 ScheduleChartCenterLabel(
                     nowLabel = translate(TranslationKey.ActiveNowBadge, currentLanguage),
                     activeWindowLabel = activeWindowLabel,
-                    currentTimeLabel = formatTimeLabel(nowMinutes)
+                    currentTimeLabel = formatTimeOfDay(nowMinutes)
                 )
             }
 
@@ -242,7 +243,7 @@ private fun ScheduleTimesCard(
             scheduleFields.forEach { item ->
                 TimePickerField(
                     description = item.title,
-                    timeLabel = formatTimeLabel(item.timeMinutes),
+                    timeLabel = formatTimeOfDay(item.timeMinutes),
                     dotColor = item.dotColor,
                     onClick = { onFieldClick(item.target) }
                 )
@@ -284,13 +285,6 @@ private fun ScheduleTimePickerDialog(
     )
 }
 
-private fun formatTimeLabel(totalMinutes: Int): String {
-    val hour = (totalMinutes / 60) % 24
-    val minute = totalMinutes % 60
-    return String.format(Locale.ROOT, "%02d:%02d", hour, minute)
-}
-
-private const val MINUTES_PER_DAY = 24 * 60
 private val ChartSize = 220.dp
 private const val MID_LUMINANCE = 0.5f
 private const val PREVIEW_HOUR = 21

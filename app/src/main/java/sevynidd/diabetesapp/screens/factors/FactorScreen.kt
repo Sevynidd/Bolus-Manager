@@ -26,6 +26,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -47,7 +48,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import sevynidd.diabetesapp.calculation.MINUTES_PER_DAY
 import sevynidd.diabetesapp.calculation.activeFactorForTime
+import sevynidd.diabetesapp.calculation.formatTimeOfDay
 import sevynidd.diabetesapp.calculation.normalizeBasalRateValue
 import sevynidd.diabetesapp.calculation.normalizeQuarterStepValue
 import sevynidd.diabetesapp.calculation.suggestedNewSlotTimeMinutes
@@ -228,8 +231,9 @@ fun FactorScreen(
             existingNames = existingNames,
             initialTimeMinutes = factors.factorSlots.suggestedNewSlotTimeMinutes(),
             onDismissRequest = { isAddDialogVisible = false },
-            onConfirm = { name, timeMinutes ->
-                val withNewSlot = factors.factorSlots + FactorSlot(name = name, startTimeMinutes = timeMinutes)
+            onConfirm = { name, factorValue, timeMinutes ->
+                val withNewSlot = factors.factorSlots +
+                    FactorSlot(name = name, factorValue = factorValue, startTimeMinutes = timeMinutes)
                 val reordered = withNewSlot.withUpdatedTime(withNewSlot.lastIndex, timeMinutes)
                 emitFactorsChanged(reordered)
                 isAddDialogVisible = false
@@ -315,9 +319,10 @@ private fun AddFactorDialog(
     existingNames: List<String>,
     initialTimeMinutes: Int,
     onDismissRequest: () -> Unit,
-    onConfirm: (name: String, timeMinutes: Int) -> Unit
+    onConfirm: (name: String, factorValue: String, timeMinutes: Int) -> Unit
 ) {
     var name by rememberSaveable { mutableStateOf("") }
+    var factorValue by rememberSaveable { mutableStateOf("") }
     val pickerState = rememberTimePickerState(
         initialHour = (initialTimeMinutes / 60) % 24,
         initialMinute = initialTimeMinutes % 60,
@@ -332,26 +337,29 @@ private fun AddFactorDialog(
         onDismissRequest = onDismissRequest,
         title = { Text(translate(TranslationKey.ActionAddFactor, currentLanguage)) },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text(translate(TranslationKey.FactorNameLabel, currentLanguage)) },
-                    singleLine = true,
-                    isError = hasDuplicateName,
-                    supportingText = {
-                        if (hasDuplicateName) {
-                            Text(translate(TranslationKey.FactorNameDuplicateError, currentLanguage))
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                TimePicker(state = pickerState)
-            }
+            AddFactorDialogFields(
+                currentLanguage = currentLanguage,
+                nameField = NameFieldState(
+                    name = name,
+                    onNameChange = { name = it },
+                    hasDuplicateName = hasDuplicateName
+                ),
+                factorValue = factorValue,
+                onFactorValueChange = { newValue ->
+                    val sanitizedValue = newValue.replace('.', ',')
+                    if (sanitizedValue.isEmpty() || sanitizedValue.matches(DecimalInputRegex)) {
+                        factorValue = sanitizedValue
+                    }
+                },
+                pickerState = pickerState
+            )
         },
         confirmButton = {
             TextButton(
-                onClick = { onConfirm(name.trim(), (pickerState.hour * 60) + pickerState.minute) },
+                onClick = {
+                    val normalizedValue = normalizeQuarterStepValue(factorValue)
+                    onConfirm(name.trim(), normalizedValue, (pickerState.hour * 60) + pickerState.minute)
+                },
                 enabled = isValid
             ) {
                 Text(translate(TranslationKey.ActionAddFactor, currentLanguage))
@@ -365,14 +373,48 @@ private fun AddFactorDialog(
     )
 }
 
-private fun formatTimeOfDay(totalMinutes: Int): String {
-    val normalized = ((totalMinutes % MINUTES_PER_DAY) + MINUTES_PER_DAY) % MINUTES_PER_DAY
-    val hours = normalized / 60
-    val minutes = normalized % 60
-    return String.format(Locale.ROOT, "%02d:%02d", hours, minutes)
+/** The name field's state for [AddFactorDialogFields], grouped to keep its parameter list short. */
+private data class NameFieldState(
+    val name: String,
+    val onNameChange: (String) -> Unit,
+    val hasDuplicateName: Boolean
+)
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AddFactorDialogFields(
+    currentLanguage: AppLanguage,
+    nameField: NameFieldState,
+    factorValue: String,
+    onFactorValueChange: (String) -> Unit,
+    pickerState: TimePickerState
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        OutlinedTextField(
+            value = nameField.name,
+            onValueChange = nameField.onNameChange,
+            label = { Text(translate(TranslationKey.FactorNameLabel, currentLanguage)) },
+            singleLine = true,
+            isError = nameField.hasDuplicateName,
+            supportingText = {
+                if (nameField.hasDuplicateName) {
+                    Text(translate(TranslationKey.FactorNameDuplicateError, currentLanguage))
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
+        OutlinedTextField(
+            value = factorValue,
+            onValueChange = onFactorValueChange,
+            label = { Text(translate(TranslationKey.LabelFactor, currentLanguage)) },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+        )
+        TimePicker(state = pickerState)
+    }
 }
 
-private const val MINUTES_PER_DAY = 24 * 60
 private val DecimalInputRegex = Regex("^\\d*,?\\d*$")
 private val IntegerInputRegex = Regex("^\\d+$")
 
