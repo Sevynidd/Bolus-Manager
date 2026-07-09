@@ -9,15 +9,31 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 private const val SCHEMA_VERSION_5 = 5
 private const val SCHEMA_VERSION_6 = 6
+private const val SCHEMA_VERSION_7 = 7
+private const val DEFAULT_FACTOR_COLUMN_COUNT = 7
 
-/** The app's Room database: the factor profile and saved bolus templates. */
+// The 7 default time-of-day boundaries (minutes since midnight) MIGRATION_1_2 originally
+// backfilled onto factor_profile — frozen here for MIGRATION_6_7's historical re-seed into
+// factor_slot. Intentionally not shared with FactorsRepository's own (separately named, currently
+// identical) defaults for brand-new installs: a migration's behavior must stay reproducible even
+// if a future change tweaks what a fresh install seeds.
+private const val DEFAULT_MORNING_MINUTES = 300
+private const val DEFAULT_BREAKFAST_MINUTES = 540
+private const val DEFAULT_LUNCH_MINUTES = 720
+private const val DEFAULT_AFTERNOON_MINUTES = 840
+private const val DEFAULT_DINNER_MINUTES = 1020
+private const val DEFAULT_LATE_MINUTES = 1200
+private const val DEFAULT_NIGHT_MINUTES = 1380
+
+/** The app's Room database: the factor profile, its factor slots, and saved bolus templates. */
 @Database(
-    entities = [FactorProfileEntity::class, BolusTemplateEntity::class],
-    version = 6,
+    entities = [FactorProfileEntity::class, FactorSlotEntity::class, BolusTemplateEntity::class],
+    version = 7,
     exportSchema = false
 )
 abstract class DiabetesDatabase : RoomDatabase() {
     abstract fun factorProfileDao(): FactorProfileDao
+    abstract fun factorSlotDao(): FactorSlotDao
     abstract fun bolusTemplateDao(): BolusTemplateDao
 
     companion object {
@@ -32,7 +48,14 @@ abstract class DiabetesDatabase : RoomDatabase() {
                     DiabetesDatabase::class.java,
                     "diabetes_app.db"
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
+                    .addMigrations(
+                        MIGRATION_1_2,
+                        MIGRATION_2_3,
+                        MIGRATION_3_4,
+                        MIGRATION_4_5,
+                        MIGRATION_5_6,
+                        MIGRATION_6_7
+                    )
                     .build().also { created ->
                     instance = created
                 }
@@ -97,6 +120,85 @@ abstract class DiabetesDatabase : RoomDatabase() {
                 db.execSQL("ALTER TABLE factor_profile ADD COLUMN basalReminderEnabled INTEGER NOT NULL DEFAULT 0")
             }
         }
+
+        // Replaces the 7 hardcoded named factor+time columns on factor_profile with a variable-
+        // length factor_slot child table, so the app can support any number of freely named
+        // factors. Migrations can't call the app's translate() function, so the 7 rows seeded
+        // here from existing data use fixed English names; they're immediately renamable
+        // afterward. A genuinely new install (no factor_profile row at all yet) seeds its factors
+        // separately in Kotlin via FactorsRepository.seedDefaultFactorsIfEmpty, which can localize.
+        private val MIGRATION_6_7 = object : Migration(SCHEMA_VERSION_6, SCHEMA_VERSION_7) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS factor_slot (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        name TEXT NOT NULL,
+                        factorValue REAL,
+                        startTimeMinutes INTEGER NOT NULL
+                    )
+                    """.trimIndent()
+                )
+
+                seedFactorSlotsFromOldColumns(db)
+
+                db.execSQL(
+                    """
+                    CREATE TABLE factor_profile_new (
+                        id INTEGER PRIMARY KEY NOT NULL,
+                        isPeriodeEnabled INTEGER NOT NULL DEFAULT 0,
+                        basalRate INTEGER,
+                        basalTimeMinutes INTEGER,
+                        basalReminderEnabled INTEGER NOT NULL DEFAULT 0
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    """
+                    INSERT INTO factor_profile_new (id, isPeriodeEnabled, basalRate, basalTimeMinutes, basalReminderEnabled)
+                    SELECT id, isPeriodeEnabled, basalRate, basalTimeMinutes, basalReminderEnabled FROM factor_profile
+                    """.trimIndent()
+                )
+                db.execSQL("DROP TABLE factor_profile")
+                db.execSQL("ALTER TABLE factor_profile_new RENAME TO factor_profile")
+            }
+
+            private fun seedFactorSlotsFromOldColumns(db: SupportSQLiteDatabase) {
+                val defaultNames = listOf("Morning", "Breakfast", "Lunch", "Afternoon", "Dinner", "Late", "Night")
+                val defaultTimes = listOf(
+                    DEFAULT_MORNING_MINUTES,
+                    DEFAULT_BREAKFAST_MINUTES,
+                    DEFAULT_LUNCH_MINUTES,
+                    DEFAULT_AFTERNOON_MINUTES,
+                    DEFAULT_DINNER_MINUTES,
+                    DEFAULT_LATE_MINUTES,
+                    DEFAULT_NIGHT_MINUTES
+                )
+
+                db.query(
+                    "SELECT morningFactor, breakfastFactor, lunchFactor, afternoonFactor, dinnerFactor, " +
+                        "lateFactor, nightFactor, morningTimeMinutes, breakfastTimeMinutes, lunchTimeMinutes, " +
+                        "afternoonTimeMinutes, dinnerTimeMinutes, lateTimeMinutes, nightTimeMinutes " +
+                        "FROM factor_profile WHERE id = ${FactorProfileEntity.SINGLE_PROFILE_ID} LIMIT 1"
+                ).use { cursor ->
+                    if (!cursor.moveToFirst()) return
+
+                    for (index in defaultNames.indices) {
+                        val factorValue: Double? = if (cursor.isNull(index)) null else cursor.getDouble(index)
+                        val timeColumn = index + DEFAULT_FACTOR_COLUMN_COUNT
+                        val startTimeMinutes = if (cursor.isNull(timeColumn)) {
+                            defaultTimes[index]
+                        } else {
+                            cursor.getInt(timeColumn)
+                        }
+
+                        db.execSQL(
+                            "INSERT INTO factor_slot (name, factorValue, startTimeMinutes) VALUES (?, ?, ?)",
+                            arrayOf<Any?>(defaultNames[index], factorValue, startTimeMinutes)
+                        )
+                    }
+                }
+            }
+        }
     }
 }
-

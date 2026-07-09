@@ -85,9 +85,9 @@ fun CalculateScreen(
     }
 
     val nowMinutes = (now.hour * 60) + now.minute
-    val activeFactorInfo = activeFactorForTime(factors, nowMinutes)
+    val activeFactorInfo = activeFactorForTime(factors.factorSlots, nowMinutes)
     val activeFactor = applyPeriodMultiplier(activeFactorInfo.factor, factors.isPeriodEnabled, periodFactorPercent)
-    val activeFactorText = activeFactorInfo.toDisplayText(currentLanguage, activeFactor)
+    val activeFactorText = activeFactorInfo.toDisplayText(activeFactor)
     val effectiveBreadUnits = breadUnits.takeIf { it > 0.0 } ?: 12.0
 
     val carbohydratesValue = carbohydrates.replace(',', '.').toDoubleOrNull()
@@ -104,9 +104,9 @@ fun CalculateScreen(
     val splitDurationValue = splitDurationMinutes.replace(',', '.').toDoubleOrNull()
     val splitDurationOffsetMinutes = splitDurationValue?.roundToInt()?.coerceAtLeast(0) ?: 120
     val futureFactorTimeMinutes = (nowMinutes + splitDurationOffsetMinutes) % MINUTES_PER_DAY
-    val futureFactorInfo = activeFactorForTime(factors, futureFactorTimeMinutes)
+    val futureFactorInfo = activeFactorForTime(factors.factorSlots, futureFactorTimeMinutes)
     val futureFactor = applyPeriodMultiplier(futureFactorInfo.factor, factors.isPeriodEnabled, periodFactorPercent)
-    val futureFactorText = futureFactorInfo.toDisplayText(currentLanguage, futureFactor)
+    val futureFactorText = futureFactorInfo.toDisplayText(futureFactor)
 
     val splitBolus = splitBolusOrNull(
         carbohydrates = splitCarbohydratesValue,
@@ -241,8 +241,7 @@ private fun NormalModeContent(
     }
 }
 
-private fun ActiveFactorInfo.toDisplayText(language: AppLanguage, factorValue: Double? = factor): String {
-    val factorName = translate(factorLabel, language)
+private fun ActiveFactorInfo.toDisplayText(factorValue: Double? = factor): String {
     val valueText = factorValue.toUiDecimalOrEmpty()
     return if (valueText.isBlank()) factorName else "$factorName · $valueText"
 }

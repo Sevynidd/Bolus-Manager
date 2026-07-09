@@ -3,56 +3,90 @@ package sevynidd.diabetesapp.calculation
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
-import sevynidd.diabetesapp.data.model.FactorsData
-import sevynidd.diabetesapp.localization.TranslationKey
+import sevynidd.diabetesapp.data.model.FactorSlot
 
 class ActiveFactorResolverTest {
 
-    private val factors = FactorsData(
-        morningFactor = "1",
-        breakfastFactor = "2",
-        lunchFactor = "3",
-        afternoonFactor = "4",
-        dinnerFactor = "5",
-        lateFactor = "6",
-        nightFactor = "0,5"
+    private val slots = listOf(
+        FactorSlot(name = "Morning", factorValue = "1", startTimeMinutes = 300),
+        FactorSlot(name = "Breakfast", factorValue = "2", startTimeMinutes = 540),
+        FactorSlot(name = "Lunch", factorValue = "3", startTimeMinutes = 720),
+        FactorSlot(name = "Afternoon", factorValue = "4", startTimeMinutes = 840),
+        FactorSlot(name = "Dinner", factorValue = "5", startTimeMinutes = 1020),
+        FactorSlot(name = "Late", factorValue = "6", startTimeMinutes = 1200),
+        FactorSlot(name = "Night", factorValue = "0,5", startTimeMinutes = 1380)
     )
 
     @Test
     fun `normal case resolves the factor for the middle of a window`() {
         // 10:00, between breakfast (09:00) and lunch (12:00)
-        val info = activeFactorForTime(factors, nowMinutes = 10 * 60)
+        val info = activeFactorForTime(slots, nowMinutes = 10 * 60)
 
         assertEquals(2.0, info.factor)
-        assertEquals(TranslationKey.FactorBreakfast, info.factorLabel)
+        assertEquals("Breakfast", info.factorName)
         assertEquals(180, info.durationMinutes)
+        assertEquals(1, info.activeIndex)
     }
 
     @Test
     fun `boundary at exact window start resolves to that window, not the previous one`() {
-        // Exactly 09:00 (breakfastTimeMinutes) is no longer "before breakfast" (morning window)
-        val info = activeFactorForTime(factors, nowMinutes = factors.breakfastTimeMinutes)
+        val info = activeFactorForTime(slots, nowMinutes = 540)
 
         assertEquals(2.0, info.factor)
-        assertEquals(TranslationKey.FactorBreakfast, info.factorLabel)
+        assertEquals("Breakfast", info.factorName)
     }
 
     @Test
     fun `boundary at night wraps past midnight to the morning window`() {
-        // Exactly 23:00 (nightTimeMinutes) is excluded from the day range, so night factor applies
-        val info = activeFactorForTime(factors, nowMinutes = factors.nightTimeMinutes)
+        val info = activeFactorForTime(slots, nowMinutes = 1380)
 
         assertEquals(0.5, info.factor)
-        assertEquals(TranslationKey.FactorNight, info.factorLabel)
-        assertEquals((MINUTES_PER_DAY - factors.nightTimeMinutes) + factors.morningTimeMinutes, info.durationMinutes)
+        assertEquals("Night", info.factorName)
+        assertEquals((MINUTES_PER_DAY - 1380) + 300, info.durationMinutes)
+        assertEquals(6, info.activeIndex)
     }
 
     @Test
-    fun `unparsable factor string resolves to a null factor`() {
-        val info = activeFactorForTime(FactorsData(breakfastFactor = ""), nowMinutes = 10 * 60)
+    fun `unparsable factor value resolves to a null factor`() {
+        val slotsWithBlankBreakfast = slots.map { if (it.name == "Breakfast") it.copy(factorValue = "") else it }
+        val info = activeFactorForTime(slotsWithBlankBreakfast, nowMinutes = 10 * 60)
 
         assertNull(info.factor)
-        assertEquals(TranslationKey.FactorBreakfast, info.factorLabel)
+        assertEquals("Breakfast", info.factorName)
+    }
+
+    @Test
+    fun `works with a factor count other than seven`() {
+        val threeSlots = listOf(
+            FactorSlot(name = "Day", factorValue = "1", startTimeMinutes = 6 * 60),
+            FactorSlot(name = "Evening", factorValue = "2", startTimeMinutes = 18 * 60),
+            FactorSlot(name = "Night", factorValue = "3", startTimeMinutes = 22 * 60)
+        )
+
+        val info = activeFactorForTime(threeSlots, nowMinutes = 19 * 60)
+
+        assertEquals(2.0, info.factor)
+        assertEquals("Evening", info.factorName)
+        assertEquals(1, info.activeIndex)
+    }
+
+    @Test
+    fun `a single factor slot is active for the entire day`() {
+        val singleSlot = listOf(FactorSlot(name = "AllDay", factorValue = "1,5", startTimeMinutes = 0))
+
+        val info = activeFactorForTime(singleSlot, nowMinutes = 12 * 60)
+
+        assertEquals(1.5, info.factor)
+        assertEquals(MINUTES_PER_DAY, info.durationMinutes)
+        assertEquals(0, info.activeIndex)
+    }
+
+    @Test
+    fun `an empty factor list resolves to a null factor without throwing`() {
+        val info = activeFactorForTime(emptyList(), nowMinutes = 12 * 60)
+
+        assertNull(info.factor)
+        assertEquals(-1, info.activeIndex)
     }
 
     @Test

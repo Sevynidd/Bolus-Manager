@@ -53,7 +53,8 @@ class MainActivity : ComponentActivity() {
 
         val appSettingsStore = AppSettingsStore(applicationContext)
         val factorsRepository = FactorsRepository(
-            DiabetesDatabase.getInstance(applicationContext).factorProfileDao()
+            DiabetesDatabase.getInstance(applicationContext).factorProfileDao(),
+            DiabetesDatabase.getInstance(applicationContext).factorSlotDao()
         )
         val templatesRepository = BolusTemplatesRepository(
             DiabetesDatabase.getInstance(applicationContext).bolusTemplateDao()
@@ -68,6 +69,20 @@ class MainActivity : ComponentActivity() {
             val coroutineScope = rememberCoroutineScope()
             val context = LocalContext.current
             val updateCheckViewModel: UpdateCheckViewModel = viewModel()
+
+            LaunchedEffect(Unit) {
+                factorsRepository.seedDefaultFactorsIfEmpty(
+                    defaultNames = listOf(
+                        translate(TranslationKey.FactorMorning, settings.language),
+                        translate(TranslationKey.FactorBreakfast, settings.language),
+                        translate(TranslationKey.FactorLunch, settings.language),
+                        translate(TranslationKey.FactorAfternoon, settings.language),
+                        translate(TranslationKey.FactorDinner, settings.language),
+                        translate(TranslationKey.FactorLate, settings.language),
+                        translate(TranslationKey.FactorNight, settings.language)
+                    )
+                )
+            }
 
             LaunchedEffect(factors.basalReminderEnabled, factors.basalTimeMinutes) {
                 if (factors.basalReminderEnabled) {

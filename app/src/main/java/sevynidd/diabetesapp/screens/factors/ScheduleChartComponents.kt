@@ -23,9 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import sevynidd.diabetesapp.calculation.ScheduleTimeSlot
 import sevynidd.diabetesapp.libraries.gappedPieChart.PieData
-import sevynidd.diabetesapp.localization.TranslationKey
 
 internal val LegendDotSize = 10.dp
 private val LegendItemMinWidth = 130.dp
@@ -144,70 +142,39 @@ internal fun TimePickerField(
 // literals depending on declaration order, even though each one is already a well-named constant.
 @Suppress("MagicNumber")
 private object PieSegmentColors {
-    val morningDark = Color(0xFFCF94E8)
-    val breakfastDark = Color(0xFF8AC6EA)
-    val lunchDark = Color(0xFFCBCE6E)
-    val afternoonDark = Color(0xFF80CBC4)
-    val dinnerDark = Color(0xFFFFB877)
-    val lateDark = Color(0xFFF48FB1)
-    val nightDark = Color(0xFF9FA8DA)
+    val dark = listOf(
+        Color(0xFFCF94E8),
+        Color(0xFF8AC6EA),
+        Color(0xFFCBCE6E),
+        Color(0xFF80CBC4),
+        Color(0xFFFFB877),
+        Color(0xFFF48FB1),
+        Color(0xFF9FA8DA)
+    )
 
-    val morningLight = Color(0xFF9400D3)
-    val breakfastLight = Color(0xFF42A1D5)
-    val lunchLight = Color(0xFF8D9311)
-    val afternoonLight = Color(0xFF009688)
-    val dinnerLight = Color(0xFFFF7F00)
-    val lateLight = Color(0xFFE91E63)
-    val nightLight = Color(0xFF3949AB)
+    val light = listOf(
+        Color(0xFF9400D3),
+        Color(0xFF42A1D5),
+        Color(0xFF8D9311),
+        Color(0xFF009688),
+        Color(0xFFFF7F00),
+        Color(0xFFE91E63),
+        Color(0xFF3949AB)
+    )
 }
 
 /**
- * Maps the label returned by `activeFactorForTime` to its position in the pie chart's data
- * points, which are built in morning/breakfast/lunch/afternoon/dinner/late/night order — the
- * same order as [ScheduleTimeSlot]'s waking-hour entries. Returns `null` for labels outside that
- * set (there is no `Basal` slice), so the chart can highlight the arc matching the current time.
- */
-internal fun pieIndexForFactorLabel(factorLabel: TranslationKey): Int? {
-    val slot = when (factorLabel) {
-        TranslationKey.FactorMorning -> ScheduleTimeSlot.Morning
-        TranslationKey.FactorBreakfast -> ScheduleTimeSlot.Breakfast
-        TranslationKey.FactorLunch -> ScheduleTimeSlot.Lunch
-        TranslationKey.FactorAfternoon -> ScheduleTimeSlot.Afternoon
-        TranslationKey.FactorDinner -> ScheduleTimeSlot.Dinner
-        TranslationKey.FactorLate -> ScheduleTimeSlot.Late
-        TranslationKey.FactorNight -> ScheduleTimeSlot.Night
-        else -> return null
-    }
-    return slot.ordinal
-}
-
-/**
- * The 7 pie-chart segment colors for morning/breakfast/lunch/afternoon/dinner/late/night, in
- * that order. Kept as a dedicated categorical palette rather than the theme's primary/secondary/
- * tertiary roles: this app's generated Material scheme is a monochromatic rust/brown palette, so
- * routing the chart through those roles would make all 7 slices look nearly identical. [isDarkTheme]
- * selects a lighter, less saturated variant so segments stay legible against a dark surface.
+ * A categorical palette for the schedule pie chart, cycled by index (`index % size`) so any
+ * number of factor slots gets a color — not just the 7 in the base palette. Kept as a dedicated
+ * palette rather than the theme's primary/secondary/tertiary roles: this app's generated Material
+ * scheme is a monochromatic rust/brown palette, so routing the chart through those roles would
+ * make every slice look nearly identical. [isDarkTheme] selects a lighter, less saturated variant
+ * so segments stay legible against a dark surface.
  */
 internal fun pieSegmentColors(isDarkTheme: Boolean): List<Color> {
     return if (isDarkTheme) {
-        listOf(
-            PieSegmentColors.morningDark,
-            PieSegmentColors.breakfastDark,
-            PieSegmentColors.lunchDark,
-            PieSegmentColors.afternoonDark,
-            PieSegmentColors.dinnerDark,
-            PieSegmentColors.lateDark,
-            PieSegmentColors.nightDark
-        )
+        PieSegmentColors.dark
     } else {
-        listOf(
-            PieSegmentColors.morningLight,
-            PieSegmentColors.breakfastLight,
-            PieSegmentColors.lunchLight,
-            PieSegmentColors.afternoonLight,
-            PieSegmentColors.dinnerLight,
-            PieSegmentColors.lateLight,
-            PieSegmentColors.nightLight
-        )
+        PieSegmentColors.light
     }
 }

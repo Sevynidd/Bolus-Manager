@@ -41,12 +41,22 @@ The project is in active development, but already has a working workflow for:
 
 ### Factors & Schedule
 
-- 7 time-of-day factors: Morning, Breakfast, Lunch, Afternoon, Dinner, Late, Night
+- A variable-length list of user-defined, freely renamable time-of-day
+  factors — add, rename, or delete factors directly on the Factors screen
+  (at least one must always remain)
+  - New factors are added via a dialog that asks for a name and a start time
+    (pre-filled with the midpoint of the schedule's largest free gap)
+  - New installs are seeded with 7 default factors (Morning, Breakfast,
+    Lunch, Afternoon, Dinner, Late, Night) in the device's language, which
+    can then be freely edited like any other factor
 - Basal rate as a separate field
 - Read-only by default, editable via the edit icon in the top app bar
 - Dedicated schedule screen with editable times via Material `TimePicker`
-- Pie chart with colored time segments, titles, and times
-- Schedule times are automatically kept in ascending order
+- Pie chart with colored time segments (cycling through a fixed palette for
+  any number of factors), titles, and times
+- Schedule times are automatically kept in ascending order, with no two
+  factors sharing the same minute, whether editing an existing time or
+  adding a new factor
 - A hint text on the schedule screen explains the automatic order correction
 - Factor descriptions dynamically show their saved time ranges
 - The factor whose time window is currently active is visually highlighted
@@ -124,19 +134,17 @@ The project is in active development, but already has a working workflow for:
 
 Stored in `diabetes_app.db`, table `factor_profile`:
 
-- All 7 factors
-- Basal rate
+- Basal rate and its schedule time
 - Whether the Period surcharge is enabled
 - Whether the basal rate reminder notification is enabled
-- All schedule times:
-  - Morning
-  - Breakfast
-  - Lunch
-  - Afternoon
-  - Dinner
-  - Late
-  - Night
-  - Basal time
+
+Table `factor_slot` — one row per user-defined factor, referenced nowhere
+else, so it's simply replaced in full (delete-all, then insert) whenever the
+factor list is saved:
+
+- Name (free text, user-editable)
+- Factor value
+- Start time (minutes since midnight)
 
 Table `bolus_template`:
 
