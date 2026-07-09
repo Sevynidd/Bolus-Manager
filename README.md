@@ -6,6 +6,7 @@ Android app built with Jetpack Compose for managing diabetes-relevant factors, t
 
 ## Table of Contents
 
+- [Disclaimer](#disclaimer)
 - [Current Status](#current-status)
 - [Features](#features)
 - [Data Persistence](#data-persistence)
@@ -16,6 +17,15 @@ Android app built with Jetpack Compose for managing diabetes-relevant factors, t
 - [Installation & Getting Started](#installation--getting-started)
 - [Screenshot](#screenshot)
 - [License](#license)
+
+## Disclaimer
+
+This is a hobby project and **not a certified medical device or medical
+software**. It is not reviewed, validated, or approved by any regulatory or
+medical authority. The calculations and data shown by this app must not be
+used as the sole basis for insulin dosing or any other medical decision. Use
+it entirely at your own risk; always verify results with your treatment plan
+and consult your doctor or diabetes care team before acting on them.
 
 ## Current Status
 
