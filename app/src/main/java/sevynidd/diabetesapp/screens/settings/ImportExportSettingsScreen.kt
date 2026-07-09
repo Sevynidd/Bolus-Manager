@@ -35,14 +35,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import sevynidd.diabetesapp.data.export.factorsExportFileName
 import sevynidd.diabetesapp.data.export.parseFactorsExportJson
 import sevynidd.diabetesapp.data.export.toExportJson
 import sevynidd.diabetesapp.data.model.FactorsData
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
+import java.time.LocalDate
 
-private const val EXPORT_FILE_NAME = "bolus-manager-factors.json"
 private const val EXPORT_MIME_TYPE = "application/json"
 
 private enum class ImportExportOutcome { ExportSuccess, ExportFailure, ImportSuccess, ImportFailure }
@@ -77,7 +78,7 @@ fun ImportExportSettingsScreen(
             outcome = outcome,
             onExportClick = {
                 outcome = null
-                if (!isPreview) exportLauncher.launch(EXPORT_FILE_NAME)
+                if (!isPreview) exportLauncher.launch(factorsExportFileName(LocalDate.now()))
             },
             onImportClick = {
                 outcome = null
