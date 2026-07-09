@@ -23,6 +23,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -37,6 +38,8 @@ import sevynidd.diabetesapp.calculation.calculateBolusUnits
 import sevynidd.diabetesapp.calculation.calculateSplitBolus
 import sevynidd.diabetesapp.calculation.SplitBolusResult
 import sevynidd.diabetesapp.data.model.FactorsData
+import sevynidd.diabetesapp.data.settings.CorrectionSettings
+import sevynidd.diabetesapp.data.settings.GlucoseUnit
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
@@ -52,7 +55,17 @@ enum class BolusMode {
 /** The active/calculated values shown for the normal-bolus tab, bundled to keep parameter lists short. */
 private data class NormalModeResult(
     val activeFactorText: String,
-    val calculatedUnitsText: String
+    val calculatedUnitsText: String,
+    val correctionUnitsText: String
+)
+
+/** The user-editable fields of the normal-bolus form, bundled to keep composable parameter lists short. */
+private data class NormalModeInputs(
+    val carbohydrates: String,
+    val onCarbohydratesChange: (String) -> Unit,
+    val bloodSugar: String,
+    val onBloodSugarChange: (String) -> Unit,
+    val glucoseUnit: GlucoseUnit
 )
 
 @Composable
@@ -62,6 +75,7 @@ fun CalculateScreen(
     factors: FactorsData = FactorsData(),
     breadUnits: Double = 12.0,
     periodFactorPercent: Double = 0.0,
+    correctionSettings: CorrectionSettings = CorrectionSettings(),
     templatePrefillCarbohydrates: Double? = null,
     templatePrefillToken: Int = 0,
     selectedMode: BolusMode = BolusMode.Normal,
@@ -69,7 +83,9 @@ fun CalculateScreen(
     now: LocalTime = LocalTime.now()
 ) {
     var carbohydrates by rememberSaveable { mutableStateOf("") }
+    var bloodSugar by rememberSaveable { mutableStateOf("") }
     var splitCarbohydrates by rememberSaveable { mutableStateOf("") }
+    var splitBloodSugar by rememberSaveable { mutableStateOf("") }
     var splitImmediatePercent by rememberSaveable { mutableStateOf("") }
     var splitDurationMinutes by rememberSaveable { mutableStateOf("120") }
     val focusManager = LocalFocusManager.current
@@ -91,12 +107,15 @@ fun CalculateScreen(
     val effectiveBreadUnits = breadUnits.takeIf { it > 0.0 } ?: 12.0
 
     val carbohydratesValue = carbohydrates.replace(',', '.').toDoubleOrNull()
-    val calculatedUnits = if (carbohydratesValue != null && activeFactor != null) {
-        calculateBolusUnits(carbohydratesValue, effectiveBreadUnits, activeFactor)
-    } else {
-        null
-    }
-    val calculatedUnitsText = calculatedUnits.toUiDecimalOrEmpty()
+    val normalUnits = resolveNormalUnits(
+        carbohydratesValue = carbohydratesValue,
+        activeFactor = activeFactor,
+        effectiveBreadUnits = effectiveBreadUnits,
+        bloodSugar = bloodSugar,
+        correctionSettings = correctionSettings
+    )
+    val calculatedUnitsText = normalUnits.calculatedUnitsText
+    val correctionUnitsText = normalUnits.correctionUnitsText
 
     val splitCarbohydratesValue = splitCarbohydrates.replace(',', '.').toDoubleOrNull()
     val splitImmediatePercentValue = splitImmediatePercent.toIntOrNull()?.coerceIn(0, 100)
@@ -116,6 +135,12 @@ fun CalculateScreen(
         restFactor = futureFactor
     )
 
+    val splitUnits = resolveSplitUnits(
+        splitBolus = splitBolus,
+        splitBloodSugar = splitBloodSugar,
+        correctionSettings = correctionSettings
+    )
+
     Column(
         modifier = modifier.verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -133,9 +158,14 @@ fun CalculateScreen(
 
         when (selectedMode) {
             BolusMode.Normal -> NormalModeContent(
-                carbohydrates = carbohydrates,
-                onCarbohydratesChange = { carbohydrates = it },
-                result = NormalModeResult(activeFactorText, calculatedUnitsText),
+                inputs = NormalModeInputs(
+                    carbohydrates = carbohydrates,
+                    onCarbohydratesChange = { carbohydrates = it },
+                    bloodSugar = bloodSugar,
+                    onBloodSugarChange = { bloodSugar = it },
+                    glucoseUnit = correctionSettings.glucoseUnit
+                ),
+                result = NormalModeResult(activeFactorText, calculatedUnitsText, correctionUnitsText),
                 currentLanguage = currentLanguage,
                 focusManager = focusManager
             )
@@ -144,6 +174,9 @@ fun CalculateScreen(
                 val inputs = SplitModeInputs(
                     carbohydrates = splitCarbohydrates,
                     onCarbohydratesChange = { splitCarbohydrates = it },
+                    bloodSugar = splitBloodSugar,
+                    onBloodSugarChange = { splitBloodSugar = it },
+                    glucoseUnit = correctionSettings.glucoseUnit,
                     immediatePercent = splitImmediatePercent,
                     onImmediatePercentChange = { splitImmediatePercent = it },
                     restPercentValue = splitRestPercentValue,
@@ -153,9 +186,13 @@ fun CalculateScreen(
 
                 SplitInputsCard(inputs = inputs, currentLanguage = currentLanguage, focusManager = focusManager)
                 SplitResultsCard(
-                    activeFactorText = activeFactorText,
-                    futureFactorText = futureFactorText,
-                    splitBolus = splitBolus,
+                    results = SplitModeResults(
+                        activeFactorText = activeFactorText,
+                        futureFactorText = futureFactorText,
+                        splitBolus = splitBolus,
+                        totalUnitsText = splitUnits.totalUnitsText,
+                        correctionUnitsText = splitUnits.correctionUnitsText
+                    ),
                     currentLanguage = currentLanguage
                 )
             }
@@ -193,8 +230,7 @@ private fun BolusModeSelector(
 
 @Composable
 private fun NormalModeContent(
-    carbohydrates: String,
-    onCarbohydratesChange: (String) -> Unit,
+    inputs: NormalModeInputs,
     result: NormalModeResult,
     currentLanguage: AppLanguage,
     focusManager: FocusManager
@@ -211,9 +247,23 @@ private fun NormalModeContent(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             EditableNumberField(
-                value = carbohydrates,
-                onValueChange = onCarbohydratesChange,
+                value = inputs.carbohydrates,
+                onValueChange = inputs.onCarbohydratesChange,
                 label = translate(TranslationKey.Carbohydrates, currentLanguage),
+                keyboardType = KeyboardType.Decimal,
+                imeAction = ImeAction.Next,
+                keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
+                sanitizeInput = { rawInput ->
+                    val sanitized = rawInput.replace('.', ',')
+                    if (sanitized.isEmpty() || sanitized.matches(DecimalInputRegex)) sanitized else null
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            EditableNumberField(
+                value = inputs.bloodSugar,
+                onValueChange = inputs.onBloodSugarChange,
+                label = bloodSugarLabel(currentLanguage, inputs.glucoseUnit),
                 keyboardType = KeyboardType.Decimal,
                 imeAction = ImeAction.Done,
                 keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(force = true) }),
@@ -232,6 +282,11 @@ private fun NormalModeContent(
             )
 
             ResultStat(
+                label = translate(TranslationKey.CorrectionUnits, currentLanguage),
+                value = result.correctionUnitsText
+            )
+
+            ResultStat(
                 label = translate(TranslationKey.CalculatedUnits, currentLanguage),
                 value = result.calculatedUnitsText,
                 modifier = Modifier.fillMaxWidth(),
@@ -239,6 +294,14 @@ private fun NormalModeContent(
             )
         }
     }
+}
+
+private fun bloodSugarLabel(currentLanguage: AppLanguage, glucoseUnit: GlucoseUnit): String {
+    val unitSuffix = when (glucoseUnit) {
+        GlucoseUnit.MgDl -> "mg/dl"
+        GlucoseUnit.MmolL -> "mmol/l"
+    }
+    return "${translate(TranslationKey.BloodSugar, currentLanguage)} ($unitSuffix)"
 }
 
 private fun ActiveFactorInfo.toDisplayText(factorValue: Double? = factor): String {

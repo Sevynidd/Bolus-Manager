@@ -80,6 +80,9 @@ The project is in active development, but already has a working workflow for:
   - Rest share calculated with the factor active at `now + duration`
   - Current and future factors displayed side by side
   - Immediate and delayed units displayed side by side
+- Optional blood-sugar field, shown in both modes: when filled in, its
+  correction units (see **Correction Dose** below) are automatically added
+  into the calculated total; left blank, behavior is unchanged
 - Configurable bread-unit value instead of a hardcoded divisor
 - **Bolus templates**: save a name, optional emoji, and carbohydrate amount as a
   reusable shortcut
@@ -99,6 +102,10 @@ The project is in active development, but already has a working workflow for:
 - Language: `System`, `Deutsch`, `English`, `Français`, `Polski`
 - **Factor settings** screen: **bread units** and the **Period** factor
   surcharge percentage, the two values that tune the bolus calculation itself
+- **Correction** screen: the blood-sugar **correction threshold** and
+  **correction step** (both configurable, defaulting to `160` mg/dl and
+  `30` mg/dl), plus a toggle between **mg/dl** and **mmol/l** for entering
+  and displaying blood-sugar values
 - **Notifications** screen: optional daily **basal rate reminder** push
   notification, toggled off by default. Fires an exact alarm at the basal
   time configured on the Factors schedule screen, requesting the
@@ -162,6 +169,8 @@ The following are persisted:
 - Language
 - Bread-unit value
 - Period factor surcharge percentage
+- Blood-sugar correction threshold and step (stored in mg/dl)
+- Blood-glucose display unit (mg/dl or mmol/l)
 
 ### Edit Session / Save Behavior
 
@@ -217,6 +226,22 @@ before the unit calculation:
 `EffectiveFactor = Factor * (1 + PeriodFactorPercent / 100)`
 
 A negative configured percentage is treated as `0`.
+
+### Correction Dose
+
+When a blood-sugar value is entered, whole units of correction insulin are
+added on top of the carbohydrate-based calculation: the number of configured
+steps the blood sugar exceeds the configured threshold, rounded to the
+nearest whole unit (never a fractional unit).
+
+`CorrectionUnits = round(max(0, BloodSugar - Threshold) / Step)`
+
+Threshold and step are always stored in mg/dl, regardless of which unit
+(mg/dl or mmol/l) is currently selected for display/entry — the selected
+unit only affects how the number is shown and typed, never the stored value
+or the calculation itself. With the defaults (`160` mg/dl threshold, `30`
+mg/dl step), a blood sugar of `160` or `170` mg/dl adds `0` units, `180` or
+`190` mg/dl adds `1` unit, and `220` mg/dl adds `2` units.
 
 ## Validation & Input Behavior
 

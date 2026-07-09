@@ -51,6 +51,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import sevynidd.diabetesapp.data.database.BolusTemplateEntity
 import sevynidd.diabetesapp.data.model.FactorsData
+import sevynidd.diabetesapp.data.settings.CorrectionSettings
 import sevynidd.diabetesapp.data.settings.ThemeMode
 import sevynidd.diabetesapp.navigation.AppDestinations
 import sevynidd.diabetesapp.navigation.destinationLabel
@@ -70,6 +71,9 @@ import sevynidd.diabetesapp.screens.calculate.TemplateManagerScreen
 import sevynidd.diabetesapp.screens.factors.FactorEditSessionViewModel
 import sevynidd.diabetesapp.screens.factors.FactorScreen
 import sevynidd.diabetesapp.screens.factors.ScheduleFactorScreen
+import sevynidd.diabetesapp.screens.settings.CorrectionSettingsCallbacks
+import sevynidd.diabetesapp.screens.settings.CorrectionSettingsScreen
+import sevynidd.diabetesapp.screens.settings.CorrectionSettingsValues
 import sevynidd.diabetesapp.screens.settings.FactorSettingsScreen
 import sevynidd.diabetesapp.screens.settings.FactorSettingsValues
 import sevynidd.diabetesapp.screens.settings.ImportExportSettingsScreen
@@ -91,12 +95,14 @@ fun BolusManagerMainWindow(
     currentLanguage: AppLanguage = AppLanguage.System,
     breadUnits: Double = 12.0,
     periodFactorPercent: Double = 0.0,
+    correctionSettings: CorrectionSettings = CorrectionSettings(),
     factorData: FactorsData = FactorsData(),
     onThemeModeChange: (ThemeMode) -> Unit = {},
     onContrastLevelChange: (ContrastLevel) -> Unit = {},
     onLanguageChange: (AppLanguage) -> Unit = {},
     onBreadUnitsChange: (Double) -> Unit = {},
     onPeriodFactorPercentChange: (Double) -> Unit = {},
+    onCorrectionSettingsChange: CorrectionSettingsCallbacks = CorrectionSettingsCallbacks(),
     onFactorSaveRequested: (FactorsData) -> Unit = {},
     lastDestination: AppDestinations? = null,
     onLastDestinationChange: (AppDestinations) -> Unit = {},
@@ -239,6 +245,9 @@ fun BolusManagerMainWindow(
                     AppDestinations.SETTINGS if settingsDestination == SettingsDestination.FactorSettings ->
                         translate(TranslationKey.FactorSettingsTitle, currentLanguage)
 
+                    AppDestinations.SETTINGS if settingsDestination == SettingsDestination.Correction ->
+                        translate(TranslationKey.CorrectionSettingsTitle, currentLanguage)
+
                     AppDestinations.SETTINGS if settingsDestination == SettingsDestination.Notifications ->
                         translate(TranslationKey.NotificationSettingsTitle, currentLanguage)
 
@@ -372,6 +381,7 @@ fun BolusManagerMainWindow(
                                 factors = factorEditorState.factors,
                                 breadUnits = breadUnits,
                                 periodFactorPercent = periodFactorPercent,
+                                correctionSettings = correctionSettings,
                                 templatePrefillCarbohydrates = templatePrefillCarbohydrates,
                                 templatePrefillToken = templatePrefillToken,
                                 selectedMode = calculateBolusMode,
@@ -430,6 +440,9 @@ fun BolusManagerMainWindow(
                                     onNavigateToFactorSettings = {
                                         settingsDestination = SettingsDestination.FactorSettings
                                     },
+                                    onNavigateToCorrection = {
+                                        settingsDestination = SettingsDestination.Correction
+                                    },
                                     onNavigateToNotifications = {
                                         settingsDestination = SettingsDestination.Notifications
                                     },
@@ -466,6 +479,17 @@ fun BolusManagerMainWindow(
                                 ),
                                 onBreadUnitsChange = onBreadUnitsChange,
                                 onPeriodFactorPercentChange = onPeriodFactorPercentChange
+                            )
+
+                            SettingsDestination.Correction -> CorrectionSettingsScreen(
+                                modifier = contentModifier,
+                                currentLanguage = currentLanguage,
+                                values = CorrectionSettingsValues(
+                                    correctionThresholdMgDl = correctionSettings.thresholdMgDl,
+                                    correctionStepMgDl = correctionSettings.stepMgDl,
+                                    glucoseUnit = correctionSettings.glucoseUnit
+                                ),
+                                callbacks = onCorrectionSettingsChange
                             )
 
                             SettingsDestination.Notifications -> NotificationSettingsScreen(

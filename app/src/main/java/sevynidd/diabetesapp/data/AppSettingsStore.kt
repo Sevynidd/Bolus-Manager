@@ -10,6 +10,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import sevynidd.diabetesapp.localization.AppLanguage
+import sevynidd.diabetesapp.data.settings.GlucoseUnit
 import sevynidd.diabetesapp.data.settings.ThemeMode
 import sevynidd.diabetesapp.navigation.AppDestinations
 import sevynidd.diabetesapp.ui.theme.ContrastLevel
@@ -31,7 +32,10 @@ data class AppSettings(
     val contrastLevel: ContrastLevel = ContrastLevel.Normal,
     val language: AppLanguage = AppLanguage.System,
     val breadUnits: Double = DEFAULT_BREAD_UNITS,
-    val periodFactorPercent: Double = DEFAULT_PERIOD_FACTOR_PERCENT
+    val periodFactorPercent: Double = DEFAULT_PERIOD_FACTOR_PERCENT,
+    val correctionThresholdMgDl: Double = DEFAULT_CORRECTION_THRESHOLD_MGDL,
+    val correctionStepMgDl: Double = DEFAULT_CORRECTION_STEP_MGDL,
+    val glucoseUnit: GlucoseUnit = GlucoseUnit.MgDl
 )
 
 /** Reads and writes [AppSettings] to DataStore, migrating them from the legacy SharedPreferences store. */
@@ -45,6 +49,9 @@ class AppSettingsStore(private val context: Context) {
         // Keep legacy key name so existing period-factor values migrate seamlessly.
         val PERIOD_FACTOR_PERCENT = stringPreferencesKey("periode_factor_percent")
         val LAST_DESTINATION = stringPreferencesKey("last_destination")
+        val CORRECTION_THRESHOLD_MGDL = stringPreferencesKey("correction_threshold_mgdl")
+        val CORRECTION_STEP_MGDL = stringPreferencesKey("correction_step_mgdl")
+        val GLUCOSE_UNIT = stringPreferencesKey("glucose_unit")
     }
 
     /** The current [AppSettings], updating whenever a stored value changes. */
@@ -55,7 +62,12 @@ class AppSettingsStore(private val context: Context) {
             language = preferences[Keys.LANGUAGE].toEnumOrDefault(AppLanguage.System),
             breadUnits = preferences[Keys.BREAD_UNITS].toDoubleOrDefault(DEFAULT_BREAD_UNITS),
             periodFactorPercent = preferences[Keys.PERIOD_FACTOR_PERCENT]
-                .toDoubleOrDefault(DEFAULT_PERIOD_FACTOR_PERCENT)
+                .toDoubleOrDefault(DEFAULT_PERIOD_FACTOR_PERCENT),
+            correctionThresholdMgDl = preferences[Keys.CORRECTION_THRESHOLD_MGDL]
+                .toDoubleOrDefault(DEFAULT_CORRECTION_THRESHOLD_MGDL),
+            correctionStepMgDl = preferences[Keys.CORRECTION_STEP_MGDL]
+                .toDoubleOrDefault(DEFAULT_CORRECTION_STEP_MGDL),
+            glucoseUnit = preferences[Keys.GLUCOSE_UNIT].toEnumOrDefault(GlucoseUnit.MgDl)
         )
     }
 
@@ -94,6 +106,27 @@ class AppSettingsStore(private val context: Context) {
         }
     }
 
+    /** Persists the configured blood-sugar correction-dose threshold, in mg/dl. */
+    suspend fun setCorrectionThresholdMgDl(thresholdMgDl: Double) {
+        context.appSettingsDataStore.edit { preferences ->
+            preferences[Keys.CORRECTION_THRESHOLD_MGDL] = thresholdMgDl.toString()
+        }
+    }
+
+    /** Persists the configured mg/dl step that adds one whole correction unit. */
+    suspend fun setCorrectionStepMgDl(stepMgDl: Double) {
+        context.appSettingsDataStore.edit { preferences ->
+            preferences[Keys.CORRECTION_STEP_MGDL] = stepMgDl.toString()
+        }
+    }
+
+    /** Persists the selected [glucoseUnit] used to enter and display blood-sugar values. */
+    suspend fun setGlucoseUnit(glucoseUnit: GlucoseUnit) {
+        context.appSettingsDataStore.edit { preferences ->
+            preferences[Keys.GLUCOSE_UNIT] = glucoseUnit.name
+        }
+    }
+
     /**
      * The top-level screen that was open when the app was last closed. `null` means it hasn't
      * been read from disk yet (kept separate from [settingsFlow] so callers can tell "not loaded
@@ -126,4 +159,6 @@ private fun String?.toDoubleOrDefault(defaultValue: Double): Double {
 
 private const val DEFAULT_BREAD_UNITS = 12.0
 private const val DEFAULT_PERIOD_FACTOR_PERCENT = 0.0
+private const val DEFAULT_CORRECTION_THRESHOLD_MGDL = 160.0
+private const val DEFAULT_CORRECTION_STEP_MGDL = 30.0
 

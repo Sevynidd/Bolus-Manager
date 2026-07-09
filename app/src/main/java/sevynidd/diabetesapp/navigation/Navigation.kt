@@ -36,6 +36,7 @@ enum class SettingsDestination {
     Theme,
     Language,
     FactorSettings,
+    Correction,
     Notifications,
     DataManagement,
     Updates

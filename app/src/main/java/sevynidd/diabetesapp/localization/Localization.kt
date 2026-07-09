@@ -83,6 +83,12 @@ enum class TranslationKey {
     PeriodFactorPercent,
     BreadUnits,
     FactorSettingsTitle,
+    BloodSugar,
+    CorrectionUnits,
+    CorrectionSettingsTitle,
+    CorrectionThreshold,
+    CorrectionStep,
+    GlucoseUnitLabel,
 
     // Templates
     TemplatesTitle,
@@ -208,6 +214,12 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.PeriodFactorPercent -> "Period increase (%)"
             TranslationKey.BreadUnits -> "Bread units"
             TranslationKey.FactorSettingsTitle -> "Factor settings"
+            TranslationKey.BloodSugar -> "Blood sugar"
+            TranslationKey.CorrectionUnits -> "Correction units"
+            TranslationKey.CorrectionSettingsTitle -> "Correction"
+            TranslationKey.CorrectionThreshold -> "Correction threshold"
+            TranslationKey.CorrectionStep -> "Correction step"
+            TranslationKey.GlucoseUnitLabel -> "Blood glucose unit"
 
             // Templates
             TranslationKey.TemplatesTitle -> "Templates"
@@ -330,6 +342,12 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.PeriodFactorPercent -> "Periode-Erhöhung (%)"
             TranslationKey.BreadUnits -> "Broteinheiten"
             TranslationKey.FactorSettingsTitle -> "Faktor-Einstellungen"
+            TranslationKey.BloodSugar -> "Blutzucker"
+            TranslationKey.CorrectionUnits -> "Korrektureinheiten"
+            TranslationKey.CorrectionSettingsTitle -> "Korrektur"
+            TranslationKey.CorrectionThreshold -> "Korrekturschwelle"
+            TranslationKey.CorrectionStep -> "Korrekturschritt"
+            TranslationKey.GlucoseUnitLabel -> "Blutzucker-Einheit"
 
             // Templates
             TranslationKey.TemplatesTitle -> "Vorlagen"
@@ -454,6 +472,12 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.PeriodFactorPercent -> "Augmentation Période (%)"
             TranslationKey.BreadUnits -> "Unités de pain"
             TranslationKey.FactorSettingsTitle -> "Paramètres des facteurs"
+            TranslationKey.BloodSugar -> "Glycémie"
+            TranslationKey.CorrectionUnits -> "Unités de correction"
+            TranslationKey.CorrectionSettingsTitle -> "Correction"
+            TranslationKey.CorrectionThreshold -> "Seuil de correction"
+            TranslationKey.CorrectionStep -> "Palier de correction"
+            TranslationKey.GlucoseUnitLabel -> "Unité de glycémie"
 
             // Templates
             TranslationKey.TemplatesTitle -> "Modeles"
@@ -578,6 +602,12 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.PeriodFactorPercent -> "Zwiększenie Okres (%)"
             TranslationKey.BreadUnits -> "Wymienniki chlebowe"
             TranslationKey.FactorSettingsTitle -> "Ustawienia współczynnika"
+            TranslationKey.BloodSugar -> "Poziom cukru we krwi"
+            TranslationKey.CorrectionUnits -> "Jednostki korekcyjne"
+            TranslationKey.CorrectionSettingsTitle -> "Korekta"
+            TranslationKey.CorrectionThreshold -> "Próg korekty"
+            TranslationKey.CorrectionStep -> "Krok korekty"
+            TranslationKey.GlucoseUnitLabel -> "Jednostka glukozy we krwi"
 
             // Templates
             TranslationKey.TemplatesTitle -> "Szablony"
