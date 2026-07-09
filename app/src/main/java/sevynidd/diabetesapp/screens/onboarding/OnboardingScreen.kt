@@ -169,7 +169,8 @@ private fun OnboardingStepContent(
             currentLanguage = values.currentLanguage,
             values = FactorSettingsValues(
                 breadUnits = values.breadUnits,
-                periodFactorPercent = values.periodFactorPercent
+                periodFactorPercent = values.periodFactorPercent,
+                gender = values.gender
             ),
             onBreadUnitsChange = callbacks.onBreadUnitsChange,
             onPeriodFactorPercentChange = callbacks.onPeriodFactorPercentChange

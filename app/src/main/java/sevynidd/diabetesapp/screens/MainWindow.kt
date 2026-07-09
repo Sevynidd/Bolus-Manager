@@ -494,7 +494,8 @@ fun BolusManagerMainWindow(
                                 currentLanguage = currentLanguage,
                                 values = FactorSettingsValues(
                                     breadUnits = breadUnits,
-                                    periodFactorPercent = periodFactorPercent
+                                    periodFactorPercent = periodFactorPercent,
+                                    gender = gender
                                 ),
                                 onBreadUnitsChange = onBreadUnitsChange,
                                 onPeriodFactorPercentChange = onPeriodFactorPercentChange
