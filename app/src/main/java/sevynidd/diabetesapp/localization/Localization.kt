@@ -99,7 +99,15 @@ enum class TranslationKey {
     BasalReminderNotificationBody,
     BasalReminderChannelName,
     BasalReminderExactAlarmHint,
-    NotificationSettingsTitle
+    NotificationSettingsTitle,
+    DataManagementTitle,
+    DataManagementDescription,
+    ActionExport,
+    ActionImport,
+    ExportSuccessMessage,
+    ExportErrorMessage,
+    ImportSuccessMessage,
+    ImportErrorMessage
 }
 
 /** The localized text for [key] in [language]; [AppLanguage.System] resolves to the device locale. */
@@ -194,6 +202,15 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.BasalReminderChannelName -> "Basal rate reminders"
             TranslationKey.BasalReminderExactAlarmHint -> "Allow exact alarms in system settings"
             TranslationKey.NotificationSettingsTitle -> "Notifications"
+            TranslationKey.DataManagementTitle -> "Import & Export"
+            TranslationKey.DataManagementDescription ->
+                "Save your factors and time windows to a file, or load them from a file you exported earlier."
+            TranslationKey.ActionExport -> "Export"
+            TranslationKey.ActionImport -> "Import"
+            TranslationKey.ExportSuccessMessage -> "Factors exported successfully."
+            TranslationKey.ExportErrorMessage -> "Couldn't export factors."
+            TranslationKey.ImportSuccessMessage -> "Factors imported successfully."
+            TranslationKey.ImportErrorMessage -> "Couldn't import factors. Make sure the file is a valid export."
         }
 
         AppLanguage.German -> when (key) {
@@ -284,6 +301,17 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.BasalReminderChannelName -> "Basisraten-Erinnerungen"
             TranslationKey.BasalReminderExactAlarmHint -> "Exakte Alarme in den Systemeinstellungen erlauben"
             TranslationKey.NotificationSettingsTitle -> "Benachrichtigungen"
+            TranslationKey.DataManagementTitle -> "Import & Export"
+            TranslationKey.DataManagementDescription ->
+                "Speichere deine Faktoren und Zeitfenster in einer Datei oder lade sie aus einer " +
+                    "zuvor exportierten Datei."
+            TranslationKey.ActionExport -> "Exportieren"
+            TranslationKey.ActionImport -> "Importieren"
+            TranslationKey.ExportSuccessMessage -> "Faktoren erfolgreich exportiert."
+            TranslationKey.ExportErrorMessage -> "Faktoren konnten nicht exportiert werden."
+            TranslationKey.ImportSuccessMessage -> "Faktoren erfolgreich importiert."
+            TranslationKey.ImportErrorMessage ->
+                "Faktoren konnten nicht importiert werden. Stelle sicher, dass die Datei ein gültiger Export ist."
         }
 
         AppLanguage.French -> when (key) {
@@ -374,6 +402,17 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.BasalReminderChannelName -> "Rappels du débit de base"
             TranslationKey.BasalReminderExactAlarmHint -> "Autoriser les alarmes exactes dans les paramètres système"
             TranslationKey.NotificationSettingsTitle -> "Notifications"
+            TranslationKey.DataManagementTitle -> "Importer et exporter"
+            TranslationKey.DataManagementDescription ->
+                "Enregistrez vos facteurs et vos plages horaires dans un fichier, ou chargez-les " +
+                    "depuis un fichier exporté précédemment."
+            TranslationKey.ActionExport -> "Exporter"
+            TranslationKey.ActionImport -> "Importer"
+            TranslationKey.ExportSuccessMessage -> "Facteurs exportés avec succès."
+            TranslationKey.ExportErrorMessage -> "Impossible d'exporter les facteurs."
+            TranslationKey.ImportSuccessMessage -> "Facteurs importés avec succès."
+            TranslationKey.ImportErrorMessage ->
+                "Impossible d'importer les facteurs. Vérifiez que le fichier est un export valide."
         }
 
         AppLanguage.Polish -> when (key) {
@@ -464,6 +503,17 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.BasalReminderChannelName -> "Przypomnienia o wartości podstawowej"
             TranslationKey.BasalReminderExactAlarmHint -> "Zezwól na dokładne alarmy w ustawieniach systemowych"
             TranslationKey.NotificationSettingsTitle -> "Powiadomienia"
+            TranslationKey.DataManagementTitle -> "Import i eksport"
+            TranslationKey.DataManagementDescription ->
+                "Zapisz swoje współczynniki i przedziały czasowe do pliku lub wczytaj je z " +
+                    "wcześniej wyeksportowanego pliku."
+            TranslationKey.ActionExport -> "Eksportuj"
+            TranslationKey.ActionImport -> "Importuj"
+            TranslationKey.ExportSuccessMessage -> "Współczynniki wyeksportowane pomyślnie."
+            TranslationKey.ExportErrorMessage -> "Nie udało się wyeksportować współczynników."
+            TranslationKey.ImportSuccessMessage -> "Współczynniki zaimportowane pomyślnie."
+            TranslationKey.ImportErrorMessage ->
+                "Nie udało się zaimportować współczynników. Upewnij się, że plik jest prawidłowym eksportem."
         }
 
         AppLanguage.System -> error("SystemDefault must be resolved before translating")

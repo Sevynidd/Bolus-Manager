@@ -16,6 +16,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.Grain
+import androidx.compose.material.icons.filled.ImportExport
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Palette
@@ -57,6 +58,7 @@ data class SettingsNavigationCallbacks(
     val onNavigateToLanguage: () -> Unit = {},
     val onNavigateToBreadUnits: () -> Unit = {},
     val onNavigateToNotifications: () -> Unit = {},
+    val onNavigateToDataManagement: () -> Unit = {},
     val onNavigateToUpdates: () -> Unit = {}
 )
 
@@ -98,6 +100,12 @@ fun SettingsScreen(
                     icon = Icons.Filled.Notifications,
                     title = translate(TranslationKey.NotificationSettingsTitle, currentLanguage),
                     onClick = navigation.onNavigateToNotifications
+                )
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                SettingsNavigationItem(
+                    icon = Icons.Filled.ImportExport,
+                    title = translate(TranslationKey.DataManagementTitle, currentLanguage),
+                    onClick = navigation.onNavigateToDataManagement
                 )
             }
 

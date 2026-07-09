@@ -37,6 +37,7 @@ enum class SettingsDestination {
     Language,
     BreadUnits,
     Notifications,
+    DataManagement,
     Updates
 }
 

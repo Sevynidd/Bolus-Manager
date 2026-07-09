@@ -71,6 +71,7 @@ import sevynidd.diabetesapp.screens.factors.FactorEditSessionViewModel
 import sevynidd.diabetesapp.screens.factors.FactorScreen
 import sevynidd.diabetesapp.screens.factors.ScheduleFactorScreen
 import sevynidd.diabetesapp.screens.settings.BreadUnitsSettingsScreen
+import sevynidd.diabetesapp.screens.settings.ImportExportSettingsScreen
 import sevynidd.diabetesapp.screens.settings.NotificationSettingsScreen
 import sevynidd.diabetesapp.screens.settings.SettingsNavigationCallbacks
 import sevynidd.diabetesapp.screens.settings.SettingsScreen
@@ -231,6 +232,9 @@ fun BolusManagerMainWindow(
 
                     AppDestinations.SETTINGS if settingsDestination == SettingsDestination.Notifications ->
                         translate(TranslationKey.NotificationSettingsTitle, currentLanguage)
+
+                    AppDestinations.SETTINGS if settingsDestination == SettingsDestination.DataManagement ->
+                        translate(TranslationKey.DataManagementTitle, currentLanguage)
 
                     AppDestinations.SETTINGS if settingsDestination == SettingsDestination.Updates ->
                         translate(TranslationKey.AppUpdateTitle, currentLanguage)
@@ -420,6 +424,9 @@ fun BolusManagerMainWindow(
                                     onNavigateToNotifications = {
                                         settingsDestination = SettingsDestination.Notifications
                                     },
+                                    onNavigateToDataManagement = {
+                                        settingsDestination = SettingsDestination.DataManagement
+                                    },
                                     onNavigateToUpdates = { settingsDestination = SettingsDestination.Updates }
                                 )
                             )
@@ -454,6 +461,13 @@ fun BolusManagerMainWindow(
                                 currentLanguage = currentLanguage,
                                 isBasalReminderEnabled = factorEditorState.factors.basalReminderEnabled,
                                 onBasalReminderEnabledChange = factorEditorViewModel::updateBasalReminderEnabled
+                            )
+
+                            SettingsDestination.DataManagement -> ImportExportSettingsScreen(
+                                modifier = contentModifier,
+                                currentLanguage = currentLanguage,
+                                factors = factorEditorState.factors,
+                                onFactorsImported = onFactorSaveRequested
                             )
 
                             SettingsDestination.Updates -> UpdateSettingsScreen(
