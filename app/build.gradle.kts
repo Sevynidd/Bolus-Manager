@@ -29,8 +29,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_26
-        targetCompatibility = JavaVersion.VERSION_26
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     buildFeatures {
         compose = true
@@ -71,9 +71,6 @@ detekt {
 }
 
 tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
-    // Detekt 1.23.8's bundled Kotlin compiler only accepts jvmTarget values up to 22, unlike the
-    // app's own compileOptions (VERSION_26) — this only affects Detekt's own analysis pass.
-    jvmTarget = "22"
     reports {
         sarif.required.set(true)
     }

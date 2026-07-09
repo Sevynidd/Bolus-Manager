@@ -91,9 +91,9 @@ fun SettingsScreen(
                 )
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 SettingsNavigationItem(
-                    icon = Icons.Filled.Grain,
-                    title = translate(TranslationKey.BreadUnits, currentLanguage),
-                    onClick = navigation.onNavigateToBreadUnits
+                    icon = Icons.Filled.ImportExport,
+                    title = translate(TranslationKey.DataManagementTitle, currentLanguage),
+                    onClick = navigation.onNavigateToDataManagement
                 )
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 SettingsNavigationItem(
@@ -103,9 +103,9 @@ fun SettingsScreen(
                 )
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 SettingsNavigationItem(
-                    icon = Icons.Filled.ImportExport,
-                    title = translate(TranslationKey.DataManagementTitle, currentLanguage),
-                    onClick = navigation.onNavigateToDataManagement
+                    icon = Icons.Filled.Grain,
+                    title = translate(TranslationKey.BreadUnits, currentLanguage),
+                    onClick = navigation.onNavigateToBreadUnits
                 )
             }
 
