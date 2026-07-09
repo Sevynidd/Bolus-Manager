@@ -13,6 +13,7 @@ enum class AppLanguage {
 
 /** A user-facing string that [translate] resolves to localized text. */
 enum class TranslationKey {
+    // Appearance & theme
     Appearance,
     ThemeMode,
     ContrastLevel,
@@ -28,9 +29,13 @@ enum class TranslationKey {
     LanguageFrench,
     LanguagePolish,
     LanguageSystem,
+
+    // Navigation
     DestinationFactors,
     DestinationCalculate,
     DestinationSettings,
+
+    // Common actions
     ActionEdit,
     ActionSave,
     ActionCancel,
@@ -39,6 +44,8 @@ enum class TranslationKey {
     ActionTemplates,
     ActionDelete,
     ActionMoreOptions,
+
+    // Factors & schedule
     FactorMorning,
     FactorBreakfast,
     FactorLunch,
@@ -50,6 +57,8 @@ enum class TranslationKey {
     LabelFactor,
     ActionSchedule,
     ScheduleAutoOrderHint,
+
+    // Bolus calculation
     BolusType,
     BolusNormal,
     BolusSplit,
@@ -67,6 +76,8 @@ enum class TranslationKey {
     PeriodLabel,
     PeriodFactorPercent,
     BreadUnits,
+
+    // Templates
     TemplatesTitle,
     TemplateAdd,
     TemplateEdit,
@@ -80,6 +91,8 @@ enum class TranslationKey {
     TemplateSortAlphabetical,
     TemplateDuplicateNameError,
     ActiveNowBadge,
+
+    // App update
     AppUpdateTitle,
     AppUpdateCurrentVersion,
     AppUpdateCheckButton,
@@ -94,12 +107,16 @@ enum class TranslationKey {
     AppUpdateError,
     AppUpdateRetryButton,
     AppUpdateViewOnGitHub,
+
+    // Notifications
     BasalReminderEnabled,
     BasalReminderNotificationTitle,
     BasalReminderNotificationBody,
     BasalReminderChannelName,
     BasalReminderExactAlarmHint,
     NotificationSettingsTitle,
+
+    // Import & export
     DataManagementTitle,
     DataManagementDescription,
     ActionExport,
@@ -115,6 +132,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
     val effectiveLanguage = resolveAppLanguage(language)
     return when (effectiveLanguage) {
         AppLanguage.English -> when (key) {
+            // Appearance & theme
             TranslationKey.Appearance -> "Appearance"
             TranslationKey.ThemeMode -> "Theme mode"
             TranslationKey.ContrastLevel -> "Contrast level"
@@ -130,9 +148,13 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.LanguageFrench -> "French"
             TranslationKey.LanguagePolish -> "Polish"
             TranslationKey.LanguageSystem -> "System"
+
+            // Navigation
             TranslationKey.DestinationFactors -> "Factors"
             TranslationKey.DestinationCalculate -> "Calculate"
             TranslationKey.DestinationSettings -> "Settings"
+
+            // Common actions
             TranslationKey.ActionEdit -> "Edit"
             TranslationKey.ActionSave -> "Save"
             TranslationKey.ActionCancel -> "Cancel"
@@ -141,6 +163,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ActionTemplates -> "Templates"
             TranslationKey.ActionDelete -> "Delete"
             TranslationKey.ActionMoreOptions -> "More options"
+
+            // Factors & schedule
             TranslationKey.FactorMorning -> "Morning"
             TranslationKey.FactorBreakfast -> "Breakfast"
             TranslationKey.FactorLunch -> "Lunch"
@@ -152,6 +176,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.LabelFactor -> "Factor"
             TranslationKey.ActionSchedule -> "Schedule"
             TranslationKey.ScheduleAutoOrderHint -> "Times are auto-corrected to keep the daily order."
+
+            // Bolus calculation
             TranslationKey.BolusType -> "Bolus type"
             TranslationKey.BolusNormal -> "Normal"
             TranslationKey.BolusSplit -> "Split bolus"
@@ -169,6 +195,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.PeriodLabel -> "Period?"
             TranslationKey.PeriodFactorPercent -> "Period increase (%)"
             TranslationKey.BreadUnits -> "Bread units"
+
+            // Templates
             TranslationKey.TemplatesTitle -> "Templates"
             TranslationKey.TemplateAdd -> "Add template"
             TranslationKey.TemplateEdit -> "Edit template"
@@ -182,6 +210,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.TemplateSortAlphabetical -> "Alphabetical"
             TranslationKey.TemplateDuplicateNameError -> "A template with this name already exists"
             TranslationKey.ActiveNowBadge -> "Now"
+
+            // App update
             TranslationKey.AppUpdateTitle -> "App update"
             TranslationKey.AppUpdateCurrentVersion -> "Current version"
             TranslationKey.AppUpdateCheckButton -> "Check for updates"
@@ -196,12 +226,16 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.AppUpdateError -> "Couldn't check for updates. Please try again."
             TranslationKey.AppUpdateRetryButton -> "Retry"
             TranslationKey.AppUpdateViewOnGitHub -> "View source on GitHub"
+
+            // Notifications
             TranslationKey.BasalReminderEnabled -> "Basal rate reminder"
             TranslationKey.BasalReminderNotificationTitle -> "Basal rate reminder"
             TranslationKey.BasalReminderNotificationBody -> "It's time for your basal rate."
             TranslationKey.BasalReminderChannelName -> "Basal rate reminders"
             TranslationKey.BasalReminderExactAlarmHint -> "Allow exact alarms in system settings"
             TranslationKey.NotificationSettingsTitle -> "Notifications"
+
+            // Import & export
             TranslationKey.DataManagementTitle -> "Import & Export"
             TranslationKey.DataManagementDescription ->
                 "Save your factors and time windows to a file, or load them from a file you exported earlier."
@@ -214,6 +248,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
         }
 
         AppLanguage.German -> when (key) {
+            // Appearance & theme
             TranslationKey.Appearance -> "Darstellung"
             TranslationKey.ThemeMode -> "Thema"
             TranslationKey.ContrastLevel -> "Kontrast"
@@ -229,9 +264,13 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.LanguageFrench -> "Französisch"
             TranslationKey.LanguagePolish -> "Polnisch"
             TranslationKey.LanguageSystem -> "System"
+
+            // Navigation
             TranslationKey.DestinationFactors -> "Faktoren"
             TranslationKey.DestinationCalculate -> "Berechnen"
             TranslationKey.DestinationSettings -> "Einstellungen"
+
+            // Common actions
             TranslationKey.ActionEdit -> "Bearbeiten"
             TranslationKey.ActionSave -> "Speichern"
             TranslationKey.ActionCancel -> "Abbrechen"
@@ -240,6 +279,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ActionTemplates -> "Vorlagen"
             TranslationKey.ActionDelete -> "Löschen"
             TranslationKey.ActionMoreOptions -> "Weitere Optionen"
+
+            // Factors & schedule
             TranslationKey.FactorMorning -> "Morgen"
             TranslationKey.FactorBreakfast -> "Frühstück"
             TranslationKey.FactorLunch -> "Mittagessen"
@@ -251,6 +292,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.LabelFactor -> "Faktor"
             TranslationKey.ActionSchedule -> "Zeitplanung"
             TranslationKey.ScheduleAutoOrderHint -> "Zeiten werden automatisch angepasst, damit die Tagesreihenfolge erhalten bleibt."
+
+            // Bolus calculation
             TranslationKey.BolusType -> "Bolus-Typ"
             TranslationKey.BolusNormal -> "Normal"
             TranslationKey.BolusSplit -> "Gesplitteter Bolus"
@@ -268,6 +311,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.PeriodLabel -> "Periode?"
             TranslationKey.PeriodFactorPercent -> "Periode-Erhöhung (%)"
             TranslationKey.BreadUnits -> "Broteinheiten"
+
+            // Templates
             TranslationKey.TemplatesTitle -> "Vorlagen"
             TranslationKey.TemplateAdd -> "Vorlage hinzufügen"
             TranslationKey.TemplateEdit -> "Vorlage bearbeiten"
@@ -281,6 +326,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.TemplateSortAlphabetical -> "Alphabetisch"
             TranslationKey.TemplateDuplicateNameError -> "Eine Vorlage mit diesem Namen existiert bereits"
             TranslationKey.ActiveNowBadge -> "Jetzt"
+
+            // App update
             TranslationKey.AppUpdateTitle -> "App-Update"
             TranslationKey.AppUpdateCurrentVersion -> "Aktuelle Version"
             TranslationKey.AppUpdateCheckButton -> "Nach Updates suchen"
@@ -295,12 +342,16 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.AppUpdateError -> "Update-Suche fehlgeschlagen. Bitte versuche es erneut."
             TranslationKey.AppUpdateRetryButton -> "Erneut versuchen"
             TranslationKey.AppUpdateViewOnGitHub -> "Quellcode auf GitHub ansehen"
+
+            // Notifications
             TranslationKey.BasalReminderEnabled -> "Basisraten-Erinnerung"
             TranslationKey.BasalReminderNotificationTitle -> "Basisraten-Erinnerung"
             TranslationKey.BasalReminderNotificationBody -> "Zeit für deine Basisrate."
             TranslationKey.BasalReminderChannelName -> "Basisraten-Erinnerungen"
             TranslationKey.BasalReminderExactAlarmHint -> "Exakte Alarme in den Systemeinstellungen erlauben"
             TranslationKey.NotificationSettingsTitle -> "Benachrichtigungen"
+
+            // Import & export
             TranslationKey.DataManagementTitle -> "Import & Export"
             TranslationKey.DataManagementDescription ->
                 "Speichere deine Faktoren und Zeitfenster in einer Datei oder lade sie aus einer " +
@@ -315,6 +366,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
         }
 
         AppLanguage.French -> when (key) {
+            // Appearance & theme
             TranslationKey.Appearance -> "Apparence"
             TranslationKey.ThemeMode -> "Mode Thème"
             TranslationKey.ContrastLevel -> "Niveau de contraste"
@@ -330,9 +382,13 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.LanguageFrench -> "Français"
             TranslationKey.LanguagePolish -> "Polonais"
             TranslationKey.LanguageSystem -> "Système"
+
+            // Navigation
             TranslationKey.DestinationFactors -> "Facteurs"
             TranslationKey.DestinationCalculate -> "Calculer"
             TranslationKey.DestinationSettings -> "Paramètres"
+
+            // Common actions
             TranslationKey.ActionEdit -> "Modifier"
             TranslationKey.ActionSave -> "Enregistrer"
             TranslationKey.ActionCancel -> "Annuler"
@@ -341,6 +397,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ActionTemplates -> "Modeles"
             TranslationKey.ActionDelete -> "Supprimer"
             TranslationKey.ActionMoreOptions -> "Plus d'options"
+
+            // Factors & schedule
             TranslationKey.FactorMorning -> "Matin"
             TranslationKey.FactorBreakfast -> "Petit-déjeuner"
             TranslationKey.FactorLunch -> "Dejeuner"
@@ -352,6 +410,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.LabelFactor -> "Facteur"
             TranslationKey.ActionSchedule -> "Calendrier"
             TranslationKey.ScheduleAutoOrderHint -> "Les heures sont corrigées automatiquement pour conserver l'ordre de la journée."
+
+            // Bolus calculation
             TranslationKey.BolusType -> "Type de bolus"
             TranslationKey.BolusNormal -> "Normal"
             TranslationKey.BolusSplit -> "Bolus fractionné"
@@ -369,6 +429,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.PeriodLabel -> "Période?"
             TranslationKey.PeriodFactorPercent -> "Augmentation Période (%)"
             TranslationKey.BreadUnits -> "Unités de pain"
+
+            // Templates
             TranslationKey.TemplatesTitle -> "Modeles"
             TranslationKey.TemplateAdd -> "Ajouter un modele"
             TranslationKey.TemplateEdit -> "Modifier le modele"
@@ -382,6 +444,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.TemplateSortAlphabetical -> "Alphabetique"
             TranslationKey.TemplateDuplicateNameError -> "Un modele avec ce nom existe deja"
             TranslationKey.ActiveNowBadge -> "Actuel"
+
+            // App update
             TranslationKey.AppUpdateTitle -> "Mise à jour de l'application"
             TranslationKey.AppUpdateCurrentVersion -> "Version actuelle"
             TranslationKey.AppUpdateCheckButton -> "Rechercher des mises à jour"
@@ -396,12 +460,16 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.AppUpdateError -> "Impossible de rechercher des mises à jour. Veuillez réessayer."
             TranslationKey.AppUpdateRetryButton -> "Réessayer"
             TranslationKey.AppUpdateViewOnGitHub -> "Voir le code source sur GitHub"
+
+            // Notifications
             TranslationKey.BasalReminderEnabled -> "Rappel du débit de base"
             TranslationKey.BasalReminderNotificationTitle -> "Rappel du débit de base"
             TranslationKey.BasalReminderNotificationBody -> "C'est l'heure de votre débit de base."
             TranslationKey.BasalReminderChannelName -> "Rappels du débit de base"
             TranslationKey.BasalReminderExactAlarmHint -> "Autoriser les alarmes exactes dans les paramètres système"
             TranslationKey.NotificationSettingsTitle -> "Notifications"
+
+            // Import & export
             TranslationKey.DataManagementTitle -> "Importer et exporter"
             TranslationKey.DataManagementDescription ->
                 "Enregistrez vos facteurs et vos plages horaires dans un fichier, ou chargez-les " +
@@ -416,6 +484,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
         }
 
         AppLanguage.Polish -> when (key) {
+            // Appearance & theme
             TranslationKey.Appearance -> "Wygląd"
             TranslationKey.ThemeMode -> "Tryb motywu"
             TranslationKey.ContrastLevel -> "Poziom kontrastu"
@@ -431,9 +500,13 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.LanguageFrench -> "Francuski"
             TranslationKey.LanguagePolish -> "Polski"
             TranslationKey.LanguageSystem -> "System"
+
+            // Navigation
             TranslationKey.DestinationFactors -> "Czynniki"
             TranslationKey.DestinationCalculate -> "Oblicz"
             TranslationKey.DestinationSettings -> "Ustawienia"
+
+            // Common actions
             TranslationKey.ActionEdit -> "Edytuj"
             TranslationKey.ActionSave -> "Zapisz"
             TranslationKey.ActionCancel -> "Anuluj"
@@ -442,6 +515,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ActionTemplates -> "Szablony"
             TranslationKey.ActionDelete -> "Usuń"
             TranslationKey.ActionMoreOptions -> "Więcej opcji"
+
+            // Factors & schedule
             TranslationKey.FactorMorning -> "Rano"
             TranslationKey.FactorBreakfast -> "Śniadanie"
             TranslationKey.FactorLunch -> "Obiad"
@@ -453,6 +528,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.LabelFactor -> "Czynnik"
             TranslationKey.ActionSchedule -> "Planuj"
             TranslationKey.ScheduleAutoOrderHint -> "Godziny są automatycznie korygowane, aby zachować kolejność w ciągu dnia."
+
+            // Bolus calculation
             TranslationKey.BolusType -> "Typ bolusa"
             TranslationKey.BolusNormal -> "Normalny"
             TranslationKey.BolusSplit -> "Bolus złożony"
@@ -470,6 +547,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.PeriodLabel -> "Okres?"
             TranslationKey.PeriodFactorPercent -> "Zwiększenie Okres (%)"
             TranslationKey.BreadUnits -> "Wymienniki chlebowe"
+
+            // Templates
             TranslationKey.TemplatesTitle -> "Szablony"
             TranslationKey.TemplateAdd -> "Dodaj szablon"
             TranslationKey.TemplateEdit -> "Edytuj szablon"
@@ -483,6 +562,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.TemplateSortAlphabetical -> "Alfabetycznie"
             TranslationKey.TemplateDuplicateNameError -> "Szablon o tej nazwie już istnieje"
             TranslationKey.ActiveNowBadge -> "Teraz"
+
+            // App update
             TranslationKey.AppUpdateTitle -> "Aktualizacja aplikacji"
             TranslationKey.AppUpdateCurrentVersion -> "Bieżąca wersja"
             TranslationKey.AppUpdateCheckButton -> "Sprawdź aktualizacje"
@@ -497,12 +578,16 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.AppUpdateError -> "Nie udało się sprawdzić aktualizacji. Spróbuj ponownie."
             TranslationKey.AppUpdateRetryButton -> "Spróbuj ponownie"
             TranslationKey.AppUpdateViewOnGitHub -> "Zobacz kod źródłowy na GitHub"
+
+            // Notifications
             TranslationKey.BasalReminderEnabled -> "Przypomnienie o wartości podstawowej"
             TranslationKey.BasalReminderNotificationTitle -> "Przypomnienie o wartości podstawowej"
             TranslationKey.BasalReminderNotificationBody -> "Czas na Twoją wartość podstawową."
             TranslationKey.BasalReminderChannelName -> "Przypomnienia o wartości podstawowej"
             TranslationKey.BasalReminderExactAlarmHint -> "Zezwól na dokładne alarmy w ustawieniach systemowych"
             TranslationKey.NotificationSettingsTitle -> "Powiadomienia"
+
+            // Import & export
             TranslationKey.DataManagementTitle -> "Import i eksport"
             TranslationKey.DataManagementDescription ->
                 "Zapisz swoje współczynniki i przedziały czasowe do pliku lub wczytaj je z " +
