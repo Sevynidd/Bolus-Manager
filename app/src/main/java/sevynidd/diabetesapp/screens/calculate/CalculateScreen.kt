@@ -39,6 +39,7 @@ import sevynidd.diabetesapp.calculation.calculateSplitBolus
 import sevynidd.diabetesapp.calculation.SplitBolusResult
 import sevynidd.diabetesapp.data.model.FactorsData
 import sevynidd.diabetesapp.data.settings.CorrectionSettings
+import sevynidd.diabetesapp.data.settings.Gender
 import sevynidd.diabetesapp.data.settings.GlucoseUnit
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
@@ -76,6 +77,7 @@ fun CalculateScreen(
     breadUnits: Double = 12.0,
     periodFactorPercent: Double = 0.0,
     correctionSettings: CorrectionSettings = CorrectionSettings(),
+    gender: Gender = Gender.PreferNotToSay,
     templatePrefillCarbohydrates: Double? = null,
     templatePrefillToken: Int = 0,
     selectedMode: BolusMode = BolusMode.Normal,
@@ -100,9 +102,10 @@ fun CalculateScreen(
         }
     }
 
+    val isPeriodApplicable = factors.isPeriodEnabled && gender == Gender.Female
     val nowMinutes = (now.hour * 60) + now.minute
     val activeFactorInfo = activeFactorForTime(factors.factorSlots, nowMinutes)
-    val activeFactor = applyPeriodMultiplier(activeFactorInfo.factor, factors.isPeriodEnabled, periodFactorPercent)
+    val activeFactor = applyPeriodMultiplier(activeFactorInfo.factor, isPeriodApplicable, periodFactorPercent)
     val activeFactorText = activeFactorInfo.toDisplayText(activeFactor)
     val effectiveBreadUnits = breadUnits.takeIf { it > 0.0 } ?: 12.0
 
@@ -124,7 +127,7 @@ fun CalculateScreen(
     val splitDurationOffsetMinutes = splitDurationValue?.roundToInt()?.coerceAtLeast(0) ?: 120
     val futureFactorTimeMinutes = (nowMinutes + splitDurationOffsetMinutes) % MINUTES_PER_DAY
     val futureFactorInfo = activeFactorForTime(factors.factorSlots, futureFactorTimeMinutes)
-    val futureFactor = applyPeriodMultiplier(futureFactorInfo.factor, factors.isPeriodEnabled, periodFactorPercent)
+    val futureFactor = applyPeriodMultiplier(futureFactorInfo.factor, isPeriodApplicable, periodFactorPercent)
     val futureFactorText = futureFactorInfo.toDisplayText(futureFactor)
 
     val splitBolus = splitBolusOrNull(

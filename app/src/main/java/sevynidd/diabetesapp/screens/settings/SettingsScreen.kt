@@ -15,12 +15,14 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.Bloodtype
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.ImportExport
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.Update
+import androidx.compose.material.icons.filled.Wc
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -48,11 +50,20 @@ private val ChevronIconSize = 16.dp
 data class SettingsNavigationCallbacks(
     val onNavigateToTheme: () -> Unit = {},
     val onNavigateToLanguage: () -> Unit = {},
+    val onNavigateToGender: () -> Unit = {},
     val onNavigateToFactorSettings: () -> Unit = {},
     val onNavigateToCorrection: () -> Unit = {},
     val onNavigateToNotifications: () -> Unit = {},
     val onNavigateToDataManagement: () -> Unit = {},
-    val onNavigateToUpdates: () -> Unit = {}
+    val onNavigateToUpdates: () -> Unit = {},
+    val onReplayTutorial: () -> Unit = {}
+)
+
+/** One row's icon, title, and click target, used to build the settings list data-driven. */
+private data class SettingsEntry(
+    val icon: ImageVector,
+    val titleKey: TranslationKey,
+    val onClick: () -> Unit
 )
 
 @Composable
@@ -61,6 +72,29 @@ fun SettingsScreen(
     currentLanguage: AppLanguage = AppLanguage.System,
     navigation: SettingsNavigationCallbacks = SettingsNavigationCallbacks()
 ) {
+    val entries = listOf(
+        SettingsEntry(Icons.Filled.Palette, TranslationKey.Appearance, navigation.onNavigateToTheme),
+        SettingsEntry(Icons.Filled.Language, TranslationKey.Language, navigation.onNavigateToLanguage),
+        SettingsEntry(Icons.Filled.Wc, TranslationKey.GenderSettingsTitle, navigation.onNavigateToGender),
+        SettingsEntry(
+            Icons.Filled.ImportExport,
+            TranslationKey.DataManagementTitle,
+            navigation.onNavigateToDataManagement
+        ),
+        SettingsEntry(
+            Icons.Filled.Notifications,
+            TranslationKey.NotificationSettingsTitle,
+            navigation.onNavigateToNotifications
+        ),
+        SettingsEntry(Icons.Filled.Tune, TranslationKey.FactorSettingsTitle, navigation.onNavigateToFactorSettings),
+        SettingsEntry(
+            Icons.Filled.Bloodtype,
+            TranslationKey.CorrectionSettingsTitle,
+            navigation.onNavigateToCorrection
+        ),
+        SettingsEntry(Icons.Filled.History, TranslationKey.ReplayTutorial, navigation.onReplayTutorial)
+    )
+
     Column(modifier = modifier) {
         Column(
             modifier = Modifier
@@ -69,41 +103,16 @@ fun SettingsScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             SettingsGroupCard {
-                SettingsNavigationItem(
-                    icon = Icons.Filled.Palette,
-                    title = translate(TranslationKey.Appearance, currentLanguage),
-                    onClick = navigation.onNavigateToTheme
-                )
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                SettingsNavigationItem(
-                    icon = Icons.Filled.Language,
-                    title = translate(TranslationKey.Language, currentLanguage),
-                    onClick = navigation.onNavigateToLanguage
-                )
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                SettingsNavigationItem(
-                    icon = Icons.Filled.ImportExport,
-                    title = translate(TranslationKey.DataManagementTitle, currentLanguage),
-                    onClick = navigation.onNavigateToDataManagement
-                )
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                SettingsNavigationItem(
-                    icon = Icons.Filled.Notifications,
-                    title = translate(TranslationKey.NotificationSettingsTitle, currentLanguage),
-                    onClick = navigation.onNavigateToNotifications
-                )
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                SettingsNavigationItem(
-                    icon = Icons.Filled.Tune,
-                    title = translate(TranslationKey.FactorSettingsTitle, currentLanguage),
-                    onClick = navigation.onNavigateToFactorSettings
-                )
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                SettingsNavigationItem(
-                    icon = Icons.Filled.Bloodtype,
-                    title = translate(TranslationKey.CorrectionSettingsTitle, currentLanguage),
-                    onClick = navigation.onNavigateToCorrection
-                )
+                entries.forEachIndexed { index, entry ->
+                    if (index != 0) {
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    }
+                    SettingsNavigationItem(
+                        icon = entry.icon,
+                        title = translate(entry.titleKey, currentLanguage),
+                        onClick = entry.onClick
+                    )
+                }
             }
         }
 

@@ -57,6 +57,7 @@ import sevynidd.diabetesapp.calculation.suggestedNewSlotTimeMinutes
 import sevynidd.diabetesapp.calculation.withUpdatedTime
 import sevynidd.diabetesapp.data.model.FactorSlot
 import sevynidd.diabetesapp.data.model.FactorsData
+import sevynidd.diabetesapp.data.settings.Gender
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
@@ -71,6 +72,7 @@ fun FactorScreen(
     isEditMode: Boolean = false,
     currentLanguage: AppLanguage = AppLanguage.System,
     factors: FactorsData = FactorsData(),
+    gender: Gender = Gender.PreferNotToSay,
     onFactorsChange: (FactorsData) -> Unit = {},
     onPeriodEnabledChange: (Boolean) -> Unit = {},
     now: LocalTime = LocalTime.now()
@@ -104,23 +106,25 @@ fun FactorScreen(
         modifier = modifier.verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = translate(TranslationKey.PeriodLabel, currentLanguage),
-                style = MaterialTheme.typography.labelLarge,
-                modifier = Modifier.padding(end = 8.dp)
-            )
-            Switch(
-                checked = isPeriodEnabled,
-                onCheckedChange = { checked ->
-                    isPeriodEnabled = checked
-                    onPeriodEnabledChange(checked)
-                }
-            )
+        if (gender == Gender.Female) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = translate(TranslationKey.PeriodLabel, currentLanguage),
+                    style = MaterialTheme.typography.labelLarge,
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+                Switch(
+                    checked = isPeriodEnabled,
+                    onCheckedChange = { checked ->
+                        isPeriodEnabled = checked
+                        onPeriodEnabledChange(checked)
+                    }
+                )
+            }
         }
 
         Card(

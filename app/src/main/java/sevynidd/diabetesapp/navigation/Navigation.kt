@@ -35,6 +35,7 @@ enum class SettingsDestination {
     Main,
     Theme,
     Language,
+    Gender,
     FactorSettings,
     Correction,
     Notifications,

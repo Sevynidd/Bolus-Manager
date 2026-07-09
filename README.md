@@ -26,12 +26,20 @@ and consult your doctor or diabetes care team before acting on them.
 
 ## Features
 
+### Onboarding
+
+- A first-run tutorial walks new users through the essential setup before
+  reaching the main app: factors & times, gender, appearance, language,
+  basal notifications, factor settings, and correction settings
+- Replayable any time from Settings via **Replay tutorial**
+
 ### Factors & Schedule
 
 - Keep a personal list of correction factors, each tied to a time of day, plus your basal rate
 - A pie chart gives you an at-a-glance overview of your daily schedule
 - The factor currently in effect is highlighted with a "Now" badge
-- A **Period** toggle temporarily scales up all factors by a percentage you set
+- A **Period** toggle temporarily scales up all factors by a percentage you set —
+  only shown and applied when your gender is set to Female
 
 ### Calculate
 
@@ -45,10 +53,12 @@ and consult your doctor or diabetes care team before acting on them.
 
 - Light, dark, or system theme, with adjustable contrast
 - Available in German, English, French, and Polish (or follow your system language)
+- Set your gender (Male, Female, or Prefer not to say), which determines whether Period is shown
 - Tune the bread-unit value, Period surcharge, and blood-sugar correction thresholds to your needs, in either mg/dl or mmol/l
 - Optional daily reminder notification for your basal rate
 - Check for and install app updates directly from within the app
 - Export your factor profile to a file and import it again later, e.g. to move to a new device
+- Replay the first-run onboarding tutorial whenever you like
 
 ### UI & Navigation
 

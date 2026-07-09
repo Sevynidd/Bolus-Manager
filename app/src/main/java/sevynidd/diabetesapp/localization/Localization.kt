@@ -44,6 +44,8 @@ enum class TranslationKey {
     ActionTemplates,
     ActionDelete,
     ActionMoreOptions,
+    ActionNext,
+    ActionFinish,
 
     // Factors & schedule
     // FactorMorning..FactorNight are no longer "the" factor labels — factors are now a free-form,
@@ -89,6 +91,12 @@ enum class TranslationKey {
     CorrectionThreshold,
     CorrectionStep,
     GlucoseUnitLabel,
+    GenderSettingsTitle,
+    GenderMale,
+    GenderFemale,
+    GenderPreferNotToSay,
+    OnboardingStepLabel,
+    ReplayTutorial,
 
     // Templates
     TemplatesTitle,
@@ -178,6 +186,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ActionTemplates -> "Templates"
             TranslationKey.ActionDelete -> "Delete"
             TranslationKey.ActionMoreOptions -> "More options"
+            TranslationKey.ActionNext -> "Next"
+            TranslationKey.ActionFinish -> "Finish"
 
             // Factors & schedule
             TranslationKey.FactorMorning -> "Morning"
@@ -220,6 +230,12 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.CorrectionThreshold -> "Correction threshold"
             TranslationKey.CorrectionStep -> "Correction step"
             TranslationKey.GlucoseUnitLabel -> "Blood glucose unit"
+            TranslationKey.GenderSettingsTitle -> "Gender"
+            TranslationKey.GenderMale -> "Male"
+            TranslationKey.GenderFemale -> "Female"
+            TranslationKey.GenderPreferNotToSay -> "Prefer not to say"
+            TranslationKey.OnboardingStepLabel -> "Step"
+            TranslationKey.ReplayTutorial -> "Replay tutorial"
 
             // Templates
             TranslationKey.TemplatesTitle -> "Templates"
@@ -306,6 +322,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ActionTemplates -> "Vorlagen"
             TranslationKey.ActionDelete -> "Löschen"
             TranslationKey.ActionMoreOptions -> "Weitere Optionen"
+            TranslationKey.ActionNext -> "Weiter"
+            TranslationKey.ActionFinish -> "Fertigstellen"
 
             // Factors & schedule
             TranslationKey.FactorMorning -> "Morgen"
@@ -348,6 +366,12 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.CorrectionThreshold -> "Korrekturschwelle"
             TranslationKey.CorrectionStep -> "Korrekturschritt"
             TranslationKey.GlucoseUnitLabel -> "Blutzucker-Einheit"
+            TranslationKey.GenderSettingsTitle -> "Geschlecht"
+            TranslationKey.GenderMale -> "Männlich"
+            TranslationKey.GenderFemale -> "Weiblich"
+            TranslationKey.GenderPreferNotToSay -> "Keine Angabe"
+            TranslationKey.OnboardingStepLabel -> "Schritt"
+            TranslationKey.ReplayTutorial -> "Tutorial erneut anzeigen"
 
             // Templates
             TranslationKey.TemplatesTitle -> "Vorlagen"
@@ -436,6 +460,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ActionTemplates -> "Modeles"
             TranslationKey.ActionDelete -> "Supprimer"
             TranslationKey.ActionMoreOptions -> "Plus d'options"
+            TranslationKey.ActionNext -> "Suivant"
+            TranslationKey.ActionFinish -> "Terminer"
 
             // Factors & schedule
             TranslationKey.FactorMorning -> "Matin"
@@ -478,6 +504,12 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.CorrectionThreshold -> "Seuil de correction"
             TranslationKey.CorrectionStep -> "Palier de correction"
             TranslationKey.GlucoseUnitLabel -> "Unité de glycémie"
+            TranslationKey.GenderSettingsTitle -> "Genre"
+            TranslationKey.GenderMale -> "Homme"
+            TranslationKey.GenderFemale -> "Femme"
+            TranslationKey.GenderPreferNotToSay -> "Préfère ne pas répondre"
+            TranslationKey.OnboardingStepLabel -> "Étape"
+            TranslationKey.ReplayTutorial -> "Revoir le tutoriel"
 
             // Templates
             TranslationKey.TemplatesTitle -> "Modeles"
@@ -566,6 +598,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ActionTemplates -> "Szablony"
             TranslationKey.ActionDelete -> "Usuń"
             TranslationKey.ActionMoreOptions -> "Więcej opcji"
+            TranslationKey.ActionNext -> "Dalej"
+            TranslationKey.ActionFinish -> "Zakończ"
 
             // Factors & schedule
             TranslationKey.FactorMorning -> "Rano"
@@ -608,6 +642,12 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.CorrectionThreshold -> "Próg korekty"
             TranslationKey.CorrectionStep -> "Krok korekty"
             TranslationKey.GlucoseUnitLabel -> "Jednostka glukozy we krwi"
+            TranslationKey.GenderSettingsTitle -> "Płeć"
+            TranslationKey.GenderMale -> "Mężczyzna"
+            TranslationKey.GenderFemale -> "Kobieta"
+            TranslationKey.GenderPreferNotToSay -> "Wolę nie podawać"
+            TranslationKey.OnboardingStepLabel -> "Krok"
+            TranslationKey.ReplayTutorial -> "Powtórz samouczek"
 
             // Templates
             TranslationKey.TemplatesTitle -> "Szablony"
