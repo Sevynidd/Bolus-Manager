@@ -18,7 +18,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -47,7 +47,7 @@ fun OnboardingScreen(
     values: OnboardingValues = OnboardingValues(),
     callbacks: OnboardingCallbacks = OnboardingCallbacks()
 ) {
-    var stepIndex by rememberSaveable { mutableStateOf(0) }
+    var stepIndex by rememberSaveable { mutableIntStateOf(0) }
     val steps = OnboardingStep.entries
     val step = steps[stepIndex]
 
