@@ -1,6 +1,6 @@
-package sevynidd.diabetesapp.screens.settings
+package sevynidd.diabetesapp.screens.settings.correction
 
-import sevynidd.diabetesapp.data.settings.GlucoseUnit
+import sevynidd.diabetesapp.data.settings.correction.GlucoseUnit
 
 /** The current values [CorrectionSettingsScreen] displays: threshold, step, and display unit. */
 data class CorrectionSettingsValues(

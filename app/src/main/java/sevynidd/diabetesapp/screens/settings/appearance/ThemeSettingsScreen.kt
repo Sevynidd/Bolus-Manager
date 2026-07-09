@@ -1,4 +1,4 @@
-package sevynidd.diabetesapp.screens.settings
+package sevynidd.diabetesapp.screens.settings.appearance
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,7 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import sevynidd.diabetesapp.data.settings.ThemeMode
+import sevynidd.diabetesapp.data.settings.appearance.ThemeMode
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.translate
 import sevynidd.diabetesapp.localization.TranslationKey

@@ -4,8 +4,8 @@ import sevynidd.diabetesapp.calculation.SplitBolusResult
 import sevynidd.diabetesapp.calculation.calculateBolusUnits
 import sevynidd.diabetesapp.calculation.calculateCorrectionUnits
 import sevynidd.diabetesapp.calculation.mmolLToMgDl
-import sevynidd.diabetesapp.data.settings.CorrectionSettings
-import sevynidd.diabetesapp.data.settings.GlucoseUnit
+import sevynidd.diabetesapp.data.settings.correction.CorrectionSettings
+import sevynidd.diabetesapp.data.settings.correction.GlucoseUnit
 
 internal fun correctionUnitsFor(rawBloodSugar: String, correctionSettings: CorrectionSettings): Int {
     val enteredValue = rawBloodSugar.replace(',', '.').toDoubleOrNull() ?: return 0

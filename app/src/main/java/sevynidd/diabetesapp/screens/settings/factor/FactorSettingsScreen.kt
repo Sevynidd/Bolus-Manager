@@ -1,4 +1,4 @@
-package sevynidd.diabetesapp.screens.settings
+package sevynidd.diabetesapp.screens.settings.factor
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import sevynidd.diabetesapp.data.settings.profile.Gender
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
@@ -51,11 +52,13 @@ fun FactorSettingsScreen(
             onBreadUnitsChange = onBreadUnitsChange
         )
 
-        PeriodFactorCard(
-            currentLanguage = currentLanguage,
-            currentPeriodFactorPercent = values.periodFactorPercent,
-            onPeriodFactorPercentChange = onPeriodFactorPercentChange
-        )
+        if (values.gender == Gender.Female) {
+            PeriodFactorCard(
+                currentLanguage = currentLanguage,
+                currentPeriodFactorPercent = values.periodFactorPercent,
+                onPeriodFactorPercentChange = onPeriodFactorPercentChange
+            )
+        }
     }
 }
 

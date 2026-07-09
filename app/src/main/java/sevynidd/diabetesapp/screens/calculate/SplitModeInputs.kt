@@ -21,7 +21,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import sevynidd.diabetesapp.calculation.SplitBolusResult
-import sevynidd.diabetesapp.data.settings.GlucoseUnit
+import sevynidd.diabetesapp.data.settings.correction.GlucoseUnit
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate

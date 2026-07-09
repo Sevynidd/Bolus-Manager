@@ -51,8 +51,9 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import sevynidd.diabetesapp.data.database.BolusTemplateEntity
 import sevynidd.diabetesapp.data.model.FactorsData
-import sevynidd.diabetesapp.data.settings.CorrectionSettings
-import sevynidd.diabetesapp.data.settings.ThemeMode
+import sevynidd.diabetesapp.data.settings.appearance.ThemeMode
+import sevynidd.diabetesapp.data.settings.correction.CorrectionSettings
+import sevynidd.diabetesapp.data.settings.profile.Gender
 import sevynidd.diabetesapp.navigation.AppDestinations
 import sevynidd.diabetesapp.navigation.destinationLabel
 import sevynidd.diabetesapp.localization.translate
@@ -71,19 +72,20 @@ import sevynidd.diabetesapp.screens.calculate.TemplateManagerScreen
 import sevynidd.diabetesapp.screens.factors.FactorEditSessionViewModel
 import sevynidd.diabetesapp.screens.factors.FactorScreen
 import sevynidd.diabetesapp.screens.factors.ScheduleFactorScreen
-import sevynidd.diabetesapp.screens.settings.CorrectionSettingsCallbacks
-import sevynidd.diabetesapp.screens.settings.CorrectionSettingsScreen
-import sevynidd.diabetesapp.screens.settings.CorrectionSettingsValues
-import sevynidd.diabetesapp.screens.settings.FactorSettingsScreen
-import sevynidd.diabetesapp.screens.settings.FactorSettingsValues
-import sevynidd.diabetesapp.screens.settings.ImportExportSettingsScreen
-import sevynidd.diabetesapp.screens.settings.NotificationSettingsScreen
 import sevynidd.diabetesapp.screens.settings.SettingsNavigationCallbacks
 import sevynidd.diabetesapp.screens.settings.SettingsScreen
-import sevynidd.diabetesapp.screens.settings.ThemeSettingsScreen
-import sevynidd.diabetesapp.screens.settings.LanguageSettingsScreen
-import sevynidd.diabetesapp.screens.settings.UpdateCheckViewModel
-import sevynidd.diabetesapp.screens.settings.UpdateSettingsScreen
+import sevynidd.diabetesapp.screens.settings.appearance.ThemeSettingsScreen
+import sevynidd.diabetesapp.screens.settings.correction.CorrectionSettingsCallbacks
+import sevynidd.diabetesapp.screens.settings.correction.CorrectionSettingsScreen
+import sevynidd.diabetesapp.screens.settings.correction.CorrectionSettingsValues
+import sevynidd.diabetesapp.screens.settings.datamanagement.ImportExportSettingsScreen
+import sevynidd.diabetesapp.screens.settings.factor.FactorSettingsScreen
+import sevynidd.diabetesapp.screens.settings.factor.FactorSettingsValues
+import sevynidd.diabetesapp.screens.settings.language.LanguageSettingsScreen
+import sevynidd.diabetesapp.screens.settings.notifications.NotificationSettingsScreen
+import sevynidd.diabetesapp.screens.settings.profile.GenderSettingsScreen
+import sevynidd.diabetesapp.screens.settings.update.UpdateCheckViewModel
+import sevynidd.diabetesapp.screens.settings.update.UpdateSettingsScreen
 import sevynidd.diabetesapp.ui.theme.ContrastLevel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -96,6 +98,7 @@ fun BolusManagerMainWindow(
     breadUnits: Double = 12.0,
     periodFactorPercent: Double = 0.0,
     correctionSettings: CorrectionSettings = CorrectionSettings(),
+    gender: Gender = Gender.PreferNotToSay,
     factorData: FactorsData = FactorsData(),
     onThemeModeChange: (ThemeMode) -> Unit = {},
     onContrastLevelChange: (ContrastLevel) -> Unit = {},
@@ -103,6 +106,8 @@ fun BolusManagerMainWindow(
     onBreadUnitsChange: (Double) -> Unit = {},
     onPeriodFactorPercentChange: (Double) -> Unit = {},
     onCorrectionSettingsChange: CorrectionSettingsCallbacks = CorrectionSettingsCallbacks(),
+    onGenderChange: (Gender) -> Unit = {},
+    onReplayTutorialRequested: () -> Unit = {},
     onFactorSaveRequested: (FactorsData) -> Unit = {},
     lastDestination: AppDestinations? = null,
     onLastDestinationChange: (AppDestinations) -> Unit = {},
@@ -242,6 +247,9 @@ fun BolusManagerMainWindow(
                     AppDestinations.SETTINGS if settingsDestination == SettingsDestination.Language ->
                         translate(TranslationKey.Language, currentLanguage)
 
+                    AppDestinations.SETTINGS if settingsDestination == SettingsDestination.Gender ->
+                        translate(TranslationKey.GenderSettingsTitle, currentLanguage)
+
                     AppDestinations.SETTINGS if settingsDestination == SettingsDestination.FactorSettings ->
                         translate(TranslationKey.FactorSettingsTitle, currentLanguage)
 
@@ -353,6 +361,7 @@ fun BolusManagerMainWindow(
                                 isEditMode = factorEditorState.isEditMode,
                                 currentLanguage = currentLanguage,
                                 factors = factorEditorState.factors,
+                                gender = gender,
                                 onFactorsChange = factorEditorViewModel::updateDraft,
                                 onPeriodEnabledChange = factorEditorViewModel::updatePeriodEnabled
                             )
@@ -382,6 +391,7 @@ fun BolusManagerMainWindow(
                                 breadUnits = breadUnits,
                                 periodFactorPercent = periodFactorPercent,
                                 correctionSettings = correctionSettings,
+                                gender = gender,
                                 templatePrefillCarbohydrates = templatePrefillCarbohydrates,
                                 templatePrefillToken = templatePrefillToken,
                                 selectedMode = calculateBolusMode,
@@ -437,6 +447,7 @@ fun BolusManagerMainWindow(
                                 navigation = SettingsNavigationCallbacks(
                                     onNavigateToTheme = { settingsDestination = SettingsDestination.Theme },
                                     onNavigateToLanguage = { settingsDestination = SettingsDestination.Language },
+                                    onNavigateToGender = { settingsDestination = SettingsDestination.Gender },
                                     onNavigateToFactorSettings = {
                                         settingsDestination = SettingsDestination.FactorSettings
                                     },
@@ -449,7 +460,8 @@ fun BolusManagerMainWindow(
                                     onNavigateToDataManagement = {
                                         settingsDestination = SettingsDestination.DataManagement
                                     },
-                                    onNavigateToUpdates = { settingsDestination = SettingsDestination.Updates }
+                                    onNavigateToUpdates = { settingsDestination = SettingsDestination.Updates },
+                                    onReplayTutorial = onReplayTutorialRequested
                                 )
                             )
 
@@ -470,12 +482,20 @@ fun BolusManagerMainWindow(
                                 onBackClick = { settingsDestination = SettingsDestination.Main }
                             )
 
+                            SettingsDestination.Gender -> GenderSettingsScreen(
+                                modifier = contentModifier,
+                                currentLanguage = currentLanguage,
+                                currentGender = gender,
+                                onGenderChange = onGenderChange
+                            )
+
                             SettingsDestination.FactorSettings -> FactorSettingsScreen(
                                 modifier = contentModifier,
                                 currentLanguage = currentLanguage,
                                 values = FactorSettingsValues(
                                     breadUnits = breadUnits,
-                                    periodFactorPercent = periodFactorPercent
+                                    periodFactorPercent = periodFactorPercent,
+                                    gender = gender
                                 ),
                                 onBreadUnitsChange = onBreadUnitsChange,
                                 onPeriodFactorPercentChange = onPeriodFactorPercentChange

@@ -4,14 +4,17 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.SharedPreferencesMigration
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import sevynidd.diabetesapp.localization.AppLanguage
-import sevynidd.diabetesapp.data.settings.GlucoseUnit
-import sevynidd.diabetesapp.data.settings.ThemeMode
+import sevynidd.diabetesapp.data.settings.appearance.ThemeMode
+import sevynidd.diabetesapp.data.settings.correction.CorrectionSettings
+import sevynidd.diabetesapp.data.settings.correction.GlucoseUnit
+import sevynidd.diabetesapp.data.settings.profile.Gender
 import sevynidd.diabetesapp.navigation.AppDestinations
 import sevynidd.diabetesapp.ui.theme.ContrastLevel
 
@@ -35,7 +38,9 @@ data class AppSettings(
     val periodFactorPercent: Double = DEFAULT_PERIOD_FACTOR_PERCENT,
     val correctionThresholdMgDl: Double = DEFAULT_CORRECTION_THRESHOLD_MGDL,
     val correctionStepMgDl: Double = DEFAULT_CORRECTION_STEP_MGDL,
-    val glucoseUnit: GlucoseUnit = GlucoseUnit.MgDl
+    val glucoseUnit: GlucoseUnit = GlucoseUnit.MgDl,
+    val gender: Gender = Gender.PreferNotToSay,
+    val hasCompletedOnboarding: Boolean = false
 )
 
 /** Reads and writes [AppSettings] to DataStore, migrating them from the legacy SharedPreferences store. */
@@ -52,6 +57,8 @@ class AppSettingsStore(private val context: Context) {
         val CORRECTION_THRESHOLD_MGDL = stringPreferencesKey("correction_threshold_mgdl")
         val CORRECTION_STEP_MGDL = stringPreferencesKey("correction_step_mgdl")
         val GLUCOSE_UNIT = stringPreferencesKey("glucose_unit")
+        val GENDER = stringPreferencesKey("gender")
+        val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
     }
 
     /** The current [AppSettings], updating whenever a stored value changes. */
@@ -67,7 +74,9 @@ class AppSettingsStore(private val context: Context) {
                 .toDoubleOrDefault(DEFAULT_CORRECTION_THRESHOLD_MGDL),
             correctionStepMgDl = preferences[Keys.CORRECTION_STEP_MGDL]
                 .toDoubleOrDefault(DEFAULT_CORRECTION_STEP_MGDL),
-            glucoseUnit = preferences[Keys.GLUCOSE_UNIT].toEnumOrDefault(GlucoseUnit.MgDl)
+            glucoseUnit = preferences[Keys.GLUCOSE_UNIT].toEnumOrDefault(GlucoseUnit.MgDl),
+            gender = preferences[Keys.GENDER].toEnumOrDefault(Gender.PreferNotToSay),
+            hasCompletedOnboarding = preferences[Keys.ONBOARDING_COMPLETED] ?: false
         )
     }
 
@@ -106,24 +115,26 @@ class AppSettingsStore(private val context: Context) {
         }
     }
 
-    /** Persists the configured blood-sugar correction-dose threshold, in mg/dl. */
-    suspend fun setCorrectionThresholdMgDl(thresholdMgDl: Double) {
+    /** Persists the correction threshold, step, and glucose unit together, in one atomic write. */
+    suspend fun setCorrectionSettings(correctionSettings: CorrectionSettings) {
         context.appSettingsDataStore.edit { preferences ->
-            preferences[Keys.CORRECTION_THRESHOLD_MGDL] = thresholdMgDl.toString()
+            preferences[Keys.CORRECTION_THRESHOLD_MGDL] = correctionSettings.thresholdMgDl.toString()
+            preferences[Keys.CORRECTION_STEP_MGDL] = correctionSettings.stepMgDl.toString()
+            preferences[Keys.GLUCOSE_UNIT] = correctionSettings.glucoseUnit.name
         }
     }
 
-    /** Persists the configured mg/dl step that adds one whole correction unit. */
-    suspend fun setCorrectionStepMgDl(stepMgDl: Double) {
+    /** Persists the selected [gender], used to gate whether Period-related settings apply. */
+    suspend fun setGender(gender: Gender) {
         context.appSettingsDataStore.edit { preferences ->
-            preferences[Keys.CORRECTION_STEP_MGDL] = stepMgDl.toString()
+            preferences[Keys.GENDER] = gender.name
         }
     }
 
-    /** Persists the selected [glucoseUnit] used to enter and display blood-sugar values. */
-    suspend fun setGlucoseUnit(glucoseUnit: GlucoseUnit) {
+    /** Persists whether the first-run onboarding tutorial has been completed. */
+    suspend fun setOnboardingCompleted(completed: Boolean) {
         context.appSettingsDataStore.edit { preferences ->
-            preferences[Keys.GLUCOSE_UNIT] = glucoseUnit.name
+            preferences[Keys.ONBOARDING_COMPLETED] = completed
         }
     }
 
