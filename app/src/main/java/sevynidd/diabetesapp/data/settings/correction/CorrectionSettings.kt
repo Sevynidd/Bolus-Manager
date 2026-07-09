@@ -1,4 +1,4 @@
-package sevynidd.diabetesapp.data.settings
+package sevynidd.diabetesapp.data.settings.correction
 
 /** The blood-sugar correction-dose settings: threshold and step (both mg/dl), and the display unit. */
 data class CorrectionSettings(

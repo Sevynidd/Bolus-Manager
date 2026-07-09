@@ -51,9 +51,9 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import sevynidd.diabetesapp.data.database.BolusTemplateEntity
 import sevynidd.diabetesapp.data.model.FactorsData
-import sevynidd.diabetesapp.data.settings.CorrectionSettings
-import sevynidd.diabetesapp.data.settings.Gender
-import sevynidd.diabetesapp.data.settings.ThemeMode
+import sevynidd.diabetesapp.data.settings.appearance.ThemeMode
+import sevynidd.diabetesapp.data.settings.correction.CorrectionSettings
+import sevynidd.diabetesapp.data.settings.profile.Gender
 import sevynidd.diabetesapp.navigation.AppDestinations
 import sevynidd.diabetesapp.navigation.destinationLabel
 import sevynidd.diabetesapp.localization.translate

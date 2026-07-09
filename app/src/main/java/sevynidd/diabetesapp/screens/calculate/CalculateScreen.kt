@@ -38,9 +38,9 @@ import sevynidd.diabetesapp.calculation.calculateBolusUnits
 import sevynidd.diabetesapp.calculation.calculateSplitBolus
 import sevynidd.diabetesapp.calculation.SplitBolusResult
 import sevynidd.diabetesapp.data.model.FactorsData
-import sevynidd.diabetesapp.data.settings.CorrectionSettings
-import sevynidd.diabetesapp.data.settings.Gender
-import sevynidd.diabetesapp.data.settings.GlucoseUnit
+import sevynidd.diabetesapp.data.settings.correction.CorrectionSettings
+import sevynidd.diabetesapp.data.settings.correction.GlucoseUnit
+import sevynidd.diabetesapp.data.settings.profile.Gender
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate

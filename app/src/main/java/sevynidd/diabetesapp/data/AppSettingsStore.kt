@@ -11,10 +11,10 @@ import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import sevynidd.diabetesapp.localization.AppLanguage
-import sevynidd.diabetesapp.data.settings.CorrectionSettings
-import sevynidd.diabetesapp.data.settings.Gender
-import sevynidd.diabetesapp.data.settings.GlucoseUnit
-import sevynidd.diabetesapp.data.settings.ThemeMode
+import sevynidd.diabetesapp.data.settings.appearance.ThemeMode
+import sevynidd.diabetesapp.data.settings.correction.CorrectionSettings
+import sevynidd.diabetesapp.data.settings.correction.GlucoseUnit
+import sevynidd.diabetesapp.data.settings.profile.Gender
 import sevynidd.diabetesapp.navigation.AppDestinations
 import sevynidd.diabetesapp.ui.theme.ContrastLevel
 

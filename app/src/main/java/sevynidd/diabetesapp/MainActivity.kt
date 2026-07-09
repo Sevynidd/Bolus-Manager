@@ -39,8 +39,8 @@ import sevynidd.diabetesapp.data.model.FactorsData
 import sevynidd.diabetesapp.data.notifications.AppUpdateNotifier
 import sevynidd.diabetesapp.data.notifications.BasalReminderScheduler
 import sevynidd.diabetesapp.data.notifications.EXTRA_OPEN_APP_UPDATE
-import sevynidd.diabetesapp.data.settings.CorrectionSettings
-import sevynidd.diabetesapp.data.settings.ThemeMode
+import sevynidd.diabetesapp.data.settings.appearance.ThemeMode
+import sevynidd.diabetesapp.data.settings.correction.CorrectionSettings
 import sevynidd.diabetesapp.data.database.FactorsRepository
 import sevynidd.diabetesapp.data.update.GitHubRelease
 import sevynidd.diabetesapp.localization.TranslationKey

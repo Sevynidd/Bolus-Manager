@@ -57,7 +57,7 @@ import sevynidd.diabetesapp.calculation.suggestedNewSlotTimeMinutes
 import sevynidd.diabetesapp.calculation.withUpdatedTime
 import sevynidd.diabetesapp.data.model.FactorSlot
 import sevynidd.diabetesapp.data.model.FactorsData
-import sevynidd.diabetesapp.data.settings.Gender
+import sevynidd.diabetesapp.data.settings.profile.Gender
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
