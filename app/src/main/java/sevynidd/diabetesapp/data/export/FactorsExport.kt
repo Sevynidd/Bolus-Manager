@@ -1,6 +1,8 @@
 package sevynidd.diabetesapp.data.export
 
 import sevynidd.diabetesapp.data.model.FactorsData
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 /**
  * Schema version of the JSON produced by [toExportJson]. Bumped whenever the exported field set
@@ -8,6 +10,12 @@ import sevynidd.diabetesapp.data.model.FactorsData
  * version rather than guessing at a migration.
  */
 private const val EXPORT_SCHEMA_VERSION = 1
+
+private val EXPORT_FILE_NAME_DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+
+/** Builds the suggested export file name, embedding [date] so repeated exports don't overwrite each other. */
+fun factorsExportFileName(date: LocalDate): String =
+    "bolus-manager-factors-${date.format(EXPORT_FILE_NAME_DATE_FORMATTER)}.json"
 
 /** Serializes this factor profile (correction factors, time windows, basal rate) to portable JSON. */
 fun FactorsData.toExportJson(): String {

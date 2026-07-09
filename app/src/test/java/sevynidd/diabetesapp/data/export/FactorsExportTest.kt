@@ -4,6 +4,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
 import sevynidd.diabetesapp.data.model.FactorsData
+import java.time.LocalDate
 
 class FactorsExportTest {
 
@@ -62,5 +63,19 @@ class FactorsExportTest {
     @Test
     fun `parse rejects json missing required fields`() {
         assertNull(parseFactorsExportJson("{\n  \"schemaVersion\": 1\n}"))
+    }
+
+    @Test
+    fun `export file name embeds the given date`() {
+        val fileName = factorsExportFileName(LocalDate.of(2026, 7, 9))
+
+        assertEquals("bolus-manager-factors-2026-07-09.json", fileName)
+    }
+
+    @Test
+    fun `export file name zero-pads single-digit month and day`() {
+        val fileName = factorsExportFileName(LocalDate.of(2026, 1, 5))
+
+        assertEquals("bolus-manager-factors-2026-01-05.json", fileName)
     }
 }
