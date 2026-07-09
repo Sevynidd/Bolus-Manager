@@ -30,9 +30,11 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import sevynidd.diabetesapp.calculation.ScheduleTimeSlot
+import sevynidd.diabetesapp.calculation.MINUTES_PER_DAY
 import sevynidd.diabetesapp.calculation.activeFactorForTime
+import sevynidd.diabetesapp.calculation.formatTimeOfDay
 import sevynidd.diabetesapp.calculation.withUpdatedTime
+import sevynidd.diabetesapp.data.model.FactorSlot
 import sevynidd.diabetesapp.data.model.FactorsData
 import sevynidd.diabetesapp.libraries.gappedPieChart.AnimatedGapPieChart
 import sevynidd.diabetesapp.libraries.gappedPieChart.PieData
@@ -40,11 +42,16 @@ import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
 import java.time.LocalTime
-import java.util.Locale
 import kotlin.math.max
 
+/** Which time field a schedule edit applies to: one of the dynamic factor slots, or the basal time. */
+private sealed interface ScheduleEditTarget {
+    data class Factor(val index: Int) : ScheduleEditTarget
+    data object Basal : ScheduleEditTarget
+}
+
 private data class ScheduleFieldItem(
-    val slot: ScheduleTimeSlot,
+    val target: ScheduleEditTarget,
     val title: String,
     val timeMinutes: Int,
     val dotColor: Color?
@@ -59,25 +66,34 @@ fun ScheduleFactorScreen(
     onFactorsChange: (FactorsData) -> Unit = {},
     now: LocalTime = LocalTime.now()
 ) {
-    var activePicker by rememberSaveable { mutableStateOf<ScheduleTimeSlot?>(null) }
+    var activePicker by rememberSaveable { mutableStateOf<ScheduleEditTarget?>(null) }
 
-    fun updateTime(slot: ScheduleTimeSlot, selectedMinutes: Int) {
-        onFactorsChange(factors.withUpdatedTime(slot, selectedMinutes))
+    fun updateTime(target: ScheduleEditTarget, selectedMinutes: Int) {
+        onFactorsChange(
+            when (target) {
+                is ScheduleEditTarget.Factor -> factors.copy(
+                    factorSlots = factors.factorSlots.withUpdatedTime(target.index, selectedMinutes)
+                )
+
+                ScheduleEditTarget.Basal -> factors.copy(
+                    basalTimeMinutes = selectedMinutes.coerceIn(0, MINUTES_PER_DAY - 1)
+                )
+            }
+        )
     }
 
     val isDarkTheme = MaterialTheme.colorScheme.surface.luminance() < MID_LUMINANCE
     val segmentColors = remember(isDarkTheme) { pieSegmentColors(isDarkTheme) }
 
-    val pieDataPoints = remember(currentLanguage, segmentColors, factors) {
-        buildPieDataPoints(factors, currentLanguage, segmentColors)
+    val pieDataPoints = remember(segmentColors, factors.factorSlots) {
+        buildPieDataPoints(factors.factorSlots, segmentColors)
     }
     val scheduleFields = remember(currentLanguage, segmentColors, factors) {
         buildScheduleFields(factors, currentLanguage, segmentColors)
     }
 
     val nowMinutes = (now.hour * 60) + now.minute
-    val activeFactorLabel = activeFactorForTime(factors, nowMinutes).factorLabel
-    val activeChartIndex = remember(activeFactorLabel) { pieIndexForFactorLabel(activeFactorLabel) }
+    val activeFactorInfo = activeFactorForTime(factors.factorSlots, nowMinutes)
 
     Column(
         modifier = modifier.verticalScroll(rememberScrollState()),
@@ -86,9 +102,9 @@ fun ScheduleFactorScreen(
         ScheduleChartCard(
             currentLanguage = currentLanguage,
             pieDataPoints = pieDataPoints,
-            activeWindowLabel = translate(activeFactorLabel, currentLanguage),
+            activeWindowLabel = activeFactorInfo.factorName,
             nowMinutes = nowMinutes,
-            activeChartIndex = activeChartIndex
+            activeChartIndex = activeFactorInfo.activeIndex.takeIf { it >= 0 }
         )
 
         ScheduleTimesCard(
@@ -97,82 +113,49 @@ fun ScheduleFactorScreen(
         )
     }
 
-    activePicker?.let { slot ->
+    activePicker?.let { target ->
         ScheduleTimePickerDialog(
-            slot = slot,
-            currentLanguage = currentLanguage,
-            initialMinutes = factors.minutesFor(slot),
+            title = targetTitle(target, factors, currentLanguage),
+            initialMinutes = target.minutesFor(factors),
             onDismissRequest = { activePicker = null },
             onConfirm = { selectedMinutes ->
-                updateTime(slot, selectedMinutes)
+                updateTime(target, selectedMinutes)
                 activePicker = null
             }
         )
     }
 }
 
-private fun FactorsData.minutesFor(slot: ScheduleTimeSlot): Int {
-    return when (slot) {
-        ScheduleTimeSlot.Morning -> morningTimeMinutes
-        ScheduleTimeSlot.Breakfast -> breakfastTimeMinutes
-        ScheduleTimeSlot.Lunch -> lunchTimeMinutes
-        ScheduleTimeSlot.Afternoon -> afternoonTimeMinutes
-        ScheduleTimeSlot.Dinner -> dinnerTimeMinutes
-        ScheduleTimeSlot.Late -> lateTimeMinutes
-        ScheduleTimeSlot.Night -> nightTimeMinutes
-        ScheduleTimeSlot.Basal -> basalTimeMinutes
+private fun ScheduleEditTarget.minutesFor(factors: FactorsData): Int {
+    return when (this) {
+        is ScheduleEditTarget.Factor -> factors.factorSlots[index].startTimeMinutes
+        ScheduleEditTarget.Basal -> factors.basalTimeMinutes
     }
 }
 
-private fun buildPieDataPoints(
-    factors: FactorsData,
-    currentLanguage: AppLanguage,
-    segmentColors: List<Color>
-): List<PieData> {
-    return listOf(
+private fun targetTitle(target: ScheduleEditTarget, factors: FactorsData, currentLanguage: AppLanguage): String {
+    return when (target) {
+        is ScheduleEditTarget.Factor -> factors.factorSlots[target.index].name
+        ScheduleEditTarget.Basal -> translate(TranslationKey.BasalRate, currentLanguage)
+    }
+}
+
+private fun buildPieDataPoints(factorSlots: List<FactorSlot>, segmentColors: List<Color>): List<PieData> {
+    return factorSlots.mapIndexed { index, slot ->
+        val nextStart = factorSlots[(index + 1) % factorSlots.size].startTimeMinutes
+        val duration = if (nextStart <= slot.startTimeMinutes) {
+            (MINUTES_PER_DAY - slot.startTimeMinutes) + nextStart
+        } else {
+            nextStart - slot.startTimeMinutes
+        }
+
         PieData(
-            max(1, factors.morningTimeMinutes),
-            color = segmentColors[0],
-            title = translate(TranslationKey.FactorMorning, currentLanguage),
-            value = formatTimeLabel(factors.morningTimeMinutes)
-        ),
-        PieData(
-            max(1, factors.breakfastTimeMinutes),
-            color = segmentColors[1],
-            title = translate(TranslationKey.FactorBreakfast, currentLanguage),
-            value = formatTimeLabel(factors.breakfastTimeMinutes)
-        ),
-        PieData(
-            max(1, factors.lunchTimeMinutes),
-            color = segmentColors[2],
-            title = translate(TranslationKey.FactorLunch, currentLanguage),
-            value = formatTimeLabel(factors.lunchTimeMinutes)
-        ),
-        PieData(
-            max(1, factors.afternoonTimeMinutes),
-            color = segmentColors[3],
-            title = translate(TranslationKey.FactorAfternoon, currentLanguage),
-            value = formatTimeLabel(factors.afternoonTimeMinutes)
-        ),
-        PieData(
-            max(1, factors.dinnerTimeMinutes),
-            color = segmentColors[4],
-            title = translate(TranslationKey.FactorDinner, currentLanguage),
-            value = formatTimeLabel(factors.dinnerTimeMinutes)
-        ),
-        PieData(
-            max(1, factors.lateTimeMinutes),
-            color = segmentColors[5],
-            title = translate(TranslationKey.FactorLate, currentLanguage),
-            value = formatTimeLabel(factors.lateTimeMinutes)
-        ),
-        PieData(
-            max(1, factors.nightTimeMinutes),
-            color = segmentColors[6],
-            title = translate(TranslationKey.FactorNight, currentLanguage),
-            value = formatTimeLabel(factors.nightTimeMinutes)
+            amount = max(1, duration),
+            color = segmentColors[index % segmentColors.size],
+            title = slot.name,
+            value = formatTimeOfDay(slot.startTimeMinutes)
         )
-    )
+    }
 }
 
 private fun buildScheduleFields(
@@ -180,56 +163,21 @@ private fun buildScheduleFields(
     currentLanguage: AppLanguage,
     segmentColors: List<Color>
 ): List<ScheduleFieldItem> {
-    return listOf(
+    val factorFields = factors.factorSlots.mapIndexed { index, slot ->
         ScheduleFieldItem(
-            slot = ScheduleTimeSlot.Morning,
-            title = translate(TranslationKey.FactorMorning, currentLanguage),
-            timeMinutes = factors.morningTimeMinutes,
-            dotColor = segmentColors[0]
-        ),
-        ScheduleFieldItem(
-            slot = ScheduleTimeSlot.Breakfast,
-            title = translate(TranslationKey.FactorBreakfast, currentLanguage),
-            timeMinutes = factors.breakfastTimeMinutes,
-            dotColor = segmentColors[1]
-        ),
-        ScheduleFieldItem(
-            slot = ScheduleTimeSlot.Lunch,
-            title = translate(TranslationKey.FactorLunch, currentLanguage),
-            timeMinutes = factors.lunchTimeMinutes,
-            dotColor = segmentColors[2]
-        ),
-        ScheduleFieldItem(
-            slot = ScheduleTimeSlot.Afternoon,
-            title = translate(TranslationKey.FactorAfternoon, currentLanguage),
-            timeMinutes = factors.afternoonTimeMinutes,
-            dotColor = segmentColors[3]
-        ),
-        ScheduleFieldItem(
-            slot = ScheduleTimeSlot.Dinner,
-            title = translate(TranslationKey.FactorDinner, currentLanguage),
-            timeMinutes = factors.dinnerTimeMinutes,
-            dotColor = segmentColors[4]
-        ),
-        ScheduleFieldItem(
-            slot = ScheduleTimeSlot.Late,
-            title = translate(TranslationKey.FactorLate, currentLanguage),
-            timeMinutes = factors.lateTimeMinutes,
-            dotColor = segmentColors[5]
-        ),
-        ScheduleFieldItem(
-            slot = ScheduleTimeSlot.Night,
-            title = translate(TranslationKey.FactorNight, currentLanguage),
-            timeMinutes = factors.nightTimeMinutes,
-            dotColor = segmentColors[6]
-        ),
-        ScheduleFieldItem(
-            slot = ScheduleTimeSlot.Basal,
-            title = translate(TranslationKey.BasalRate, currentLanguage),
-            timeMinutes = factors.basalTimeMinutes,
-            dotColor = null
+            target = ScheduleEditTarget.Factor(index),
+            title = slot.name,
+            timeMinutes = slot.startTimeMinutes,
+            dotColor = segmentColors[index % segmentColors.size]
         )
+    }
+    val basalField = ScheduleFieldItem(
+        target = ScheduleEditTarget.Basal,
+        title = translate(TranslationKey.BasalRate, currentLanguage),
+        timeMinutes = factors.basalTimeMinutes,
+        dotColor = null
     )
+    return factorFields + basalField
 }
 
 @Composable
@@ -261,7 +209,7 @@ private fun ScheduleChartCard(
                 ScheduleChartCenterLabel(
                     nowLabel = translate(TranslationKey.ActiveNowBadge, currentLanguage),
                     activeWindowLabel = activeWindowLabel,
-                    currentTimeLabel = formatTimeLabel(nowMinutes)
+                    currentTimeLabel = formatTimeOfDay(nowMinutes)
                 )
             }
 
@@ -279,7 +227,7 @@ private fun ScheduleChartCard(
 @Composable
 private fun ScheduleTimesCard(
     scheduleFields: List<ScheduleFieldItem>,
-    onFieldClick: (ScheduleTimeSlot) -> Unit
+    onFieldClick: (ScheduleEditTarget) -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -295,9 +243,9 @@ private fun ScheduleTimesCard(
             scheduleFields.forEach { item ->
                 TimePickerField(
                     description = item.title,
-                    timeLabel = formatTimeLabel(item.timeMinutes),
+                    timeLabel = formatTimeOfDay(item.timeMinutes),
                     dotColor = item.dotColor,
-                    onClick = { onFieldClick(item.slot) }
+                    onClick = { onFieldClick(item.target) }
                 )
             }
         }
@@ -307,8 +255,7 @@ private fun ScheduleTimesCard(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ScheduleTimePickerDialog(
-    slot: ScheduleTimeSlot,
-    currentLanguage: AppLanguage,
+    title: String,
     initialMinutes: Int,
     onDismissRequest: () -> Unit,
     onConfirm: (Int) -> Unit
@@ -321,7 +268,7 @@ private fun ScheduleTimePickerDialog(
 
     AlertDialog(
         onDismissRequest = onDismissRequest,
-        title = { Text(text = slotTitle(slot, currentLanguage)) },
+        title = { Text(text = title) },
         text = { TimePicker(state = pickerState) },
         confirmButton = {
             TextButton(
@@ -336,25 +283,6 @@ private fun ScheduleTimePickerDialog(
             }
         }
     )
-}
-
-private fun slotTitle(slot: ScheduleTimeSlot, currentLanguage: AppLanguage): String {
-    return when (slot) {
-        ScheduleTimeSlot.Morning -> translate(TranslationKey.FactorMorning, currentLanguage)
-        ScheduleTimeSlot.Breakfast -> translate(TranslationKey.FactorBreakfast, currentLanguage)
-        ScheduleTimeSlot.Lunch -> translate(TranslationKey.FactorLunch, currentLanguage)
-        ScheduleTimeSlot.Afternoon -> translate(TranslationKey.FactorAfternoon, currentLanguage)
-        ScheduleTimeSlot.Dinner -> translate(TranslationKey.FactorDinner, currentLanguage)
-        ScheduleTimeSlot.Late -> translate(TranslationKey.FactorLate, currentLanguage)
-        ScheduleTimeSlot.Night -> translate(TranslationKey.FactorNight, currentLanguage)
-        ScheduleTimeSlot.Basal -> translate(TranslationKey.BasalRate, currentLanguage)
-    }
-}
-
-private fun formatTimeLabel(totalMinutes: Int): String {
-    val hour = (totalMinutes / 60) % 24
-    val minute = totalMinutes % 60
-    return String.format(Locale.ROOT, "%02d:%02d", hour, minute)
 }
 
 private val ChartSize = 220.dp

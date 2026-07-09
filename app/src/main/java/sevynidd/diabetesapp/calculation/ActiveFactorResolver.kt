@@ -1,84 +1,54 @@
 package sevynidd.diabetesapp.calculation
 
-import sevynidd.diabetesapp.data.model.FactorsData
-import sevynidd.diabetesapp.localization.TranslationKey
+import sevynidd.diabetesapp.data.model.FactorSlot
 
 /** Number of minutes in a full day, used for time-of-day arithmetic that wraps past midnight. */
 const val MINUTES_PER_DAY = 24 * 60
 
 /**
- * The factor active at a point in time: its value (`null` if unparsable), how many minutes it
- * remains in effect, and the label of the time window it belongs to.
+ * The factor active at a point in time: its value (`null` if unparsable), how many minutes its
+ * time window lasts in total, its name, and its position within the (time-sorted) input list —
+ * `-1` if the input list was empty, which should only be transiently observable before a fresh
+ * install's default factors have been seeded.
  */
 data class ActiveFactorInfo(
     val factor: Double?,
     val durationMinutes: Int,
-    val factorLabel: TranslationKey
+    val factorName: String,
+    val activeIndex: Int
 )
 
 /**
- * Resolves which of [factors]' configured time windows (night/morning/breakfast/lunch/afternoon/
- * dinner/late) [nowMinutes] (minutes since midnight) falls into, and returns that window's factor,
- * remaining duration, and label. Windows wrap past midnight: any time outside
- * `[morningTimeMinutes, nightTimeMinutes)` resolves to the night factor.
+ * Resolves which of [factorSlots]' time windows [nowMinutes] (minutes since midnight) falls
+ * into, and returns that window's factor, total duration, name, and index. [factorSlots] is
+ * sorted by [FactorSlot.startTimeMinutes] defensively before resolving. The active window is the
+ * last slot whose start is at or before [nowMinutes]; if [nowMinutes] precedes every slot's
+ * start, it wraps to the last slot (the previous day's final window carrying over past
+ * midnight). [ActiveFactorInfo.durationMinutes] is the matched window's own total length (next
+ * slot's start minus this slot's start, wrapping) — not "time remaining from now".
  */
-fun activeFactorForTime(factors: FactorsData, nowMinutes: Int): ActiveFactorInfo {
-    val morning = factors.morningTimeMinutes
-    val breakfast = factors.breakfastTimeMinutes
-    val lunch = factors.lunchTimeMinutes
-    val afternoon = factors.afternoonTimeMinutes
-    val dinner = factors.dinnerTimeMinutes
-    val late = factors.lateTimeMinutes
-    val night = factors.nightTimeMinutes
+fun activeFactorForTime(factorSlots: List<FactorSlot>, nowMinutes: Int): ActiveFactorInfo {
+    if (factorSlots.isEmpty()) {
+        return ActiveFactorInfo(factor = null, durationMinutes = MINUTES_PER_DAY, factorName = "", activeIndex = -1)
+    }
 
-    val (factorText, duration, factorLabel) = when {
-        nowMinutes !in morning..<night -> Triple(
-            factors.nightFactor,
-            (MINUTES_PER_DAY - night) + morning,
-            TranslationKey.FactorNight
-        )
+    val sorted = factorSlots.sortedBy { it.startTimeMinutes }
+    val activeIndex = sorted.indexOfLast { it.startTimeMinutes <= nowMinutes }.takeIf { it >= 0 } ?: sorted.lastIndex
+    val nextIndex = (activeIndex + 1) % sorted.size
+    val active = sorted[activeIndex]
+    val next = sorted[nextIndex]
 
-        nowMinutes < breakfast -> Triple(
-            factors.morningFactor,
-            breakfast - morning,
-            TranslationKey.FactorMorning
-        )
-
-        nowMinutes < lunch -> Triple(
-            factors.breakfastFactor,
-            lunch - breakfast,
-            TranslationKey.FactorBreakfast
-        )
-
-        nowMinutes < afternoon -> Triple(
-            factors.lunchFactor,
-            afternoon - lunch,
-            TranslationKey.FactorLunch
-        )
-
-        nowMinutes < dinner -> Triple(
-            factors.afternoonFactor,
-            dinner - afternoon,
-            TranslationKey.FactorAfternoon
-        )
-
-        nowMinutes < late -> Triple(
-            factors.dinnerFactor,
-            late - dinner,
-            TranslationKey.FactorDinner
-        )
-
-        else -> Triple(
-            factors.lateFactor,
-            night - late,
-            TranslationKey.FactorLate
-        )
+    val duration = if (nextIndex <= activeIndex) {
+        (MINUTES_PER_DAY - active.startTimeMinutes) + next.startTimeMinutes
+    } else {
+        next.startTimeMinutes - active.startTimeMinutes
     }
 
     return ActiveFactorInfo(
-        factor = factorText.replace(',', '.').toDoubleOrNull(),
+        factor = active.factorValue.replace(',', '.').toDoubleOrNull(),
         durationMinutes = duration.coerceAtLeast(1),
-        factorLabel = factorLabel
+        factorName = active.name,
+        activeIndex = activeIndex
     )
 }
 

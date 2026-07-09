@@ -46,6 +46,9 @@ enum class TranslationKey {
     ActionMoreOptions,
 
     // Factors & schedule
+    // FactorMorning..FactorNight are no longer "the" factor labels — factors are now a free-form,
+    // user-editable list (see FactorSlot). These 7 keys are kept only as localized seed names for
+    // a brand new install (see FactorsRepository.seedDefaultFactorsIfEmpty), used nowhere else.
     FactorMorning,
     FactorBreakfast,
     FactorLunch,
@@ -55,7 +58,10 @@ enum class TranslationKey {
     FactorNight,
     BasalRate,
     LabelFactor,
+    FactorNameLabel,
     ActionSchedule,
+    ActionAddFactor,
+    FactorNameDuplicateError,
     ScheduleAutoOrderHint,
 
     // Bolus calculation
@@ -77,6 +83,12 @@ enum class TranslationKey {
     PeriodFactorPercent,
     BreadUnits,
     FactorSettingsTitle,
+    BloodSugar,
+    CorrectionUnits,
+    CorrectionSettingsTitle,
+    CorrectionThreshold,
+    CorrectionStep,
+    GlucoseUnitLabel,
 
     // Templates
     TemplatesTitle,
@@ -177,7 +189,10 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.FactorNight -> "Night"
             TranslationKey.BasalRate -> "Basal rate"
             TranslationKey.LabelFactor -> "Factor"
+            TranslationKey.FactorNameLabel -> "Name"
             TranslationKey.ActionSchedule -> "Schedule"
+            TranslationKey.ActionAddFactor -> "Add factor"
+            TranslationKey.FactorNameDuplicateError -> "A factor with this name already exists"
             TranslationKey.ScheduleAutoOrderHint -> "Times are auto-corrected to keep the daily order."
 
             // Bolus calculation
@@ -199,6 +214,12 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.PeriodFactorPercent -> "Period increase (%)"
             TranslationKey.BreadUnits -> "Bread units"
             TranslationKey.FactorSettingsTitle -> "Factor settings"
+            TranslationKey.BloodSugar -> "Blood sugar"
+            TranslationKey.CorrectionUnits -> "Correction units"
+            TranslationKey.CorrectionSettingsTitle -> "Correction"
+            TranslationKey.CorrectionThreshold -> "Correction threshold"
+            TranslationKey.CorrectionStep -> "Correction step"
+            TranslationKey.GlucoseUnitLabel -> "Blood glucose unit"
 
             // Templates
             TranslationKey.TemplatesTitle -> "Templates"
@@ -296,7 +317,10 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.FactorNight -> "Nacht"
             TranslationKey.BasalRate -> "Basisrate"
             TranslationKey.LabelFactor -> "Faktor"
+            TranslationKey.FactorNameLabel -> "Name"
             TranslationKey.ActionSchedule -> "Zeitplanung"
+            TranslationKey.ActionAddFactor -> "Faktor hinzufügen"
+            TranslationKey.FactorNameDuplicateError -> "Ein Faktor mit diesem Namen existiert bereits"
             TranslationKey.ScheduleAutoOrderHint -> "Zeiten werden automatisch angepasst, damit die Tagesreihenfolge erhalten bleibt."
 
             // Bolus calculation
@@ -318,6 +342,12 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.PeriodFactorPercent -> "Periode-Erhöhung (%)"
             TranslationKey.BreadUnits -> "Broteinheiten"
             TranslationKey.FactorSettingsTitle -> "Faktor-Einstellungen"
+            TranslationKey.BloodSugar -> "Blutzucker"
+            TranslationKey.CorrectionUnits -> "Korrektureinheiten"
+            TranslationKey.CorrectionSettingsTitle -> "Korrektur"
+            TranslationKey.CorrectionThreshold -> "Korrekturschwelle"
+            TranslationKey.CorrectionStep -> "Korrekturschritt"
+            TranslationKey.GlucoseUnitLabel -> "Blutzucker-Einheit"
 
             // Templates
             TranslationKey.TemplatesTitle -> "Vorlagen"
@@ -417,7 +447,10 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.FactorNight -> "Nuit"
             TranslationKey.BasalRate -> "Débit de base"
             TranslationKey.LabelFactor -> "Facteur"
+            TranslationKey.FactorNameLabel -> "Nom"
             TranslationKey.ActionSchedule -> "Calendrier"
+            TranslationKey.ActionAddFactor -> "Ajouter un facteur"
+            TranslationKey.FactorNameDuplicateError -> "Un facteur avec ce nom existe déjà"
             TranslationKey.ScheduleAutoOrderHint -> "Les heures sont corrigées automatiquement pour conserver l'ordre de la journée."
 
             // Bolus calculation
@@ -439,6 +472,12 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.PeriodFactorPercent -> "Augmentation Période (%)"
             TranslationKey.BreadUnits -> "Unités de pain"
             TranslationKey.FactorSettingsTitle -> "Paramètres des facteurs"
+            TranslationKey.BloodSugar -> "Glycémie"
+            TranslationKey.CorrectionUnits -> "Unités de correction"
+            TranslationKey.CorrectionSettingsTitle -> "Correction"
+            TranslationKey.CorrectionThreshold -> "Seuil de correction"
+            TranslationKey.CorrectionStep -> "Palier de correction"
+            TranslationKey.GlucoseUnitLabel -> "Unité de glycémie"
 
             // Templates
             TranslationKey.TemplatesTitle -> "Modeles"
@@ -538,7 +577,10 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.FactorNight -> "Noc"
             TranslationKey.BasalRate -> "Wartość podstawowa"
             TranslationKey.LabelFactor -> "Czynnik"
+            TranslationKey.FactorNameLabel -> "Nazwa"
             TranslationKey.ActionSchedule -> "Planuj"
+            TranslationKey.ActionAddFactor -> "Dodaj czynnik"
+            TranslationKey.FactorNameDuplicateError -> "Czynnik o tej nazwie już istnieje"
             TranslationKey.ScheduleAutoOrderHint -> "Godziny są automatycznie korygowane, aby zachować kolejność w ciągu dnia."
 
             // Bolus calculation
@@ -560,6 +602,12 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.PeriodFactorPercent -> "Zwiększenie Okres (%)"
             TranslationKey.BreadUnits -> "Wymienniki chlebowe"
             TranslationKey.FactorSettingsTitle -> "Ustawienia współczynnika"
+            TranslationKey.BloodSugar -> "Poziom cukru we krwi"
+            TranslationKey.CorrectionUnits -> "Jednostki korekcyjne"
+            TranslationKey.CorrectionSettingsTitle -> "Korekta"
+            TranslationKey.CorrectionThreshold -> "Próg korekty"
+            TranslationKey.CorrectionStep -> "Krok korekty"
+            TranslationKey.GlucoseUnitLabel -> "Jednostka glukozy we krwi"
 
             // Templates
             TranslationKey.TemplatesTitle -> "Szablony"

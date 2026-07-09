@@ -112,11 +112,16 @@ considering a task done. Do not mark a task complete if `testDebugUnitTest` fail
 
 - `README.md` must stay in sync with the code. Whenever a change adds,
   removes, or alters user-facing behavior (features, screens, settings,
-  calculation rules, persisted data, tech-stack versions), update the
-  matching README section (`Features`, `Datenhaltung & Persistenz`,
-  `Berechnungslogik`, `Validierung & Eingabeverhalten`, `Tech-Stack`)
-  in the same change. Do not mark a task complete if the README still
-  describes the old behavior.
+  calculation rules, tech-stack versions), update the matching README
+  section (`Features`, `Calculation Logic`, `Tech Stack`) in the same
+  change. Do not mark a task complete if the README still describes the
+  old behavior.
+- README is written for end users and readers with only light technical
+  background — not as an implementation reference. Keep `Features` to
+  short, notable bullet points rather than an exhaustive list of every
+  screen and field. Room/DataStore schema details, save/session
+  mechanics, and field-level validation/rounding rules belong in code
+  comments and KDoc, not the README.
 - README should be in English, matching the code and comments (see `Language`).
 - Every public class, object, and function outside of `screens`/`ui` (i.e.
   `data`, domain/calculation logic, repositories, DAOs) gets a KDoc comment
@@ -126,8 +131,8 @@ considering a task done. Do not mark a task complete if `testDebugUnitTest` fail
   shared state as a side effect).
 - KDoc on a calculation function documents its formula/rule and any
   non-obvious rounding or clamping behavior (e.g. the `0,25`-step rounding
-  and `100`% split-bolus cap from `Validierung & Eingabeverhalten`) so the
-  contract is visible without cross-referencing the README.
+  and `100`% split-bolus cap on the immediate share) so the contract is
+  visible without cross-referencing the README.
 - Don't restate the function signature in prose (no "returns a Boolean"); say
   what the value/state means.
 - Keep KDoc in sync with the code it documents in the same commit — stale

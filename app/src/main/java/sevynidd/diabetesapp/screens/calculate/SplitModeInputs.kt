@@ -21,6 +21,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import sevynidd.diabetesapp.calculation.SplitBolusResult
+import sevynidd.diabetesapp.data.settings.GlucoseUnit
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
@@ -29,6 +30,9 @@ import sevynidd.diabetesapp.localization.translate
 internal data class SplitModeInputs(
     val carbohydrates: String,
     val onCarbohydratesChange: (String) -> Unit,
+    val bloodSugar: String,
+    val onBloodSugarChange: (String) -> Unit,
+    val glucoseUnit: GlucoseUnit,
     val immediatePercent: String,
     val onImmediatePercentChange: (String) -> Unit,
     val restPercentValue: Int?,
@@ -43,6 +47,7 @@ internal fun SplitInputsCard(
     focusManager: FocusManager
 ) {
     val splitCarbohydratesRequester = remember { FocusRequester() }
+    val splitBloodSugarRequester = remember { FocusRequester() }
     val splitImmediatePercentRequester = remember { FocusRequester() }
     val splitDurationRequester = remember { FocusRequester() }
 
@@ -57,20 +62,15 @@ internal fun SplitInputsCard(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            EditableNumberField(
-                value = inputs.carbohydrates,
-                onValueChange = inputs.onCarbohydratesChange,
-                label = translate(TranslationKey.Carbohydrates, currentLanguage),
-                keyboardType = KeyboardType.Decimal,
-                imeAction = ImeAction.Next,
-                keyboardActions = KeyboardActions(onNext = { splitImmediatePercentRequester.requestFocus() }),
-                sanitizeInput = { rawInput ->
-                    val sanitized = rawInput.replace('.', ',')
-                    if (sanitized.isEmpty() || sanitized.matches(DecimalInputRegex)) sanitized else null
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(splitCarbohydratesRequester)
+            SplitCarbohydratesAndBloodSugarFields(
+                inputs = inputs,
+                currentLanguage = currentLanguage,
+                focus = SplitCarbsAndBloodSugarFocus(
+                    carbohydratesRequester = splitCarbohydratesRequester,
+                    bloodSugarRequester = splitBloodSugarRequester,
+                    onCarbohydratesNext = { splitBloodSugarRequester.requestFocus() },
+                    onBloodSugarNext = { splitImmediatePercentRequester.requestFocus() }
+                )
             )
 
             SplitPercentRow(
@@ -97,6 +97,53 @@ internal fun SplitInputsCard(
             )
         }
     }
+}
+
+/** Focus targets/callbacks for [SplitCarbohydratesAndBloodSugarFields], keeping its parameter list short. */
+private data class SplitCarbsAndBloodSugarFocus(
+    val carbohydratesRequester: FocusRequester,
+    val bloodSugarRequester: FocusRequester,
+    val onCarbohydratesNext: () -> Unit,
+    val onBloodSugarNext: () -> Unit
+)
+
+@Composable
+private fun SplitCarbohydratesAndBloodSugarFields(
+    inputs: SplitModeInputs,
+    currentLanguage: AppLanguage,
+    focus: SplitCarbsAndBloodSugarFocus
+) {
+    EditableNumberField(
+        value = inputs.carbohydrates,
+        onValueChange = inputs.onCarbohydratesChange,
+        label = translate(TranslationKey.Carbohydrates, currentLanguage),
+        keyboardType = KeyboardType.Decimal,
+        imeAction = ImeAction.Next,
+        keyboardActions = KeyboardActions(onNext = { focus.onCarbohydratesNext() }),
+        sanitizeInput = { rawInput ->
+            val sanitized = rawInput.replace('.', ',')
+            if (sanitized.isEmpty() || sanitized.matches(DecimalInputRegex)) sanitized else null
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .focusRequester(focus.carbohydratesRequester)
+    )
+
+    EditableNumberField(
+        value = inputs.bloodSugar,
+        onValueChange = inputs.onBloodSugarChange,
+        label = splitBloodSugarLabel(currentLanguage, inputs.glucoseUnit),
+        keyboardType = KeyboardType.Decimal,
+        imeAction = ImeAction.Next,
+        keyboardActions = KeyboardActions(onNext = { focus.onBloodSugarNext() }),
+        sanitizeInput = { rawInput ->
+            val sanitized = rawInput.replace('.', ',')
+            if (sanitized.isEmpty() || sanitized.matches(DecimalInputRegex)) sanitized else null
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .focusRequester(focus.bloodSugarRequester)
+    )
 }
 
 @Composable
@@ -134,11 +181,18 @@ private fun SplitPercentRow(
     }
 }
 
+/** The values shown on [SplitResultsCard], bundled to keep the composable's parameter list short. */
+internal data class SplitModeResults(
+    val activeFactorText: String,
+    val futureFactorText: String,
+    val splitBolus: SplitBolusResult?,
+    val totalUnitsText: String,
+    val correctionUnitsText: String
+)
+
 @Composable
 internal fun SplitResultsCard(
-    activeFactorText: String,
-    futureFactorText: String,
-    splitBolus: SplitBolusResult?,
+    results: SplitModeResults,
     currentLanguage: AppLanguage
 ) {
     Card(
@@ -163,20 +217,20 @@ internal fun SplitResultsCard(
             ) {
                 ResultStat(
                     label = translate(TranslationKey.ActiveFactor, currentLanguage),
-                    value = activeFactorText,
+                    value = results.activeFactorText,
                     modifier = Modifier.weight(1f)
                 )
 
                 ResultStat(
                     label = translate(TranslationKey.FutureFactor, currentLanguage),
-                    value = futureFactorText,
+                    value = results.futureFactorText,
                     modifier = Modifier.weight(1f)
                 )
             }
 
             ResultStat(
                 label = translate(TranslationKey.CalculatedUnits, currentLanguage),
-                value = splitBolus?.totalUnits.toUiDecimalOrEmpty(),
+                value = results.totalUnitsText,
                 modifier = Modifier.fillMaxWidth(),
                 emphasize = true
             )
@@ -187,18 +241,31 @@ internal fun SplitResultsCard(
             ) {
                 ResultStat(
                     label = translate(TranslationKey.BolusImmediateUnits, currentLanguage),
-                    value = splitBolus?.immediateUnits.toUiDecimalOrEmpty(),
+                    value = results.splitBolus?.immediateUnits.toUiDecimalOrEmpty(),
                     modifier = Modifier.weight(1f)
                 )
 
                 ResultStat(
                     label = translate(TranslationKey.BolusExtendedUnits, currentLanguage),
-                    value = splitBolus?.restUnits.toUiDecimalOrEmpty(),
+                    value = results.splitBolus?.restUnits.toUiDecimalOrEmpty(),
                     modifier = Modifier.weight(1f)
                 )
             }
+
+            ResultStat(
+                label = translate(TranslationKey.CorrectionUnits, currentLanguage),
+                value = results.correctionUnitsText
+            )
         }
     }
+}
+
+private fun splitBloodSugarLabel(currentLanguage: AppLanguage, glucoseUnit: GlucoseUnit): String {
+    val unitSuffix = when (glucoseUnit) {
+        GlucoseUnit.MgDl -> "mg/dl"
+        GlucoseUnit.MmolL -> "mmol/l"
+    }
+    return "${translate(TranslationKey.BloodSugar, currentLanguage)} ($unitSuffix)"
 }
 
 private fun sanitizePercentageInput(input: String): String? {

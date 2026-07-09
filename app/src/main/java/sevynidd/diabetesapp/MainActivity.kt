@@ -33,12 +33,14 @@ import sevynidd.diabetesapp.data.model.FactorsData
 import sevynidd.diabetesapp.data.notifications.AppUpdateNotifier
 import sevynidd.diabetesapp.data.notifications.BasalReminderScheduler
 import sevynidd.diabetesapp.data.notifications.EXTRA_OPEN_APP_UPDATE
+import sevynidd.diabetesapp.data.settings.CorrectionSettings
 import sevynidd.diabetesapp.data.settings.ThemeMode
 import sevynidd.diabetesapp.data.database.FactorsRepository
 import sevynidd.diabetesapp.data.update.GitHubRelease
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
 import sevynidd.diabetesapp.screens.BolusManagerMainWindow
+import sevynidd.diabetesapp.screens.settings.CorrectionSettingsCallbacks
 import sevynidd.diabetesapp.screens.settings.UpdateCheckPhase
 import sevynidd.diabetesapp.screens.settings.UpdateCheckViewModel
 import sevynidd.diabetesapp.ui.theme.BolusManagerTheme
@@ -53,7 +55,8 @@ class MainActivity : ComponentActivity() {
 
         val appSettingsStore = AppSettingsStore(applicationContext)
         val factorsRepository = FactorsRepository(
-            DiabetesDatabase.getInstance(applicationContext).factorProfileDao()
+            DiabetesDatabase.getInstance(applicationContext).factorProfileDao(),
+            DiabetesDatabase.getInstance(applicationContext).factorSlotDao()
         )
         val templatesRepository = BolusTemplatesRepository(
             DiabetesDatabase.getInstance(applicationContext).bolusTemplateDao()
@@ -68,6 +71,20 @@ class MainActivity : ComponentActivity() {
             val coroutineScope = rememberCoroutineScope()
             val context = LocalContext.current
             val updateCheckViewModel: UpdateCheckViewModel = viewModel()
+
+            LaunchedEffect(Unit) {
+                factorsRepository.seedDefaultFactorsIfEmpty(
+                    defaultNames = listOf(
+                        translate(TranslationKey.FactorMorning, settings.language),
+                        translate(TranslationKey.FactorBreakfast, settings.language),
+                        translate(TranslationKey.FactorLunch, settings.language),
+                        translate(TranslationKey.FactorAfternoon, settings.language),
+                        translate(TranslationKey.FactorDinner, settings.language),
+                        translate(TranslationKey.FactorLate, settings.language),
+                        translate(TranslationKey.FactorNight, settings.language)
+                    )
+                )
+            }
 
             LaunchedEffect(factors.basalReminderEnabled, factors.basalTimeMinutes) {
                 if (factors.basalReminderEnabled) {
@@ -134,6 +151,11 @@ class MainActivity : ComponentActivity() {
                     currentLanguage = settings.language,
                     breadUnits = settings.breadUnits,
                     periodFactorPercent = settings.periodFactorPercent,
+                    correctionSettings = CorrectionSettings(
+                        thresholdMgDl = settings.correctionThresholdMgDl,
+                        stepMgDl = settings.correctionStepMgDl,
+                        glucoseUnit = settings.glucoseUnit
+                    ),
                     onThemeModeChange = { themeMode ->
                         coroutineScope.launch { appSettingsStore.setThemeMode(themeMode) }
                     },
@@ -149,6 +171,17 @@ class MainActivity : ComponentActivity() {
                     onPeriodFactorPercentChange = { percentage ->
                         coroutineScope.launch { appSettingsStore.setPeriodFactorPercent(percentage) }
                     },
+                    onCorrectionSettingsChange = CorrectionSettingsCallbacks(
+                        onCorrectionThresholdMgDlChange = { thresholdMgDl ->
+                            coroutineScope.launch { appSettingsStore.setCorrectionThresholdMgDl(thresholdMgDl) }
+                        },
+                        onCorrectionStepMgDlChange = { stepMgDl ->
+                            coroutineScope.launch { appSettingsStore.setCorrectionStepMgDl(stepMgDl) }
+                        },
+                        onGlucoseUnitChange = { glucoseUnit ->
+                            coroutineScope.launch { appSettingsStore.setGlucoseUnit(glucoseUnit) }
+                        }
+                    ),
                     lastDestination = lastDestination,
                     onLastDestinationChange = { destination ->
                         coroutineScope.launch { appSettingsStore.setLastDestination(destination) }

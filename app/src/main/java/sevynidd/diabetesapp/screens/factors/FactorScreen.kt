@@ -10,12 +10,24 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -36,9 +48,14 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import sevynidd.diabetesapp.calculation.MINUTES_PER_DAY
 import sevynidd.diabetesapp.calculation.activeFactorForTime
+import sevynidd.diabetesapp.calculation.formatTimeOfDay
 import sevynidd.diabetesapp.calculation.normalizeBasalRateValue
 import sevynidd.diabetesapp.calculation.normalizeQuarterStepValue
+import sevynidd.diabetesapp.calculation.suggestedNewSlotTimeMinutes
+import sevynidd.diabetesapp.calculation.withUpdatedTime
+import sevynidd.diabetesapp.data.model.FactorSlot
 import sevynidd.diabetesapp.data.model.FactorsData
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
@@ -46,12 +63,7 @@ import sevynidd.diabetesapp.localization.translate
 import java.time.LocalTime
 import java.util.Locale
 
-private data class FactorItem(
-    val value: String,
-    val onChange: (String) -> Unit,
-    val description: String,
-    val isActiveNow: Boolean
-)
+private const val MIN_FACTOR_COUNT = 1
 
 @Composable
 fun FactorScreen(
@@ -64,115 +76,29 @@ fun FactorScreen(
     now: LocalTime = LocalTime.now()
 ) {
     var isPeriodEnabled by rememberSaveable(factors.isPeriodEnabled) { mutableStateOf(factors.isPeriodEnabled) }
-    var morningFactor by rememberSaveable(factors.morningFactor) { mutableStateOf(factors.morningFactor) }
-    var breakfastFactor by rememberSaveable(factors.breakfastFactor) { mutableStateOf(factors.breakfastFactor) }
-    var lunchFactor by rememberSaveable(factors.lunchFactor) { mutableStateOf(factors.lunchFactor) }
-    var afternoonFactor by rememberSaveable(factors.afternoonFactor) { mutableStateOf(factors.afternoonFactor) }
-    var dinnerFactor by rememberSaveable(factors.dinnerFactor) { mutableStateOf(factors.dinnerFactor) }
-    var lateFactor by rememberSaveable(factors.lateFactor) { mutableStateOf(factors.lateFactor) }
-    var nightFactor by rememberSaveable(factors.nightFactor) { mutableStateOf(factors.nightFactor) }
     var basalRate by rememberSaveable(factors.basalRate) { mutableStateOf(factors.basalRate) }
+    var isAddDialogVisible by rememberSaveable { mutableStateOf(false) }
 
-    fun emitFactorsChanged() {
+    fun emitFactorsChanged(updatedSlots: List<FactorSlot> = factors.factorSlots) {
         onFactorsChange(
-            FactorsData(
+            factors.copy(
                 isPeriodEnabled = isPeriodEnabled,
-                morningFactor = morningFactor,
-                breakfastFactor = breakfastFactor,
-                lunchFactor = lunchFactor,
-                afternoonFactor = afternoonFactor,
-                dinnerFactor = dinnerFactor,
-                lateFactor = lateFactor,
-                nightFactor = nightFactor,
-                basalRate = basalRate,
-                morningTimeMinutes = factors.morningTimeMinutes,
-                breakfastTimeMinutes = factors.breakfastTimeMinutes,
-                lunchTimeMinutes = factors.lunchTimeMinutes,
-                afternoonTimeMinutes = factors.afternoonTimeMinutes,
-                dinnerTimeMinutes = factors.dinnerTimeMinutes,
-                lateTimeMinutes = factors.lateTimeMinutes,
-                nightTimeMinutes = factors.nightTimeMinutes,
-                basalTimeMinutes = factors.basalTimeMinutes
+                factorSlots = updatedSlots,
+                basalRate = basalRate
             )
         )
     }
 
-    val morningRange = buildTimeRange(factors.morningTimeMinutes, factors.breakfastTimeMinutes)
-    val breakfastRange = buildTimeRange(factors.breakfastTimeMinutes, factors.lunchTimeMinutes)
-    val lunchRange = buildTimeRange(factors.lunchTimeMinutes, factors.afternoonTimeMinutes)
-    val afternoonRange = buildTimeRange(factors.afternoonTimeMinutes, factors.dinnerTimeMinutes)
-    val dinnerRange = buildTimeRange(factors.dinnerTimeMinutes, factors.lateTimeMinutes)
-    val lateRange = buildTimeRange(factors.lateTimeMinutes, factors.nightTimeMinutes)
-    val nightRange = buildTimeRange(factors.nightTimeMinutes, factors.morningTimeMinutes)
-
     val nowMinutes = (now.hour * 60) + now.minute
-    val activeLabel = activeFactorForTime(factors, nowMinutes).factorLabel
-
-    val factorItems = listOf(
-        FactorItem(
-            morningFactor,
-            { value: String ->
-                morningFactor = value
-                emitFactorsChanged()
-            },
-            "${translate(TranslationKey.FactorMorning, currentLanguage)} ($morningRange)",
-            isActiveNow = activeLabel == TranslationKey.FactorMorning
-        ),
-        FactorItem(
-            breakfastFactor,
-            { value: String ->
-                breakfastFactor = value
-                emitFactorsChanged()
-            },
-            "${translate(TranslationKey.FactorBreakfast, currentLanguage)} ($breakfastRange)",
-            isActiveNow = activeLabel == TranslationKey.FactorBreakfast
-        ),
-        FactorItem(
-            lunchFactor,
-            { value: String ->
-                lunchFactor = value
-                emitFactorsChanged()
-            },
-            "${translate(TranslationKey.FactorLunch, currentLanguage)} ($lunchRange)",
-            isActiveNow = activeLabel == TranslationKey.FactorLunch
-        ),
-        FactorItem(
-            afternoonFactor,
-            { value: String ->
-                afternoonFactor = value
-                emitFactorsChanged()
-            },
-            "${translate(TranslationKey.FactorAfternoon, currentLanguage)} ($afternoonRange)",
-            isActiveNow = activeLabel == TranslationKey.FactorAfternoon
-        ),
-        FactorItem(
-            dinnerFactor,
-            { value: String ->
-                dinnerFactor = value
-                emitFactorsChanged()
-            },
-            "${translate(TranslationKey.FactorDinner, currentLanguage)} ($dinnerRange)",
-            isActiveNow = activeLabel == TranslationKey.FactorDinner
-        ),
-        FactorItem(
-            lateFactor,
-            { value: String ->
-                lateFactor = value
-                emitFactorsChanged()
-            },
-            "${translate(TranslationKey.FactorLate, currentLanguage)} ($lateRange)",
-            isActiveNow = activeLabel == TranslationKey.FactorLate
-        ),
-        FactorItem(
-            nightFactor,
-            { value: String ->
-                nightFactor = value
-                emitFactorsChanged()
-            },
-            "${translate(TranslationKey.FactorNight, currentLanguage)} ($nightRange)",
-            isActiveNow = activeLabel == TranslationKey.FactorNight
-        )
-    )
+    val activeIndex = activeFactorForTime(factors.factorSlots, nowMinutes).activeIndex
+    val existingNames = factors.factorSlots.map { it.name }
+    val duplicateNames = existingNames
+        .map { it.trim().lowercase(Locale.ROOT) }
+        .filter { it.isNotEmpty() }
+        .groupingBy { it }
+        .eachCount()
+        .filterValues { it > 1 }
+        .keys
 
     Column(
         modifier = modifier.verticalScroll(rememberScrollState()),
@@ -209,15 +135,55 @@ fun FactorScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 val activeNowLabel = translate(TranslationKey.ActiveNowBadge, currentLanguage)
-                factorItems.forEach { item ->
-                    DoubleInputField(
-                        value = item.value,
-                        onValueChange = item.onChange,
-                        description = item.description,
-                        label = translate(TranslationKey.LabelFactor, currentLanguage),
-                        enabled = isEditMode,
-                        activeNowLabel = activeNowLabel.takeIf { item.isActiveNow }
+                factors.factorSlots.forEachIndexed { index, slot ->
+                    val nextStart = factors.factorSlots[(index + 1) % factors.factorSlots.size].startTimeMinutes
+                    val endMinutes = ((nextStart - 1) + MINUTES_PER_DAY) % MINUTES_PER_DAY
+                    val range = "${formatTimeOfDay(slot.startTimeMinutes)} - ${formatTimeOfDay(endMinutes)}"
+                    val isDuplicateName = slot.name.trim().lowercase(Locale.ROOT) in duplicateNames
+
+                    FactorRow(
+                        currentLanguage = currentLanguage,
+                        activeNowLabel = activeNowLabel,
+                        state = FactorRowState(
+                            slot = slot,
+                            timeRangeLabel = range,
+                            enabled = isEditMode,
+                            isActiveNow = index == activeIndex,
+                            isDuplicateName = isDuplicateName,
+                            canDelete = isEditMode && factors.factorSlots.size > MIN_FACTOR_COUNT
+                        ),
+                        callbacks = FactorRowCallbacks(
+                            onNameChange = { newName ->
+                                emitFactorsChanged(
+                                    factors.factorSlots.toMutableList().apply {
+                                        this[index] = this[index].copy(name = newName)
+                                    }
+                                )
+                            },
+                            onValueChange = { newValue ->
+                                emitFactorsChanged(
+                                    factors.factorSlots.toMutableList().apply {
+                                        this[index] = this[index].copy(factorValue = newValue)
+                                    }
+                                )
+                            },
+                            onDeleteClick = {
+                                emitFactorsChanged(
+                                    factors.factorSlots.toMutableList().apply { removeAt(index) }
+                                )
+                            }
+                        )
                     )
+                }
+
+                if (isEditMode) {
+                    OutlinedButton(onClick = { isAddDialogVisible = true }, modifier = Modifier.fillMaxWidth()) {
+                        Icon(imageVector = Icons.Filled.Add, contentDescription = null)
+                        Text(
+                            text = translate(TranslationKey.ActionAddFactor, currentLanguage),
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                    }
                 }
             }
         }
@@ -258,21 +224,197 @@ fun FactorScreen(
             }
         }
     }
+
+    if (isAddDialogVisible) {
+        AddFactorDialog(
+            currentLanguage = currentLanguage,
+            existingNames = existingNames,
+            initialTimeMinutes = factors.factorSlots.suggestedNewSlotTimeMinutes(),
+            onDismissRequest = { isAddDialogVisible = false },
+            onConfirm = { name, factorValue, timeMinutes ->
+                val withNewSlot = factors.factorSlots +
+                    FactorSlot(name = name, factorValue = factorValue, startTimeMinutes = timeMinutes)
+                val reordered = withNewSlot.withUpdatedTime(withNewSlot.lastIndex, timeMinutes)
+                emitFactorsChanged(reordered)
+                isAddDialogVisible = false
+            }
+        )
+    }
 }
 
-private fun buildTimeRange(startMinutes: Int, nextStartMinutes: Int): String {
-    val endMinutes = ((nextStartMinutes - 1) + MINUTES_PER_DAY) % MINUTES_PER_DAY
-    return "${formatTimeOfDay(startMinutes)} - ${formatTimeOfDay(endMinutes)}"
+/** The display state for one [FactorRow] — everything about the slot except its callbacks. */
+private data class FactorRowState(
+    val slot: FactorSlot,
+    val timeRangeLabel: String,
+    val enabled: Boolean,
+    val isActiveNow: Boolean,
+    val isDuplicateName: Boolean,
+    val canDelete: Boolean
+)
+
+/** The edit actions for one [FactorRow], grouped to keep the composable's own parameter list short. */
+private data class FactorRowCallbacks(
+    val onNameChange: (String) -> Unit,
+    val onValueChange: (String) -> Unit,
+    val onDeleteClick: () -> Unit
+)
+
+@Composable
+private fun FactorRow(
+    currentLanguage: AppLanguage,
+    activeNowLabel: String,
+    state: FactorRowState,
+    callbacks: FactorRowCallbacks
+) {
+    Column(modifier = Modifier.activeFieldHighlight(state.isActiveNow)) {
+        if (state.enabled) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                OutlinedTextField(
+                    value = state.slot.name,
+                    onValueChange = callbacks.onNameChange,
+                    label = { Text(translate(TranslationKey.FactorNameLabel, currentLanguage)) },
+                    singleLine = true,
+                    isError = state.isDuplicateName,
+                    supportingText = {
+                        if (state.isDuplicateName) {
+                            Text(translate(TranslationKey.FactorNameDuplicateError, currentLanguage))
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+                if (state.canDelete) {
+                    IconButton(onClick = callbacks.onDeleteClick) {
+                        Icon(
+                            imageVector = Icons.Filled.Delete,
+                            contentDescription = translate(TranslationKey.ActionDelete, currentLanguage)
+                        )
+                    }
+                }
+            }
+            FieldDescriptionRow(
+                description = state.timeRangeLabel,
+                activeNowLabel = activeNowLabel.takeIf { state.isActiveNow }
+            )
+        } else {
+            FieldDescriptionRow(
+                description = "${state.slot.name} (${state.timeRangeLabel})",
+                activeNowLabel = activeNowLabel.takeIf { state.isActiveNow }
+            )
+        }
+
+        DoubleInputField(
+            value = state.slot.factorValue,
+            onValueChange = callbacks.onValueChange,
+            description = "",
+            label = translate(TranslationKey.LabelFactor, currentLanguage),
+            enabled = state.enabled
+        )
+    }
 }
 
-private fun formatTimeOfDay(totalMinutes: Int): String {
-    val normalized = ((totalMinutes % MINUTES_PER_DAY) + MINUTES_PER_DAY) % MINUTES_PER_DAY
-    val hours = normalized / 60
-    val minutes = normalized % 60
-    return String.format(Locale.ROOT, "%02d:%02d", hours, minutes)
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AddFactorDialog(
+    currentLanguage: AppLanguage,
+    existingNames: List<String>,
+    initialTimeMinutes: Int,
+    onDismissRequest: () -> Unit,
+    onConfirm: (name: String, factorValue: String, timeMinutes: Int) -> Unit
+) {
+    var name by rememberSaveable { mutableStateOf("") }
+    var factorValue by rememberSaveable { mutableStateOf("") }
+    val pickerState = rememberTimePickerState(
+        initialHour = (initialTimeMinutes / 60) % 24,
+        initialMinute = initialTimeMinutes % 60,
+        is24Hour = true
+    )
+
+    val normalizedExisting = remember(existingNames) { existingNames.map { it.trim().lowercase(Locale.ROOT) } }
+    val hasDuplicateName = name.trim().isNotEmpty() && normalizedExisting.contains(name.trim().lowercase(Locale.ROOT))
+    val isValid = name.trim().isNotEmpty() && !hasDuplicateName
+
+    AlertDialog(
+        onDismissRequest = onDismissRequest,
+        title = { Text(translate(TranslationKey.ActionAddFactor, currentLanguage)) },
+        text = {
+            AddFactorDialogFields(
+                currentLanguage = currentLanguage,
+                nameField = NameFieldState(
+                    name = name,
+                    onNameChange = { name = it },
+                    hasDuplicateName = hasDuplicateName
+                ),
+                factorValue = factorValue,
+                onFactorValueChange = { newValue ->
+                    val sanitizedValue = newValue.replace('.', ',')
+                    if (sanitizedValue.isEmpty() || sanitizedValue.matches(DecimalInputRegex)) {
+                        factorValue = sanitizedValue
+                    }
+                },
+                pickerState = pickerState
+            )
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    val normalizedValue = normalizeQuarterStepValue(factorValue)
+                    onConfirm(name.trim(), normalizedValue, (pickerState.hour * 60) + pickerState.minute)
+                },
+                enabled = isValid
+            ) {
+                Text(translate(TranslationKey.ActionAddFactor, currentLanguage))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismissRequest) {
+                Text(translate(TranslationKey.ActionCancel, currentLanguage))
+            }
+        }
+    )
 }
 
-private const val MINUTES_PER_DAY = 24 * 60
+/** The name field's state for [AddFactorDialogFields], grouped to keep its parameter list short. */
+private data class NameFieldState(
+    val name: String,
+    val onNameChange: (String) -> Unit,
+    val hasDuplicateName: Boolean
+)
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AddFactorDialogFields(
+    currentLanguage: AppLanguage,
+    nameField: NameFieldState,
+    factorValue: String,
+    onFactorValueChange: (String) -> Unit,
+    pickerState: TimePickerState
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        OutlinedTextField(
+            value = nameField.name,
+            onValueChange = nameField.onNameChange,
+            label = { Text(translate(TranslationKey.FactorNameLabel, currentLanguage)) },
+            singleLine = true,
+            isError = nameField.hasDuplicateName,
+            supportingText = {
+                if (nameField.hasDuplicateName) {
+                    Text(translate(TranslationKey.FactorNameDuplicateError, currentLanguage))
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
+        OutlinedTextField(
+            value = factorValue,
+            onValueChange = onFactorValueChange,
+            label = { Text(translate(TranslationKey.LabelFactor, currentLanguage)) },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+        )
+        TimePicker(state = pickerState)
+    }
+}
+
 private val DecimalInputRegex = Regex("^\\d*,?\\d*$")
 private val IntegerInputRegex = Regex("^\\d+$")
 
@@ -316,7 +458,9 @@ private fun DoubleInputField(
     }
 
     Column(modifier = modifier.activeFieldHighlight(activeNowLabel != null)) {
-        FieldDescriptionRow(description = description, activeNowLabel = activeNowLabel)
+        if (description.isNotEmpty() || activeNowLabel != null) {
+            FieldDescriptionRow(description = description, activeNowLabel = activeNowLabel)
+        }
         OutlinedTextField(
             value = draftValue,
             onValueChange = { newValue ->
@@ -379,23 +523,18 @@ private fun FieldDescriptionRow(description: String, activeNowLabel: String?) {
         )
 
         if (activeNowLabel != null) {
-            ActiveNowBadge(activeNowLabel)
+            Text(
+                text = activeNowLabel,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onPrimary,
+                modifier = Modifier
+                    .padding(start = 8.dp, bottom = 4.dp)
+                    .clip(MaterialTheme.shapes.small)
+                    .background(MaterialTheme.colorScheme.primary)
+                    .padding(horizontal = 8.dp, vertical = 2.dp)
+            )
         }
     }
-}
-
-@Composable
-private fun ActiveNowBadge(text: String) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.labelSmall,
-        color = MaterialTheme.colorScheme.onPrimary,
-        modifier = Modifier
-            .padding(start = 8.dp, bottom = 4.dp)
-            .clip(MaterialTheme.shapes.small)
-            .background(MaterialTheme.colorScheme.primary)
-            .padding(horizontal = 8.dp, vertical = 2.dp)
-    )
 }
 
 @Composable
@@ -471,4 +610,3 @@ private const val PREVIEW_MINUTE = 0
 private fun FactorScreenPreview() {
     FactorScreen(now = LocalTime.of(PREVIEW_HOUR, PREVIEW_MINUTE))
 }
-

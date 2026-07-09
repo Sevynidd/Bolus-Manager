@@ -14,6 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
+import androidx.compose.material.icons.filled.Bloodtype
 import androidx.compose.material.icons.filled.ImportExport
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Notifications
@@ -48,6 +49,7 @@ data class SettingsNavigationCallbacks(
     val onNavigateToTheme: () -> Unit = {},
     val onNavigateToLanguage: () -> Unit = {},
     val onNavigateToFactorSettings: () -> Unit = {},
+    val onNavigateToCorrection: () -> Unit = {},
     val onNavigateToNotifications: () -> Unit = {},
     val onNavigateToDataManagement: () -> Unit = {},
     val onNavigateToUpdates: () -> Unit = {}
@@ -95,6 +97,12 @@ fun SettingsScreen(
                     icon = Icons.Filled.Tune,
                     title = translate(TranslationKey.FactorSettingsTitle, currentLanguage),
                     onClick = navigation.onNavigateToFactorSettings
+                )
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                SettingsNavigationItem(
+                    icon = Icons.Filled.Bloodtype,
+                    title = translate(TranslationKey.CorrectionSettingsTitle, currentLanguage),
+                    onClick = navigation.onNavigateToCorrection
                 )
             }
         }

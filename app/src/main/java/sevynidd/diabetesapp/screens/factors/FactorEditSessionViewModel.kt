@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import sevynidd.diabetesapp.data.model.FactorSlot
 import sevynidd.diabetesapp.data.model.FactorsData
 
 data class FactorEditSessionUiState(
@@ -87,24 +88,27 @@ class FactorEditSessionViewModel(
 }
 
 private fun SavedStateHandle.restoreUiState(): FactorEditSessionUiState {
+    val names = get<ArrayList<String>>(FACTOR_NAMES_KEY)
+    val values = get<ArrayList<String>>(FACTOR_VALUES_KEY)
+    val times = get<ArrayList<Int>>(FACTOR_TIMES_KEY)
+
+    val factorSlots = if (names != null && values != null && times != null) {
+        names.indices.map { index ->
+            FactorSlot(
+                name = names[index],
+                factorValue = values.getOrElse(index) { "" },
+                startTimeMinutes = times.getOrElse(index) { 0 }
+            )
+        }
+    } else {
+        FactorsData().factorSlots
+    }
+
     return FactorEditSessionUiState(
         factors = FactorsData(
             isPeriodEnabled = get<Boolean>(IS_PERIOD_ENABLED_KEY) ?: false,
-            morningFactor = get<String>(MORNING_FACTOR_KEY).orEmpty(),
-            breakfastFactor = get<String>(BREAKFAST_FACTOR_KEY).orEmpty(),
-            lunchFactor = get<String>(LUNCH_FACTOR_KEY).orEmpty(),
-            afternoonFactor = get<String>(AFTERNOON_FACTOR_KEY).orEmpty(),
-            dinnerFactor = get<String>(DINNER_FACTOR_KEY).orEmpty(),
-            lateFactor = get<String>(LATE_FACTOR_KEY).orEmpty(),
-            nightFactor = get<String>(NIGHT_FACTOR_KEY).orEmpty(),
+            factorSlots = factorSlots,
             basalRate = get<String>(BASAL_RATE_KEY).orEmpty(),
-            morningTimeMinutes = get<Int>(MORNING_TIME_KEY) ?: (5 * 60),
-            breakfastTimeMinutes = get<Int>(BREAKFAST_TIME_KEY) ?: (9 * 60),
-            lunchTimeMinutes = get<Int>(LUNCH_TIME_KEY) ?: (12 * 60),
-            afternoonTimeMinutes = get<Int>(AFTERNOON_TIME_KEY) ?: (14 * 60),
-            dinnerTimeMinutes = get<Int>(DINNER_TIME_KEY) ?: (17 * 60),
-            lateTimeMinutes = get<Int>(LATE_TIME_KEY) ?: (20 * 60),
-            nightTimeMinutes = get<Int>(NIGHT_TIME_KEY) ?: (23 * 60),
             basalTimeMinutes = get<Int>(BASAL_TIME_KEY) ?: (19 * 60),
             basalReminderEnabled = get<Boolean>(BASAL_REMINDER_ENABLED_KEY) ?: false
         ),
@@ -115,45 +119,22 @@ private fun SavedStateHandle.restoreUiState(): FactorEditSessionUiState {
 
 private fun SavedStateHandle.persistUiState(state: FactorEditSessionUiState) {
     set(IS_PERIOD_ENABLED_KEY, state.factors.isPeriodEnabled)
-    set(MORNING_FACTOR_KEY, state.factors.morningFactor)
-    set(BREAKFAST_FACTOR_KEY, state.factors.breakfastFactor)
-    set(LUNCH_FACTOR_KEY, state.factors.lunchFactor)
-    set(AFTERNOON_FACTOR_KEY, state.factors.afternoonFactor)
-    set(DINNER_FACTOR_KEY, state.factors.dinnerFactor)
-    set(LATE_FACTOR_KEY, state.factors.lateFactor)
-    set(NIGHT_FACTOR_KEY, state.factors.nightFactor)
+    set(FACTOR_NAMES_KEY, ArrayList(state.factors.factorSlots.map { it.name }))
+    set(FACTOR_VALUES_KEY, ArrayList(state.factors.factorSlots.map { it.factorValue }))
+    set(FACTOR_TIMES_KEY, ArrayList(state.factors.factorSlots.map { it.startTimeMinutes }))
     set(BASAL_RATE_KEY, state.factors.basalRate)
-    set(MORNING_TIME_KEY, state.factors.morningTimeMinutes)
-    set(BREAKFAST_TIME_KEY, state.factors.breakfastTimeMinutes)
-    set(LUNCH_TIME_KEY, state.factors.lunchTimeMinutes)
-    set(AFTERNOON_TIME_KEY, state.factors.afternoonTimeMinutes)
-    set(DINNER_TIME_KEY, state.factors.dinnerTimeMinutes)
-    set(LATE_TIME_KEY, state.factors.lateTimeMinutes)
-    set(NIGHT_TIME_KEY, state.factors.nightTimeMinutes)
     set(BASAL_TIME_KEY, state.factors.basalTimeMinutes)
     set(BASAL_REMINDER_ENABLED_KEY, state.factors.basalReminderEnabled)
     set(IS_EDIT_MODE_KEY, state.isEditMode)
     set(PENDING_SAVE_KEY, state.pendingSave)
 }
 
-private const val MORNING_FACTOR_KEY = "factor_editor_morning"
 private const val IS_PERIOD_ENABLED_KEY = "factor_editor_is_period_enabled"
-private const val BREAKFAST_FACTOR_KEY = "factor_editor_breakfast"
-private const val LUNCH_FACTOR_KEY = "factor_editor_lunch"
-private const val AFTERNOON_FACTOR_KEY = "factor_editor_afternoon"
-private const val DINNER_FACTOR_KEY = "factor_editor_dinner"
-private const val LATE_FACTOR_KEY = "factor_editor_late"
-private const val NIGHT_FACTOR_KEY = "factor_editor_night"
+private const val FACTOR_NAMES_KEY = "factor_editor_names"
+private const val FACTOR_VALUES_KEY = "factor_editor_values"
+private const val FACTOR_TIMES_KEY = "factor_editor_times"
 private const val BASAL_RATE_KEY = "factor_editor_basal_rate"
-private const val MORNING_TIME_KEY = "factor_editor_morning_time"
-private const val BREAKFAST_TIME_KEY = "factor_editor_breakfast_time"
-private const val LUNCH_TIME_KEY = "factor_editor_lunch_time"
-private const val AFTERNOON_TIME_KEY = "factor_editor_afternoon_time"
-private const val DINNER_TIME_KEY = "factor_editor_dinner_time"
-private const val LATE_TIME_KEY = "factor_editor_late_time"
-private const val NIGHT_TIME_KEY = "factor_editor_night_time"
 private const val BASAL_TIME_KEY = "factor_editor_basal_time"
 private const val BASAL_REMINDER_ENABLED_KEY = "factor_editor_basal_reminder_enabled"
 private const val IS_EDIT_MODE_KEY = "factor_editor_is_edit_mode"
 private const val PENDING_SAVE_KEY = "factor_editor_pending_save"
-

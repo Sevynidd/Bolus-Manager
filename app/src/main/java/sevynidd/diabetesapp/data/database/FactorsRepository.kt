@@ -1,45 +1,86 @@
 package sevynidd.diabetesapp.data.database
 
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
+import sevynidd.diabetesapp.data.model.FactorSlot
 import sevynidd.diabetesapp.data.model.FactorsData
 import java.util.Locale
 
-/** Bridges the persisted [FactorProfileEntity] and the UI-friendly [FactorsData] model. */
+private const val DEFAULT_MORNING_MINUTES = 5 * 60
+private const val DEFAULT_BREAKFAST_MINUTES = 9 * 60
+private const val DEFAULT_LUNCH_MINUTES = 12 * 60
+private const val DEFAULT_AFTERNOON_MINUTES = 14 * 60
+private const val DEFAULT_DINNER_MINUTES = 17 * 60
+private const val DEFAULT_LATE_MINUTES = 20 * 60
+private const val DEFAULT_NIGHT_MINUTES = 23 * 60
+private const val DEFAULT_BASAL_TIME_MINUTES = 19 * 60
+
+private val DEFAULT_TIMES_MINUTES = listOf(
+    DEFAULT_MORNING_MINUTES,
+    DEFAULT_BREAKFAST_MINUTES,
+    DEFAULT_LUNCH_MINUTES,
+    DEFAULT_AFTERNOON_MINUTES,
+    DEFAULT_DINNER_MINUTES,
+    DEFAULT_LATE_MINUTES,
+    DEFAULT_NIGHT_MINUTES
+)
+
+/** Bridges the persisted [FactorProfileEntity]/[FactorSlotEntity] rows and the UI-friendly [FactorsData] model. */
 class FactorsRepository(
-    private val dao: FactorProfileDao
+    private val dao: FactorProfileDao,
+    private val slotDao: FactorSlotDao
 ) {
     /** The current factor profile as a [FactorsData], falling back to defaults if unset. */
-    val factorsFlow: Flow<FactorsData> = dao.observeProfile().map { entity ->
-        entity?.toFactorsData() ?: FactorsData()
+    val factorsFlow: Flow<FactorsData> = combine(dao.observeProfile(), slotDao.observeAll()) { entity, slots ->
+        FactorsData(
+            isPeriodEnabled = entity?.isPeriodEnabled ?: false,
+            factorSlots = slots.map { it.toFactorSlot() },
+            basalRate = entity?.basalRate?.toString().orEmpty(),
+            basalTimeMinutes = entity?.basalTimeMinutes ?: DEFAULT_BASAL_TIME_MINUTES,
+            basalReminderEnabled = entity?.basalReminderEnabled ?: false
+        )
     }
 
-    /** Persists [data] as the (single) factor profile. */
+    /** Persists [data] as the (single) factor profile, replacing the entire factor slot list. */
     suspend fun saveFactors(data: FactorsData) {
         dao.upsertProfile(data.toEntity())
+        slotDao.replaceAll(data.factorSlots.map { it.toEntity() })
+    }
+
+    /**
+     * Seeds [defaultNames] (paired positionally with today's original default time-of-day
+     * boundaries) as the initial factor slots, but only if none exist yet — i.e. only on a
+     * genuinely fresh install. Never overwrites factors the user has since added, removed, or
+     * renamed. Callers should pass already-localized names (e.g. via `translate()`), since this
+     * repository has no access to the current app language.
+     */
+    suspend fun seedDefaultFactorsIfEmpty(defaultNames: List<String>) {
+        if (slotDao.count() > 0) return
+
+        val seeded = defaultNames.mapIndexed { index, name ->
+            FactorSlotEntity(
+                name = name,
+                factorValue = null,
+                startTimeMinutes = DEFAULT_TIMES_MINUTES.getOrElse(index) { 0 }
+            )
+        }
+        slotDao.insertAll(seeded)
     }
 }
 
-private fun FactorProfileEntity.toFactorsData(): FactorsData {
-    return FactorsData(
-        isPeriodEnabled = isPeriodEnabled,
-        morningFactor = morningFactor.toUiString(),
-        breakfastFactor = breakfastFactor.toUiString(),
-        lunchFactor = lunchFactor.toUiString(),
-        afternoonFactor = afternoonFactor.toUiString(),
-        dinnerFactor = dinnerFactor.toUiString(),
-        lateFactor = lateFactor.toUiString(),
-        nightFactor = nightFactor.toUiString(),
-        basalRate = basalRate?.toString().orEmpty(),
-        morningTimeMinutes = morningTimeMinutes ?: (5 * 60),
-        breakfastTimeMinutes = breakfastTimeMinutes ?: (9 * 60),
-        lunchTimeMinutes = lunchTimeMinutes ?: (12 * 60),
-        afternoonTimeMinutes = afternoonTimeMinutes ?: (14 * 60),
-        dinnerTimeMinutes = dinnerTimeMinutes ?: (17 * 60),
-        lateTimeMinutes = lateTimeMinutes ?: (20 * 60),
-        nightTimeMinutes = nightTimeMinutes ?: (23 * 60),
-        basalTimeMinutes = basalTimeMinutes ?: (19 * 60),
-        basalReminderEnabled = basalReminderEnabled
+private fun FactorSlotEntity.toFactorSlot(): FactorSlot {
+    return FactorSlot(
+        name = name,
+        factorValue = factorValue.toUiString(),
+        startTimeMinutes = startTimeMinutes
+    )
+}
+
+private fun FactorSlot.toEntity(): FactorSlotEntity {
+    return FactorSlotEntity(
+        name = name,
+        factorValue = factorValue.toDbDoubleOrNull(),
+        startTimeMinutes = startTimeMinutes
     )
 }
 
@@ -47,21 +88,7 @@ private fun FactorsData.toEntity(): FactorProfileEntity {
     return FactorProfileEntity(
         id = FactorProfileEntity.SINGLE_PROFILE_ID,
         isPeriodEnabled = isPeriodEnabled,
-        morningFactor = morningFactor.toDbDoubleOrNull(),
-        breakfastFactor = breakfastFactor.toDbDoubleOrNull(),
-        lunchFactor = lunchFactor.toDbDoubleOrNull(),
-        afternoonFactor = afternoonFactor.toDbDoubleOrNull(),
-        dinnerFactor = dinnerFactor.toDbDoubleOrNull(),
-        lateFactor = lateFactor.toDbDoubleOrNull(),
-        nightFactor = nightFactor.toDbDoubleOrNull(),
         basalRate = basalRate.toIntOrNull(),
-        morningTimeMinutes = morningTimeMinutes,
-        breakfastTimeMinutes = breakfastTimeMinutes,
-        lunchTimeMinutes = lunchTimeMinutes,
-        afternoonTimeMinutes = afternoonTimeMinutes,
-        dinnerTimeMinutes = dinnerTimeMinutes,
-        lateTimeMinutes = lateTimeMinutes,
-        nightTimeMinutes = nightTimeMinutes,
         basalTimeMinutes = basalTimeMinutes,
         basalReminderEnabled = basalReminderEnabled
     )
@@ -80,4 +107,3 @@ private fun Double?.toUiString(): String {
         .trimEnd('0')
         .trimEnd(',')
 }
-
