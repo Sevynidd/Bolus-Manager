@@ -106,6 +106,7 @@ private fun OnboardingHeader(
         Text(
             text = title,
             style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(top = 4.dp)
         )
         LinearProgressIndicator(
