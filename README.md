@@ -92,6 +92,10 @@ The project is in active development, but already has a working workflow for:
     progress feedback, then hands it to the system package installer
   - Prompts the user to grant the "install unknown apps" permission if it
     hasn't been granted yet
+- **Import & Export** screen: saves the current factor profile (correction
+  factors, time windows, basal rate) to a JSON file via the system file
+  picker, or loads one from a previously exported file, immediately applying
+  it like a manual edit
 - Animated navigation within settings
 
 ### UI & Navigation
