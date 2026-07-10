@@ -265,6 +265,15 @@ class MainActivity : ComponentActivity() {
                         onFactorSaveRequested = { updatedFactors ->
                             coroutineScope.launch { factorsRepository.saveFactors(updatedFactors) }
                         },
+                        onImportResult = { imported ->
+                            coroutineScope.launch {
+                                factorsRepository.saveFactors(imported.factors)
+                                appSettingsStore.setBreadUnits(imported.breadUnits)
+                                appSettingsStore.setPeriodFactorPercent(imported.periodFactorPercent)
+                                appSettingsStore.setCorrectionSettings(imported.correctionSettings)
+                                appSettingsStore.setGender(imported.gender)
+                            }
+                        },
                         templates = templates,
                         onTemplateAddRequested = { name, emoji, carbohydrates ->
                             templatesRepository.addTemplate(name, emoji, carbohydrates)

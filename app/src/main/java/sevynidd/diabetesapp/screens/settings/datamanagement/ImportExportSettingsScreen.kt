@@ -35,10 +35,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import sevynidd.diabetesapp.data.export.FactorsExportBundle
 import sevynidd.diabetesapp.data.export.factorsExportFileName
 import sevynidd.diabetesapp.data.export.parseFactorsExportJson
 import sevynidd.diabetesapp.data.export.toExportJson
 import sevynidd.diabetesapp.data.model.FactorsData
+import sevynidd.diabetesapp.data.settings.correction.CorrectionSettings
+import sevynidd.diabetesapp.data.settings.profile.Gender
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
@@ -48,26 +51,35 @@ private const val EXPORT_MIME_TYPE = "application/json"
 
 private enum class ImportExportOutcome { ExportSuccess, ExportFailure, ImportSuccess, ImportFailure }
 
+private val DEFAULT_EXPORT_BUNDLE = FactorsExportBundle(
+    factors = FactorsData(),
+    breadUnits = 12.0,
+    periodFactorPercent = 0.0,
+    correctionSettings = CorrectionSettings(),
+    gender = Gender.PreferNotToSay
+)
+
 /**
- * Lets the user save the current factor profile (correction factors, time windows, basal rate) to
- * a JSON file via the system file picker, or load one previously exported this way. Imported data
- * is handed to [onFactorsImported] exactly like a manual edit-and-save, so it goes through the same
- * persistence path as every other factor change.
+ * Lets the user save the current factor profile and its associated calculation settings (bread
+ * units, Period surcharge, correction settings, gender) to a JSON file via the system file
+ * picker, or load one previously exported this way. Imported data is handed to [onImportResult]
+ * exactly once per successful import, so the caller can persist the whole bundle atomically
+ * instead of going through the per-field edit callbacks used elsewhere in Settings.
  */
 @Composable
 fun ImportExportSettingsScreen(
     modifier: Modifier = Modifier,
     currentLanguage: AppLanguage = AppLanguage.System,
-    factors: FactorsData = FactorsData(),
-    onFactorsImported: (FactorsData) -> Unit = {}
+    currentValues: FactorsExportBundle = DEFAULT_EXPORT_BUNDLE,
+    onImportResult: (FactorsExportBundle) -> Unit = {}
 ) {
     val context = LocalContext.current
     val isPreview = LocalInspectionMode.current
     val coroutineScope = rememberCoroutineScope()
     var outcome by remember { mutableStateOf<ImportExportOutcome?>(null) }
 
-    val exportLauncher = rememberExportLauncher(context, coroutineScope, factors) { outcome = it }
-    val importLauncher = rememberImportLauncher(context, coroutineScope, onFactorsImported) { outcome = it }
+    val exportLauncher = rememberExportLauncher(context, coroutineScope, currentValues) { outcome = it }
+    val importLauncher = rememberImportLauncher(context, coroutineScope, onImportResult) { outcome = it }
 
     Column(
         modifier = modifier.verticalScroll(rememberScrollState()),
@@ -92,13 +104,13 @@ fun ImportExportSettingsScreen(
 private fun rememberExportLauncher(
     context: Context,
     coroutineScope: CoroutineScope,
-    factors: FactorsData,
+    exportBundle: FactorsExportBundle,
     onOutcome: (ImportExportOutcome) -> Unit
 ): ActivityResultLauncher<String> {
     return rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument(EXPORT_MIME_TYPE)) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
         coroutineScope.launch {
-            onOutcome(if (writeFactorsExport(context, uri, factors)) {
+            onOutcome(if (writeFactorsExport(context, uri, exportBundle)) {
                 ImportExportOutcome.ExportSuccess
             } else {
                 ImportExportOutcome.ExportFailure
@@ -111,7 +123,7 @@ private fun rememberExportLauncher(
 private fun rememberImportLauncher(
     context: Context,
     coroutineScope: CoroutineScope,
-    onFactorsImported: (FactorsData) -> Unit,
+    onImportResult: (FactorsExportBundle) -> Unit,
     onOutcome: (ImportExportOutcome) -> Unit
 ): ActivityResultLauncher<Array<String>> {
     return rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
@@ -119,7 +131,7 @@ private fun rememberImportLauncher(
         coroutineScope.launch {
             val imported = readFactorsImport(context, uri)
             if (imported != null) {
-                onFactorsImported(imported)
+                onImportResult(imported)
                 onOutcome(ImportExportOutcome.ImportSuccess)
             } else {
                 onOutcome(ImportExportOutcome.ImportFailure)
@@ -128,15 +140,15 @@ private fun rememberImportLauncher(
     }
 }
 
-private fun writeFactorsExport(context: Context, uri: Uri, factors: FactorsData): Boolean {
+private fun writeFactorsExport(context: Context, uri: Uri, exportBundle: FactorsExportBundle): Boolean {
     return runCatching {
         context.contentResolver.openOutputStream(uri)?.use { stream ->
-            stream.write(factors.toExportJson().toByteArray(Charsets.UTF_8))
+            stream.write(exportBundle.toExportJson().toByteArray(Charsets.UTF_8))
         } != null
     }.getOrDefault(false)
 }
 
-private fun readFactorsImport(context: Context, uri: Uri): FactorsData? {
+private fun readFactorsImport(context: Context, uri: Uri): FactorsExportBundle? {
     return runCatching {
         context.contentResolver.openInputStream(uri)
             ?.bufferedReader(Charsets.UTF_8)

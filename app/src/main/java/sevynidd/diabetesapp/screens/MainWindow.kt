@@ -50,6 +50,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import sevynidd.diabetesapp.data.database.BolusTemplateEntity
+import sevynidd.diabetesapp.data.export.FactorsExportBundle
 import sevynidd.diabetesapp.data.model.FactorsData
 import sevynidd.diabetesapp.data.settings.appearance.ThemeMode
 import sevynidd.diabetesapp.data.settings.correction.CorrectionSettings
@@ -109,6 +110,7 @@ fun BolusManagerMainWindow(
     onGenderChange: (Gender) -> Unit = {},
     onReplayTutorialRequested: () -> Unit = {},
     onFactorSaveRequested: (FactorsData) -> Unit = {},
+    onImportResult: (FactorsExportBundle) -> Unit = {},
     lastDestination: AppDestinations? = null,
     onLastDestinationChange: (AppDestinations) -> Unit = {},
     openAppUpdateOnLaunch: Boolean = false,
@@ -522,8 +524,14 @@ fun BolusManagerMainWindow(
                             SettingsDestination.DataManagement -> ImportExportSettingsScreen(
                                 modifier = contentModifier,
                                 currentLanguage = currentLanguage,
-                                factors = factorEditorState.factors,
-                                onFactorsImported = onFactorSaveRequested
+                                currentValues = FactorsExportBundle(
+                                    factors = factorEditorState.factors,
+                                    breadUnits = breadUnits,
+                                    periodFactorPercent = periodFactorPercent,
+                                    correctionSettings = correctionSettings,
+                                    gender = gender
+                                ),
+                                onImportResult = onImportResult
                             )
 
                             SettingsDestination.Updates -> UpdateSettingsScreen(

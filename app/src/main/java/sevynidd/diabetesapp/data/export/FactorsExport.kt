@@ -2,6 +2,9 @@ package sevynidd.diabetesapp.data.export
 
 import sevynidd.diabetesapp.data.model.FactorSlot
 import sevynidd.diabetesapp.data.model.FactorsData
+import sevynidd.diabetesapp.data.settings.correction.CorrectionSettings
+import sevynidd.diabetesapp.data.settings.correction.GlucoseUnit
+import sevynidd.diabetesapp.data.settings.profile.Gender
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -9,10 +12,12 @@ import java.time.format.DateTimeFormatter
  * Schema version of the JSON produced by [toExportJson]. Bumped whenever the exported field set
  * changes in a way that isn't backward compatible; [parseFactorsExportJson] rejects any other
  * version rather than guessing at a migration. Version 2 replaced the 7 fixed named factor
- * fields with a variable-length `"factors"` array (see [FactorSlot]) — v1 exports are rejected
- * outright rather than upgraded.
+ * fields with a variable-length `"factors"` array (see [FactorSlot]). Version 3 added the
+ * calculation-relevant app settings that live outside the Room-backed factor profile (bread
+ * units, Period surcharge, correction threshold/step/unit, gender) so a restore doesn't silently
+ * drop them — v1 and v2 exports are rejected outright rather than upgraded.
  */
-private const val EXPORT_SCHEMA_VERSION = 2
+private const val EXPORT_SCHEMA_VERSION = 3
 
 private val EXPORT_FILE_NAME_DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
@@ -20,9 +25,23 @@ private val EXPORT_FILE_NAME_DATE_FORMATTER: DateTimeFormatter = DateTimeFormatt
 fun factorsExportFileName(date: LocalDate): String =
     "bolus-manager-factors-${date.format(EXPORT_FILE_NAME_DATE_FORMATTER)}.json"
 
-/** Serializes this factor profile (correction factors, time windows, basal rate) to portable JSON. */
-fun FactorsData.toExportJson(): String {
-    val factorsArray = factorSlots.joinToString(separator = ",\n", prefix = "[\n", postfix = "\n  ]") { slot ->
+/**
+ * Everything [toExportJson] serializes: the Room-backed factor profile (correction factors, time
+ * windows, basal rate) plus the calculation-relevant app settings that are persisted separately
+ * in DataStore but feed the same bolus/correction calculations, so they travel together in a
+ * backup/device-transfer.
+ */
+data class FactorsExportBundle(
+    val factors: FactorsData,
+    val breadUnits: Double,
+    val periodFactorPercent: Double,
+    val correctionSettings: CorrectionSettings,
+    val gender: Gender
+)
+
+/** Serializes this factor profile and its associated calculation settings to portable JSON. */
+fun FactorsExportBundle.toExportJson(): String {
+    val factorsArray = factors.factorSlots.joinToString(separator = ",\n", prefix = "[\n", postfix = "\n  ]") { slot ->
         "    {\"name\": ${slot.name.toJsonStringLiteral()}, " +
             "\"factorValue\": ${slot.factorValue.toJsonStringLiteral()}, " +
             "\"startTimeMinutes\": ${slot.startTimeMinutes}}"
@@ -30,10 +49,16 @@ fun FactorsData.toExportJson(): String {
 
     val entries = listOf(
         "schemaVersion" to EXPORT_SCHEMA_VERSION.toString(),
-        "isPeriodEnabled" to isPeriodEnabled.toString(),
-        "basalReminderEnabled" to basalReminderEnabled.toString(),
-        "basalRate" to basalRate.toJsonStringLiteral(),
-        "basalTimeMinutes" to basalTimeMinutes.toString(),
+        "isPeriodEnabled" to factors.isPeriodEnabled.toString(),
+        "basalReminderEnabled" to factors.basalReminderEnabled.toString(),
+        "basalRate" to factors.basalRate.toJsonStringLiteral(),
+        "basalTimeMinutes" to factors.basalTimeMinutes.toString(),
+        "breadUnits" to breadUnits.toString(),
+        "periodFactorPercent" to periodFactorPercent.toString(),
+        "correctionThresholdMgDl" to correctionSettings.thresholdMgDl.toString(),
+        "correctionStepMgDl" to correctionSettings.stepMgDl.toString(),
+        "glucoseUnit" to correctionSettings.glucoseUnit.name.toJsonStringLiteral(),
+        "gender" to gender.name.toJsonStringLiteral(),
         "factors" to factorsArray
     )
     return entries.joinToString(separator = ",\n", prefix = "{\n", postfix = "\n}") { (key, value) ->
@@ -42,12 +67,12 @@ fun FactorsData.toExportJson(): String {
 }
 
 /**
- * Parses JSON previously produced by [FactorsData.toExportJson] back into a [FactorsData].
+ * Parses JSON previously produced by [FactorsExportBundle.toExportJson] back into a [FactorsExportBundle].
  * Returns `null` for anything that isn't a recognizable export of the current [EXPORT_SCHEMA_VERSION]
  * (malformed JSON, missing fields, unreadable numbers) so callers can show one generic import-failed
  * message instead of handling a list of distinct parse-error types.
  */
-fun parseFactorsExportJson(json: String): FactorsData? {
+fun parseFactorsExportJson(json: String): FactorsExportBundle? {
     val extracted = extractFactorsArray(json)
     val fields = extracted?.let { runCatching { parseFlatJsonObject(it.remainingJson) }.getOrNull() }
     if (extracted == null || fields == null || fields["schemaVersion"] != EXPORT_SCHEMA_VERSION.toString()) {
@@ -55,12 +80,22 @@ fun parseFactorsExportJson(json: String): FactorsData? {
     }
 
     return runCatching {
-        FactorsData(
-            isPeriodEnabled = fields.requireBoolean("isPeriodEnabled"),
-            factorSlots = parseFactorSlotArray(extracted.arrayJson),
-            basalRate = fields.requireJsonString("basalRate"),
-            basalTimeMinutes = fields.requireInt("basalTimeMinutes"),
-            basalReminderEnabled = fields.requireBoolean("basalReminderEnabled")
+        FactorsExportBundle(
+            factors = FactorsData(
+                isPeriodEnabled = fields.requireBoolean("isPeriodEnabled"),
+                factorSlots = parseFactorSlotArray(extracted.arrayJson),
+                basalRate = fields.requireJsonString("basalRate"),
+                basalTimeMinutes = fields.requireInt("basalTimeMinutes"),
+                basalReminderEnabled = fields.requireBoolean("basalReminderEnabled")
+            ),
+            breadUnits = fields.requireDouble("breadUnits"),
+            periodFactorPercent = fields.requireDouble("periodFactorPercent"),
+            correctionSettings = CorrectionSettings(
+                thresholdMgDl = fields.requireDouble("correctionThresholdMgDl"),
+                stepMgDl = fields.requireDouble("correctionStepMgDl"),
+                glucoseUnit = fields.requireEnum<GlucoseUnit>("glucoseUnit")
+            ),
+            gender = fields.requireEnum<Gender>("gender")
         )
     }.getOrNull()
 }
@@ -133,52 +168,3 @@ private fun parseFactorSlotArray(json: String): List<FactorSlot> {
     }
 }
 
-private val JsonEntryRegex = Regex("\"(\\w+)\"\\s*:\\s*(\"(?:[^\"\\\\]|\\\\.)*\"|[^,}\\s][^,}]*)")
-
-/** Extracts top-level `"key": value` pairs from a flat (non-nested) JSON object. */
-private fun parseFlatJsonObject(json: String): Map<String, String> {
-    val trimmed = json.trim()
-    require(trimmed.startsWith("{") && trimmed.endsWith("}")) { "Not a JSON object" }
-
-    val matches = JsonEntryRegex.findAll(trimmed).associate { match ->
-        match.groupValues[1] to match.groupValues[2].trim()
-    }
-    require(matches.isNotEmpty()) { "No fields found" }
-    return matches
-}
-
-private fun Map<String, String>.requireJsonString(key: String): String {
-    val raw = getValue(key)
-    require(raw.length >= 2 && raw.startsWith("\"") && raw.endsWith("\"")) { "Expected string for $key" }
-
-    val unescaped = raw.substring(1, raw.length - 1)
-    val builder = StringBuilder(unescaped.length)
-    var index = 0
-    while (index < unescaped.length) {
-        val current = unescaped[index]
-        if (current == '\\' && index + 1 < unescaped.length) {
-            when (unescaped[index + 1]) {
-                '"' -> builder.append('"')
-                '\\' -> builder.append('\\')
-                else -> builder.append(current).append(unescaped[index + 1])
-            }
-            index += 2
-        } else {
-            builder.append(current)
-            index++
-        }
-    }
-    return builder.toString()
-}
-
-private fun Map<String, String>.requireBoolean(key: String): Boolean {
-    return when (getValue(key)) {
-        "true" -> true
-        "false" -> false
-        else -> error("Expected boolean for $key")
-    }
-}
-
-private fun Map<String, String>.requireInt(key: String): Int {
-    return getValue(key).toInt()
-}

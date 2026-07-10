@@ -57,7 +57,8 @@ and consult your doctor or diabetes care team before acting on them.
 - Tune the bread-unit value, Period surcharge, and blood-sugar correction thresholds to your needs, in either mg/dl or mmol/l
 - Optional daily reminder notification for your basal rate
 - Check for and install app updates directly from within the app
-- Export your factor profile to a file and import it again later, e.g. to move to a new device
+- Export your factor profile and calculation settings (bread units, Period surcharge, correction
+  settings, gender) to a file and import them again later, e.g. to move to a new device
 - Replay the first-run onboarding tutorial whenever you like
 
 ### UI & Navigation
