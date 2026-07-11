@@ -51,10 +51,12 @@ class BasalReminderScheduler(private val context: Context) {
     }
 
     private fun alarmPendingIntent(flags: Int): PendingIntent? {
-        val intent = Intent(context, BasalReminderReceiver::class.java).apply {
-            action = ACTION_BASAL_REMINDER_FIRED
-            setPackage(context.packageName)
-        }
+        // Built without `.apply {}` so static analysis (CodeQL's Kotlin extractor) can trace the
+        // explicit component/package/action directly on `intent`, rather than through a scope-
+        // function receiver, when flagging implicit-PendingIntent (CWE-927) sinks.
+        val intent = Intent(context, BasalReminderReceiver::class.java)
+        intent.setPackage(context.packageName)
+        intent.action = ACTION_BASAL_REMINDER_FIRED
         return PendingIntent.getBroadcast(
             context,
             ALARM_REQUEST_CODE,
