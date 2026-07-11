@@ -15,9 +15,10 @@ import java.time.format.DateTimeFormatter
  * fields with a variable-length `"factors"` array (see [FactorSlot]). Version 3 added the
  * calculation-relevant app settings that live outside the Room-backed factor profile (bread
  * units, Period surcharge, correction threshold/step/unit, gender) so a restore doesn't silently
- * drop them — v1 and v2 exports are rejected outright rather than upgraded.
+ * drop them. Version 4 added the low correction threshold used to subtract insulin below target
+ * — v1 through v3 exports are rejected outright rather than upgraded.
  */
-private const val EXPORT_SCHEMA_VERSION = 3
+private const val EXPORT_SCHEMA_VERSION = 4
 
 private val EXPORT_FILE_NAME_DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
@@ -56,6 +57,7 @@ fun FactorsExportBundle.toExportJson(): String {
         "breadUnits" to breadUnits.toString(),
         "periodFactorPercent" to periodFactorPercent.toString(),
         "correctionThresholdMgDl" to correctionSettings.thresholdMgDl.toString(),
+        "correctionLowThresholdMgDl" to correctionSettings.lowThresholdMgDl.toString(),
         "correctionStepMgDl" to correctionSettings.stepMgDl.toString(),
         "glucoseUnit" to correctionSettings.glucoseUnit.name.toJsonStringLiteral(),
         "gender" to gender.name.toJsonStringLiteral(),
@@ -92,6 +94,7 @@ fun parseFactorsExportJson(json: String): FactorsExportBundle? {
             periodFactorPercent = fields.requireDouble("periodFactorPercent"),
             correctionSettings = CorrectionSettings(
                 thresholdMgDl = fields.requireDouble("correctionThresholdMgDl"),
+                lowThresholdMgDl = fields.requireDouble("correctionLowThresholdMgDl"),
                 stepMgDl = fields.requireDouble("correctionStepMgDl"),
                 glucoseUnit = fields.requireEnum<GlucoseUnit>("glucoseUnit")
             ),

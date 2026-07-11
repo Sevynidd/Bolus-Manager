@@ -42,6 +42,7 @@ enum class TranslationKey {
     ActionClose,
     ActionBack,
     ActionTemplates,
+    HelpIconContentDescription,
     ActionDelete,
     ActionMoreOptions,
     ActionNext,
@@ -89,8 +90,13 @@ enum class TranslationKey {
     CorrectionUnits,
     CorrectionSettingsTitle,
     CorrectionThreshold,
+    CorrectionThresholdHelp,
+    CorrectionLowThreshold,
+    CorrectionLowThresholdHelp,
     CorrectionStep,
+    CorrectionStepHelp,
     GlucoseUnitLabel,
+    GlucoseUnitHelp,
     GenderSettingsTitle,
     GenderMale,
     GenderFemale,
@@ -184,6 +190,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ActionClose -> "Close"
             TranslationKey.ActionBack -> "Back"
             TranslationKey.ActionTemplates -> "Templates"
+            TranslationKey.HelpIconContentDescription -> "Help"
             TranslationKey.ActionDelete -> "Delete"
             TranslationKey.ActionMoreOptions -> "More options"
             TranslationKey.ActionNext -> "Next"
@@ -228,8 +235,21 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.CorrectionUnits -> "Correction units"
             TranslationKey.CorrectionSettingsTitle -> "Correction"
             TranslationKey.CorrectionThreshold -> "Correction threshold"
+            TranslationKey.CorrectionThresholdHelp ->
+                "If your blood sugar is above this value, extra insulin is added to your dose: " +
+                    "one unit for every correction step above the threshold, rounded to the " +
+                    "nearest whole unit."
+            TranslationKey.CorrectionLowThreshold -> "Low correction threshold"
+            TranslationKey.CorrectionLowThresholdHelp ->
+                "If your blood sugar is below this value, insulin is subtracted from your dose: " +
+                    "one unit for every correction step below the threshold, rounded to the " +
+                    "nearest whole unit. Your total dose is never reduced below zero."
             TranslationKey.CorrectionStep -> "Correction step"
+            TranslationKey.CorrectionStepHelp ->
+                "How many mg/dl (or mmol/l) of blood sugar correspond to one unit of correction " +
+                    "insulin, used for both the high and low threshold."
             TranslationKey.GlucoseUnitLabel -> "Blood glucose unit"
+            TranslationKey.GlucoseUnitHelp -> "The unit your blood sugar values are entered and displayed in."
             TranslationKey.GenderSettingsTitle -> "Gender"
             TranslationKey.GenderMale -> "Male"
             TranslationKey.GenderFemale -> "Female"
@@ -320,6 +340,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ActionClose -> "Schließen"
             TranslationKey.ActionBack -> "Zurück"
             TranslationKey.ActionTemplates -> "Vorlagen"
+            TranslationKey.HelpIconContentDescription -> "Hilfe"
             TranslationKey.ActionDelete -> "Löschen"
             TranslationKey.ActionMoreOptions -> "Weitere Optionen"
             TranslationKey.ActionNext -> "Weiter"
@@ -364,8 +385,22 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.CorrectionUnits -> "Korrektureinheiten"
             TranslationKey.CorrectionSettingsTitle -> "Korrektur"
             TranslationKey.CorrectionThreshold -> "Korrekturschwelle"
+            TranslationKey.CorrectionThresholdHelp ->
+                "Liegt dein Blutzucker über diesem Wert, wird zusätzliches Insulin zur Dosis " +
+                    "addiert: eine Einheit pro Korrekturschritt über der Schwelle, auf die " +
+                    "nächste ganze Einheit gerundet."
+            TranslationKey.CorrectionLowThreshold -> "Niedrige Korrekturschwelle"
+            TranslationKey.CorrectionLowThresholdHelp ->
+                "Liegt dein Blutzucker unter diesem Wert, wird Insulin von der Dosis abgezogen: " +
+                    "eine Einheit pro Korrekturschritt unter der Schwelle, auf die nächste ganze " +
+                    "Einheit gerundet. Die Gesamtdosis wird nie unter null reduziert."
             TranslationKey.CorrectionStep -> "Korrekturschritt"
+            TranslationKey.CorrectionStepHelp ->
+                "Wie viele mg/dl (bzw. mmol/l) Blutzucker einer Einheit Korrekturinsulin " +
+                    "entsprechen, gilt gleichermaßen für die obere und untere Schwelle."
             TranslationKey.GlucoseUnitLabel -> "Blutzucker-Einheit"
+            TranslationKey.GlucoseUnitHelp ->
+                "Die Einheit, in der deine Blutzuckerwerte eingegeben und angezeigt werden."
             TranslationKey.GenderSettingsTitle -> "Geschlecht"
             TranslationKey.GenderMale -> "Männlich"
             TranslationKey.GenderFemale -> "Weiblich"
@@ -458,6 +493,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ActionClose -> "Fermer"
             TranslationKey.ActionBack -> "Retour"
             TranslationKey.ActionTemplates -> "Modeles"
+            TranslationKey.HelpIconContentDescription -> "Aide"
             TranslationKey.ActionDelete -> "Supprimer"
             TranslationKey.ActionMoreOptions -> "Plus d'options"
             TranslationKey.ActionNext -> "Suivant"
@@ -502,8 +538,22 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.CorrectionUnits -> "Unités de correction"
             TranslationKey.CorrectionSettingsTitle -> "Correction"
             TranslationKey.CorrectionThreshold -> "Seuil de correction"
+            TranslationKey.CorrectionThresholdHelp ->
+                "Si votre glycémie est supérieure à cette valeur, de l'insuline supplémentaire " +
+                    "est ajoutée à votre dose : une unité par palier de correction au-dessus du " +
+                    "seuil, arrondie à l'unité la plus proche."
+            TranslationKey.CorrectionLowThreshold -> "Seuil bas de correction"
+            TranslationKey.CorrectionLowThresholdHelp ->
+                "Si votre glycémie est inférieure à cette valeur, de l'insuline est soustraite " +
+                    "de votre dose : une unité par palier de correction en dessous du seuil, " +
+                    "arrondie à l'unité la plus proche. La dose totale n'est jamais réduite en " +
+                    "dessous de zéro."
             TranslationKey.CorrectionStep -> "Palier de correction"
+            TranslationKey.CorrectionStepHelp ->
+                "Le nombre de mg/dl (ou mmol/l) de glycémie correspondant à une unité d'insuline " +
+                    "de correction, utilisé pour les deux seuils."
             TranslationKey.GlucoseUnitLabel -> "Unité de glycémie"
+            TranslationKey.GlucoseUnitHelp -> "L'unité dans laquelle vos valeurs de glycémie sont saisies et affichées."
             TranslationKey.GenderSettingsTitle -> "Genre"
             TranslationKey.GenderMale -> "Homme"
             TranslationKey.GenderFemale -> "Femme"
@@ -596,6 +646,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ActionClose -> "Zamknij"
             TranslationKey.ActionBack -> "Wstecz"
             TranslationKey.ActionTemplates -> "Szablony"
+            TranslationKey.HelpIconContentDescription -> "Pomoc"
             TranslationKey.ActionDelete -> "Usuń"
             TranslationKey.ActionMoreOptions -> "Więcej opcji"
             TranslationKey.ActionNext -> "Dalej"
@@ -640,8 +691,23 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.CorrectionUnits -> "Jednostki korekcyjne"
             TranslationKey.CorrectionSettingsTitle -> "Korekta"
             TranslationKey.CorrectionThreshold -> "Próg korekty"
+            TranslationKey.CorrectionThresholdHelp ->
+                "Jeśli poziom cukru we krwi jest wyższy niż ta wartość, do dawki dodawana jest " +
+                    "dodatkowa insulina: jedna jednostka za każdy krok korekty powyżej progu, " +
+                    "zaokrąglona do najbliższej całej jednostki."
+            TranslationKey.CorrectionLowThreshold -> "Niski próg korekty"
+            TranslationKey.CorrectionLowThresholdHelp ->
+                "Jeśli poziom cukru we krwi jest niższy niż ta wartość, insulina jest odejmowana " +
+                    "od dawki: jedna jednostka za każdy krok korekty poniżej progu, zaokrąglona " +
+                    "do najbliższej całej jednostki. Dawka całkowita nigdy nie jest zmniejszana " +
+                    "poniżej zera."
             TranslationKey.CorrectionStep -> "Krok korekty"
+            TranslationKey.CorrectionStepHelp ->
+                "Ile mg/dl (lub mmol/l) poziomu cukru we krwi odpowiada jednej jednostce " +
+                    "insuliny korekcyjnej, dotyczy zarówno górnego, jak i dolnego progu."
             TranslationKey.GlucoseUnitLabel -> "Jednostka glukozy we krwi"
+            TranslationKey.GlucoseUnitHelp ->
+                "Jednostka, w której wprowadzane i wyświetlane są wartości poziomu cukru we krwi."
             TranslationKey.GenderSettingsTitle -> "Płeć"
             TranslationKey.GenderMale -> "Mężczyzna"
             TranslationKey.GenderFemale -> "Kobieta"

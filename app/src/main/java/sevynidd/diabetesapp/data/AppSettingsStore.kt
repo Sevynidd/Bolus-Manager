@@ -37,6 +37,7 @@ data class AppSettings(
     val breadUnits: Double = DEFAULT_BREAD_UNITS,
     val periodFactorPercent: Double = DEFAULT_PERIOD_FACTOR_PERCENT,
     val correctionThresholdMgDl: Double = DEFAULT_CORRECTION_THRESHOLD_MGDL,
+    val correctionLowThresholdMgDl: Double = DEFAULT_CORRECTION_LOW_THRESHOLD_MGDL,
     val correctionStepMgDl: Double = DEFAULT_CORRECTION_STEP_MGDL,
     val glucoseUnit: GlucoseUnit = GlucoseUnit.MgDl,
     val gender: Gender = Gender.PreferNotToSay,
@@ -55,6 +56,7 @@ class AppSettingsStore(private val context: Context) {
         val PERIOD_FACTOR_PERCENT = stringPreferencesKey("periode_factor_percent")
         val LAST_DESTINATION = stringPreferencesKey("last_destination")
         val CORRECTION_THRESHOLD_MGDL = stringPreferencesKey("correction_threshold_mgdl")
+        val CORRECTION_LOW_THRESHOLD_MGDL = stringPreferencesKey("correction_low_threshold_mgdl")
         val CORRECTION_STEP_MGDL = stringPreferencesKey("correction_step_mgdl")
         val GLUCOSE_UNIT = stringPreferencesKey("glucose_unit")
         val GENDER = stringPreferencesKey("gender")
@@ -72,6 +74,8 @@ class AppSettingsStore(private val context: Context) {
                 .toDoubleOrDefault(DEFAULT_PERIOD_FACTOR_PERCENT),
             correctionThresholdMgDl = preferences[Keys.CORRECTION_THRESHOLD_MGDL]
                 .toDoubleOrDefault(DEFAULT_CORRECTION_THRESHOLD_MGDL),
+            correctionLowThresholdMgDl = preferences[Keys.CORRECTION_LOW_THRESHOLD_MGDL]
+                .toDoubleOrDefault(DEFAULT_CORRECTION_LOW_THRESHOLD_MGDL),
             correctionStepMgDl = preferences[Keys.CORRECTION_STEP_MGDL]
                 .toDoubleOrDefault(DEFAULT_CORRECTION_STEP_MGDL),
             glucoseUnit = preferences[Keys.GLUCOSE_UNIT].toEnumOrDefault(GlucoseUnit.MgDl),
@@ -115,10 +119,14 @@ class AppSettingsStore(private val context: Context) {
         }
     }
 
-    /** Persists the correction threshold, step, and glucose unit together, in one atomic write. */
+    /**
+     * Persists the correction threshold, low threshold, step, and glucose unit together, in one
+     * atomic write.
+     */
     suspend fun setCorrectionSettings(correctionSettings: CorrectionSettings) {
         context.appSettingsDataStore.edit { preferences ->
             preferences[Keys.CORRECTION_THRESHOLD_MGDL] = correctionSettings.thresholdMgDl.toString()
+            preferences[Keys.CORRECTION_LOW_THRESHOLD_MGDL] = correctionSettings.lowThresholdMgDl.toString()
             preferences[Keys.CORRECTION_STEP_MGDL] = correctionSettings.stepMgDl.toString()
             preferences[Keys.GLUCOSE_UNIT] = correctionSettings.glucoseUnit.name
         }
@@ -171,5 +179,6 @@ private fun String?.toDoubleOrDefault(defaultValue: Double): Double {
 private const val DEFAULT_BREAD_UNITS = 12.0
 private const val DEFAULT_PERIOD_FACTOR_PERCENT = 0.0
 private const val DEFAULT_CORRECTION_THRESHOLD_MGDL = 160.0
+private const val DEFAULT_CORRECTION_LOW_THRESHOLD_MGDL = 100.0
 private const val DEFAULT_CORRECTION_STEP_MGDL = 30.0
 

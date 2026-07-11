@@ -34,6 +34,7 @@ class FactorsExportTest {
             periodFactorPercent = 15.0,
             correctionSettings = CorrectionSettings(
                 thresholdMgDl = 150.0,
+                lowThresholdMgDl = 75.0,
                 stepMgDl = 25.0,
                 glucoseUnit = GlucoseUnit.MmolL
             ),
@@ -139,7 +140,7 @@ class FactorsExportTest {
             gender = Gender.PreferNotToSay
         )
         val futureVersionJson = defaultBundle.toExportJson().replace(
-            "\"schemaVersion\": 3",
+            "\"schemaVersion\": 4",
             "\"schemaVersion\": 99"
         )
 
@@ -148,12 +149,12 @@ class FactorsExportTest {
 
     @Test
     fun `parse rejects json missing required fields`() {
-        assertNull(parseFactorsExportJson("{\n  \"schemaVersion\": 3\n}"))
+        assertNull(parseFactorsExportJson("{\n  \"schemaVersion\": 4\n}"))
     }
 
     @Test
     fun `parse rejects json with no factors array at all`() {
-        assertNull(parseFactorsExportJson("{\n  \"schemaVersion\": 3,\n  \"isPeriodEnabled\": false\n}"))
+        assertNull(parseFactorsExportJson("{\n  \"schemaVersion\": 4,\n  \"isPeriodEnabled\": false\n}"))
     }
 
     @Test

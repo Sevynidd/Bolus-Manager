@@ -14,7 +14,12 @@ internal fun correctionUnitsFor(rawBloodSugar: String, correctionSettings: Corre
     } else {
         enteredValue
     }
-    return calculateCorrectionUnits(bloodSugarMgDl, correctionSettings.thresholdMgDl, correctionSettings.stepMgDl)
+    return calculateCorrectionUnits(
+        bloodSugarMgDl = bloodSugarMgDl,
+        thresholdMgDl = correctionSettings.thresholdMgDl,
+        lowThresholdMgDl = correctionSettings.lowThresholdMgDl,
+        stepMgDl = correctionSettings.stepMgDl
+    )
 }
 
 internal fun hasNumericInput(raw: String): Boolean = raw.replace(',', '.').toDoubleOrNull() != null
@@ -37,7 +42,7 @@ internal fun resolveNormalUnits(
         0.0
     }
     val calculatedUnits = if (carbohydratesValue != null || hasBloodSugarInput) {
-        baseUnits + correctionUnits
+        (baseUnits + correctionUnits).coerceAtLeast(0.0)
     } else {
         null
     }
@@ -58,7 +63,7 @@ internal fun resolveSplitUnits(
     val hasBloodSugarInput = hasNumericInput(splitBloodSugar)
     val correctionUnits = correctionUnitsFor(splitBloodSugar, correctionSettings)
     val totalUnits = if (splitBolus != null || hasBloodSugarInput) {
-        (splitBolus?.totalUnits ?: 0.0) + correctionUnits
+        ((splitBolus?.totalUnits ?: 0.0) + correctionUnits).coerceAtLeast(0.0)
     } else {
         null
     }

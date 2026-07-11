@@ -92,12 +92,15 @@ scaled up by the percentage you've configured before the dose is worked out:
 
 ### Correction Dose
 
-When you enter a blood-sugar value, extra correction insulin is added on
-top of the carbohydrate-based dose: one unit for each configured step your
-blood sugar is above the configured threshold, rounded to the nearest whole
-unit. With the defaults (`160` mg/dl threshold, `30` mg/dl step), a blood
-sugar of `170` mg/dl adds `0` units, `180` mg/dl adds `1` unit, and `220`
-mg/dl adds `2` units.
+When you enter a blood-sugar value, correction insulin is added to or
+subtracted from the carbohydrate-based dose: one unit for each configured
+step your blood sugar is above the configured high threshold, or one unit
+subtracted for each step it's below the configured low threshold, rounded
+to the nearest whole unit. Between the two thresholds, no correction is
+applied. With the defaults (`160` mg/dl high threshold, `80` mg/dl low
+threshold, `30` mg/dl step), a blood sugar of `170` mg/dl adds `0` units,
+`180` mg/dl adds `1` unit, `220` mg/dl adds `2` units, and `50` mg/dl
+subtracts `1` unit. The total dose is never suggested below `0` units.
 
 ## Tech Stack
 

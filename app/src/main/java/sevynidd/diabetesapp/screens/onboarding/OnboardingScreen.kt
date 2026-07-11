@@ -30,7 +30,7 @@ import sevynidd.diabetesapp.localization.translate
 import sevynidd.diabetesapp.screens.factors.FactorScreen
 import sevynidd.diabetesapp.screens.settings.appearance.ThemeSettingsScreen
 import sevynidd.diabetesapp.screens.settings.correction.CorrectionSettingsScreen
-import sevynidd.diabetesapp.screens.settings.correction.CorrectionSettingsValues
+import sevynidd.diabetesapp.screens.settings.correction.toCorrectionSettingsValues
 import sevynidd.diabetesapp.screens.settings.factor.FactorSettingsScreen
 import sevynidd.diabetesapp.screens.settings.factor.FactorSettingsValues
 import sevynidd.diabetesapp.screens.settings.language.LanguageSettingsScreen
@@ -180,11 +180,7 @@ private fun OnboardingStepContent(
         OnboardingStep.Correction -> CorrectionSettingsScreen(
             modifier = modifier,
             currentLanguage = values.currentLanguage,
-            values = CorrectionSettingsValues(
-                correctionThresholdMgDl = values.correctionSettings.thresholdMgDl,
-                correctionStepMgDl = values.correctionSettings.stepMgDl,
-                glucoseUnit = values.correctionSettings.glucoseUnit
-            ),
+            values = values.correctionSettings.toCorrectionSettingsValues(),
             callbacks = callbacks.onCorrectionSettingsChange
         )
     }

@@ -78,7 +78,7 @@ import sevynidd.diabetesapp.screens.settings.SettingsScreen
 import sevynidd.diabetesapp.screens.settings.appearance.ThemeSettingsScreen
 import sevynidd.diabetesapp.screens.settings.correction.CorrectionSettingsCallbacks
 import sevynidd.diabetesapp.screens.settings.correction.CorrectionSettingsScreen
-import sevynidd.diabetesapp.screens.settings.correction.CorrectionSettingsValues
+import sevynidd.diabetesapp.screens.settings.correction.toCorrectionSettingsValues
 import sevynidd.diabetesapp.screens.settings.datamanagement.ImportExportSettingsScreen
 import sevynidd.diabetesapp.screens.settings.factor.FactorSettingsScreen
 import sevynidd.diabetesapp.screens.settings.factor.FactorSettingsValues
@@ -506,11 +506,7 @@ fun BolusManagerMainWindow(
                             SettingsDestination.Correction -> CorrectionSettingsScreen(
                                 modifier = contentModifier,
                                 currentLanguage = currentLanguage,
-                                values = CorrectionSettingsValues(
-                                    correctionThresholdMgDl = correctionSettings.thresholdMgDl,
-                                    correctionStepMgDl = correctionSettings.stepMgDl,
-                                    glucoseUnit = correctionSettings.glucoseUnit
-                                ),
+                                values = correctionSettings.toCorrectionSettingsValues(),
                                 callbacks = onCorrectionSettingsChange
                             )
 

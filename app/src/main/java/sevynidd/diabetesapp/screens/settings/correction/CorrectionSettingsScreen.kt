@@ -27,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,9 +38,10 @@ import sevynidd.diabetesapp.data.settings.correction.GlucoseUnit
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
+import sevynidd.diabetesapp.ui.HelpIconButton
 import java.util.Locale
 
-/** Settings that tune the blood-sugar correction dose: threshold, step, and display unit. */
+/** Settings that tune the blood-sugar correction dose: high/low thresholds, step, and display unit. */
 @Composable
 fun CorrectionSettingsScreen(
     modifier: Modifier = Modifier,
@@ -58,7 +60,7 @@ fun CorrectionSettingsScreen(
         )
 
         CorrectionValueCard(
-            titleKey = TranslationKey.CorrectionThreshold,
+            labels = CorrectionValueLabels(TranslationKey.CorrectionThreshold, TranslationKey.CorrectionThresholdHelp),
             currentLanguage = currentLanguage,
             currentValueMgDl = values.correctionThresholdMgDl,
             glucoseUnit = values.glucoseUnit,
@@ -66,7 +68,18 @@ fun CorrectionSettingsScreen(
         )
 
         CorrectionValueCard(
-            titleKey = TranslationKey.CorrectionStep,
+            labels = CorrectionValueLabels(
+                TranslationKey.CorrectionLowThreshold,
+                TranslationKey.CorrectionLowThresholdHelp
+            ),
+            currentLanguage = currentLanguage,
+            currentValueMgDl = values.correctionLowThresholdMgDl,
+            glucoseUnit = values.glucoseUnit,
+            onValueMgDlChange = callbacks.onCorrectionLowThresholdMgDlChange
+        )
+
+        CorrectionValueCard(
+            labels = CorrectionValueLabels(TranslationKey.CorrectionStep, TranslationKey.CorrectionStepHelp),
             currentLanguage = currentLanguage,
             currentValueMgDl = values.correctionStepMgDl,
             glucoseUnit = values.glucoseUnit,
@@ -98,7 +111,11 @@ private fun GlucoseUnitCard(
     onGlucoseUnitChange: (GlucoseUnit) -> Unit
 ) {
     CorrectionSettingCard {
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Icon(
                 imageVector = Icons.Filled.Bloodtype,
                 contentDescription = null,
@@ -106,8 +123,10 @@ private fun GlucoseUnitCard(
             )
             Text(
                 text = translate(TranslationKey.GlucoseUnitLabel, currentLanguage),
-                style = MaterialTheme.typography.titleSmall
+                style = MaterialTheme.typography.titleSmall,
+                modifier = Modifier.weight(1f)
             )
+            HelpIconButton(helpTextKey = TranslationKey.GlucoseUnitHelp, currentLanguage = currentLanguage)
         }
 
         SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
@@ -123,9 +142,12 @@ private fun GlucoseUnitCard(
     }
 }
 
+/** The translated title and in-app help text a [CorrectionValueCard] displays. */
+private data class CorrectionValueLabels(val titleKey: TranslationKey, val helpTextKey: TranslationKey)
+
 @Composable
 private fun CorrectionValueCard(
-    titleKey: TranslationKey,
+    labels: CorrectionValueLabels,
     currentLanguage: AppLanguage,
     currentValueMgDl: Double,
     glucoseUnit: GlucoseUnit,
@@ -135,16 +157,21 @@ private fun CorrectionValueCard(
     var draftValue by rememberSaveable(currentDisplayValue) {
         mutableStateOf(currentDisplayValue.toDecimalInput())
     }
-    val label = "${translate(titleKey, currentLanguage)} (${glucoseUnitLabel(glucoseUnit)})"
+    val label = "${translate(labels.titleKey, currentLanguage)} (${glucoseUnitLabel(glucoseUnit)})"
 
     CorrectionSettingCard {
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Icon(
                 imageVector = Icons.Filled.Percent,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary
             )
-            Text(text = label, style = MaterialTheme.typography.titleSmall)
+            Text(text = label, style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
+            HelpIconButton(helpTextKey = labels.helpTextKey, currentLanguage = currentLanguage)
         }
 
         OutlinedTextField(

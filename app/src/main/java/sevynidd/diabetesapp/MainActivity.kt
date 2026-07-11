@@ -77,6 +77,7 @@ class MainActivity : ComponentActivity() {
             val settings = settingsState ?: AppSettings()
             val correctionSettings = CorrectionSettings(
                 thresholdMgDl = settings.correctionThresholdMgDl,
+                lowThresholdMgDl = settings.correctionLowThresholdMgDl,
                 stepMgDl = settings.correctionStepMgDl,
                 glucoseUnit = settings.glucoseUnit
             )
@@ -314,6 +315,11 @@ private fun correctionSettingsCallbacks(
         onCorrectionThresholdMgDlChange = { thresholdMgDl ->
             coroutineScope.launch {
                 appSettingsStore.setCorrectionSettings(correctionSettings.copy(thresholdMgDl = thresholdMgDl))
+            }
+        },
+        onCorrectionLowThresholdMgDlChange = { lowThresholdMgDl ->
+            coroutineScope.launch {
+                appSettingsStore.setCorrectionSettings(correctionSettings.copy(lowThresholdMgDl = lowThresholdMgDl))
             }
         },
         onCorrectionStepMgDlChange = { stepMgDl ->
