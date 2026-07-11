@@ -63,6 +63,23 @@ considering a task done. Do not mark a task complete if `testDebugUnitTest` fail
   without running the app. Add the preview in the same commit that adds the screen;
   keep it working (update its args) whenever the screen's parameters change.
 
+## In-App Help
+
+- Every function and every editable field (a setting, a factor, a time
+  window, a bolus calculation input) exposes in-app help the user can open
+  without leaving the screen — an info/`?` icon or tooltip next to the
+  field/control, not just an external README or support page.
+- Help text explains what the field/function means and how it affects the
+  result (e.g. what "immediate split %" does, what crossing a time-window
+  boundary changes) in plain language for the end user — not a description
+  of the implementation.
+- Help copy is a user-facing string: it goes through the `localization/`
+  mechanism like any other UI text (see `Language`) — no hardcoded help
+  text in Composables.
+- Add the help affordance in the same commit that adds the function/field;
+  don't ship an editable field without one. When a field's behavior or
+  validation rule changes, update its help text in the same commit.
+
 ## Data / Persistence
 
 - Room schema changes go through a proper migration, not ad-hoc column changes.
@@ -145,3 +162,5 @@ considering a task done. Do not mark a task complete if `testDebugUnitTest` fail
 - `README.md` reflects the change, and touched public declarations in
   `data`/domain/calculation code have up-to-date KDoc (see `Documentation`).
 - Every screen Composable still has a working `@Preview` (see `Architecture`).
+- Every new/changed function or editable field has an in-app help
+  affordance with localized help text (see `In-App Help`).
