@@ -4,6 +4,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
@@ -22,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
@@ -44,6 +46,7 @@ import sevynidd.diabetesapp.data.settings.profile.Gender
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
+import sevynidd.diabetesapp.ui.HelpIconButton
 import java.time.LocalTime
 import java.util.Locale
 import kotlin.math.roundToInt
@@ -263,19 +266,22 @@ private fun NormalModeContent(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            EditableNumberField(
-                value = inputs.bloodSugar,
-                onValueChange = inputs.onBloodSugarChange,
-                label = bloodSugarLabel(currentLanguage, inputs.glucoseUnit),
-                keyboardType = KeyboardType.Decimal,
-                imeAction = ImeAction.Done,
-                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(force = true) }),
-                sanitizeInput = { rawInput ->
-                    val sanitized = rawInput.replace('.', ',')
-                    if (sanitized.isEmpty() || sanitized.matches(DecimalInputRegex)) sanitized else null
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                EditableNumberField(
+                    value = inputs.bloodSugar,
+                    onValueChange = inputs.onBloodSugarChange,
+                    label = bloodSugarLabel(currentLanguage, inputs.glucoseUnit),
+                    keyboardType = KeyboardType.Decimal,
+                    imeAction = ImeAction.Done,
+                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(force = true) }),
+                    sanitizeInput = { rawInput ->
+                        val sanitized = rawInput.replace('.', ',')
+                        if (sanitized.isEmpty() || sanitized.matches(DecimalInputRegex)) sanitized else null
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+                HelpIconButton(helpTextKey = TranslationKey.BloodSugarHelp, currentLanguage = currentLanguage)
+            }
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 

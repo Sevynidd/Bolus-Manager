@@ -27,6 +27,7 @@ internal fun hasNumericInput(raw: String): Boolean = raw.replace(',', '.').toDou
 /** The normal-mode total/correction unit texts, blank whenever neither carbs nor blood sugar is entered. */
 internal data class NormalUnitsResult(val calculatedUnitsText: String, val correctionUnitsText: String)
 
+/** Combines the carb-based dose with the blood-sugar correction; the total is never below zero units. */
 internal fun resolveNormalUnits(
     carbohydratesValue: Double?,
     activeFactor: Double?,
@@ -55,6 +56,7 @@ internal fun resolveNormalUnits(
 /** The split-mode total/correction unit texts, blank whenever neither carbs nor blood sugar is entered. */
 internal data class SplitUnitsResult(val totalUnitsText: String, val correctionUnitsText: String)
 
+/** Combines the split-bolus dose with the blood-sugar correction; the total is never below zero units. */
 internal fun resolveSplitUnits(
     splitBolus: SplitBolusResult?,
     splitBloodSugar: String,

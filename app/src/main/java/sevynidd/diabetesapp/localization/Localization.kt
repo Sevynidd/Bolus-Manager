@@ -87,6 +87,7 @@ enum class TranslationKey {
     BreadUnits,
     FactorSettingsTitle,
     BloodSugar,
+    BloodSugarHelp,
     CorrectionUnits,
     CorrectionSettingsTitle,
     CorrectionThreshold,
@@ -232,6 +233,11 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.BreadUnits -> "Bread units"
             TranslationKey.FactorSettingsTitle -> "Factor settings"
             TranslationKey.BloodSugar -> "Blood sugar"
+            TranslationKey.BloodSugarHelp ->
+                "Enter your current blood sugar to apply a correction to your dose: units are " +
+                    "added if it's above the high correction threshold and subtracted if it's " +
+                    "below the low threshold (configured in Correction settings). Your total " +
+                    "dose is never suggested below zero."
             TranslationKey.CorrectionUnits -> "Correction units"
             TranslationKey.CorrectionSettingsTitle -> "Correction"
             TranslationKey.CorrectionThreshold -> "Correction threshold"
@@ -382,6 +388,11 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.BreadUnits -> "Broteinheiten"
             TranslationKey.FactorSettingsTitle -> "Faktor-Einstellungen"
             TranslationKey.BloodSugar -> "Blutzucker"
+            TranslationKey.BloodSugarHelp ->
+                "Gib deinen aktuellen Blutzucker ein, um eine Korrektur auf deine Dosis " +
+                    "anzuwenden: Über der oberen Korrekturschwelle werden Einheiten addiert, " +
+                    "unter der unteren Schwelle werden Einheiten abgezogen (einstellbar unter " +
+                    "Korrektur). Die Gesamtdosis wird nie unter null vorgeschlagen."
             TranslationKey.CorrectionUnits -> "Korrektureinheiten"
             TranslationKey.CorrectionSettingsTitle -> "Korrektur"
             TranslationKey.CorrectionThreshold -> "Korrekturschwelle"
@@ -535,6 +546,12 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.BreadUnits -> "Unités de pain"
             TranslationKey.FactorSettingsTitle -> "Paramètres des facteurs"
             TranslationKey.BloodSugar -> "Glycémie"
+            TranslationKey.BloodSugarHelp ->
+                "Saisissez votre glycémie actuelle pour appliquer une correction à votre dose : " +
+                    "des unités sont ajoutées si elle est supérieure au seuil haut de correction " +
+                    "et soustraites si elle est inférieure au seuil bas (réglables dans les " +
+                    "paramètres de correction). La dose totale n'est jamais suggérée en dessous " +
+                    "de zéro."
             TranslationKey.CorrectionUnits -> "Unités de correction"
             TranslationKey.CorrectionSettingsTitle -> "Correction"
             TranslationKey.CorrectionThreshold -> "Seuil de correction"
@@ -688,6 +705,11 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.BreadUnits -> "Wymienniki chlebowe"
             TranslationKey.FactorSettingsTitle -> "Ustawienia współczynnika"
             TranslationKey.BloodSugar -> "Poziom cukru we krwi"
+            TranslationKey.BloodSugarHelp ->
+                "Wprowadź aktualny poziom cukru we krwi, aby zastosować korektę dawki: jednostki " +
+                    "są dodawane, gdy poziom jest powyżej górnego progu korekty, i odejmowane, " +
+                    "gdy jest poniżej dolnego progu (ustawianych w Korekcie). Dawka całkowita " +
+                    "nigdy nie jest sugerowana poniżej zera."
             TranslationKey.CorrectionUnits -> "Jednostki korekcyjne"
             TranslationKey.CorrectionSettingsTitle -> "Korekta"
             TranslationKey.CorrectionThreshold -> "Próg korekty"

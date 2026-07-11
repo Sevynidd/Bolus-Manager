@@ -13,6 +13,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
@@ -25,6 +26,7 @@ import sevynidd.diabetesapp.data.settings.correction.GlucoseUnit
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
+import sevynidd.diabetesapp.ui.HelpIconButton
 
 /** The user-editable fields of the split-bolus form, bundled to keep composable parameter lists short. */
 internal data class SplitModeInputs(
@@ -129,21 +131,24 @@ private fun SplitCarbohydratesAndBloodSugarFields(
             .focusRequester(focus.carbohydratesRequester)
     )
 
-    EditableNumberField(
-        value = inputs.bloodSugar,
-        onValueChange = inputs.onBloodSugarChange,
-        label = splitBloodSugarLabel(currentLanguage, inputs.glucoseUnit),
-        keyboardType = KeyboardType.Decimal,
-        imeAction = ImeAction.Next,
-        keyboardActions = KeyboardActions(onNext = { focus.onBloodSugarNext() }),
-        sanitizeInput = { rawInput ->
-            val sanitized = rawInput.replace('.', ',')
-            if (sanitized.isEmpty() || sanitized.matches(DecimalInputRegex)) sanitized else null
-        },
-        modifier = Modifier
-            .fillMaxWidth()
-            .focusRequester(focus.bloodSugarRequester)
-    )
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        EditableNumberField(
+            value = inputs.bloodSugar,
+            onValueChange = inputs.onBloodSugarChange,
+            label = splitBloodSugarLabel(currentLanguage, inputs.glucoseUnit),
+            keyboardType = KeyboardType.Decimal,
+            imeAction = ImeAction.Next,
+            keyboardActions = KeyboardActions(onNext = { focus.onBloodSugarNext() }),
+            sanitizeInput = { rawInput ->
+                val sanitized = rawInput.replace('.', ',')
+                if (sanitized.isEmpty() || sanitized.matches(DecimalInputRegex)) sanitized else null
+            },
+            modifier = Modifier
+                .weight(1f)
+                .focusRequester(focus.bloodSugarRequester)
+        )
+        HelpIconButton(helpTextKey = TranslationKey.BloodSugarHelp, currentLanguage = currentLanguage)
+    }
 }
 
 @Composable
