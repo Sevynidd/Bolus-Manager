@@ -14,7 +14,6 @@ data class OnboardingCallbacks(
     val onLanguageChange: (AppLanguage) -> Unit = {},
     val onGenderChange: (Gender) -> Unit = {},
     val onFactorsChange: (FactorsData) -> Unit = {},
-    val onPeriodEnabledChange: (Boolean) -> Unit = {},
     val onBreadUnitsChange: (Double) -> Unit = {},
     val onPeriodFactorPercentChange: (Double) -> Unit = {},
     val onBasalReminderEnabledChange: (Boolean) -> Unit = {},

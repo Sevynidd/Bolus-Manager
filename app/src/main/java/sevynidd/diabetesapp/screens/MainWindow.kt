@@ -68,10 +68,13 @@ import sevynidd.diabetesapp.navigation.factorsDestinationTransition
 import sevynidd.diabetesapp.navigation.settingsDestinationTransition
 import sevynidd.diabetesapp.screens.calculate.BolusMode
 import sevynidd.diabetesapp.screens.calculate.CalculateScreen
+import sevynidd.diabetesapp.screens.calculate.CalculateScreenCallbacks
+import sevynidd.diabetesapp.screens.calculate.CalculateScreenValues
 import sevynidd.diabetesapp.screens.calculate.TemplateEditorScreen
 import sevynidd.diabetesapp.screens.calculate.TemplateManagerScreen
 import sevynidd.diabetesapp.screens.factors.FactorEditSessionViewModel
 import sevynidd.diabetesapp.screens.factors.FactorScreen
+import sevynidd.diabetesapp.screens.factors.FactorScreenState
 import sevynidd.diabetesapp.screens.factors.ScheduleFactorScreen
 import sevynidd.diabetesapp.screens.settings.SettingsNavigationCallbacks
 import sevynidd.diabetesapp.screens.settings.SettingsScreen
@@ -360,12 +363,12 @@ fun BolusManagerMainWindow(
                         when (destination) {
                             FactorsDestination.Main -> FactorScreen(
                                 modifier = contentModifier,
-                                isEditMode = factorEditorState.isEditMode,
                                 currentLanguage = currentLanguage,
-                                factors = factorEditorState.factors,
-                                gender = gender,
-                                onFactorsChange = factorEditorViewModel::updateDraft,
-                                onPeriodEnabledChange = factorEditorViewModel::updatePeriodEnabled
+                                state = FactorScreenState(
+                                    factors = factorEditorState.factors,
+                                    isEditMode = factorEditorState.isEditMode,
+                                    onFactorsChange = factorEditorViewModel::updateDraft
+                                )
                             )
 
                             FactorsDestination.EditSchedule -> ScheduleFactorScreen(
@@ -389,15 +392,20 @@ fun BolusManagerMainWindow(
                             CalculateDestination.Main -> CalculateScreen(
                                 modifier = contentModifier,
                                 currentLanguage = currentLanguage,
-                                factors = factorEditorState.factors,
-                                breadUnits = breadUnits,
-                                periodFactorPercent = periodFactorPercent,
-                                correctionSettings = correctionSettings,
-                                gender = gender,
-                                templatePrefillCarbohydrates = templatePrefillCarbohydrates,
-                                templatePrefillToken = templatePrefillToken,
-                                selectedMode = calculateBolusMode,
-                                onSelectedModeChange = { calculateBolusMode = it }
+                                values = CalculateScreenValues(
+                                    factors = factorEditorState.factors,
+                                    breadUnits = breadUnits,
+                                    periodFactorPercent = periodFactorPercent,
+                                    correctionSettings = correctionSettings,
+                                    gender = gender,
+                                    templatePrefillCarbohydrates = templatePrefillCarbohydrates,
+                                    templatePrefillToken = templatePrefillToken,
+                                    selectedMode = calculateBolusMode
+                                ),
+                                callbacks = CalculateScreenCallbacks(
+                                    onSelectedModeChange = { calculateBolusMode = it },
+                                    onPeriodEnabledChange = factorEditorViewModel::updatePeriodEnabled
+                                )
                             )
 
                             CalculateDestination.Templates -> TemplateManagerScreen(

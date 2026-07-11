@@ -2,6 +2,7 @@ package sevynidd.diabetesapp.screens.settings.appearance
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -15,6 +16,7 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -22,6 +24,7 @@ import sevynidd.diabetesapp.data.settings.appearance.ThemeMode
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.translate
 import sevynidd.diabetesapp.localization.TranslationKey
+import sevynidd.diabetesapp.ui.HelpIconButton
 import sevynidd.diabetesapp.ui.theme.ContrastLevel
 
 @Composable
@@ -70,10 +73,14 @@ private fun ThemeModeCard(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text(
-                text = translate(TranslationKey.ThemeMode, currentLanguage),
-                style = MaterialTheme.typography.titleMedium
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = translate(TranslationKey.ThemeMode, currentLanguage),
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.weight(1f)
+                )
+                HelpIconButton(helpTextKey = TranslationKey.ThemeModeHelp, currentLanguage = currentLanguage)
+            }
 
             SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                 ThemeMode.entries.forEachIndexed { index, mode ->
@@ -108,10 +115,14 @@ private fun ContrastLevelCard(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text(
-                text = translate(TranslationKey.ContrastLevel, currentLanguage),
-                style = MaterialTheme.typography.titleMedium
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = translate(TranslationKey.ContrastLevel, currentLanguage),
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.weight(1f)
+                )
+                HelpIconButton(helpTextKey = TranslationKey.ContrastLevelHelp, currentLanguage = currentLanguage)
+            }
 
             SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                 ContrastLevel.entries.forEachIndexed { index, level ->

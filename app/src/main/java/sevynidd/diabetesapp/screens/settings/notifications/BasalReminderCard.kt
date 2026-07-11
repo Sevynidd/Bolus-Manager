@@ -37,6 +37,7 @@ import sevynidd.diabetesapp.data.notifications.BasalReminderScheduler
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
+import sevynidd.diabetesapp.ui.HelpIconButton
 
 /**
  * Toggle for the daily basal-rate reminder notification. Requests the `POST_NOTIFICATIONS`
@@ -66,12 +67,12 @@ internal fun BasalReminderCard(
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = translate(TranslationKey.BasalReminderEnabled, currentLanguage),
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.weight(1f)
                 )
                 Switch(
                     checked = isEnabled,
@@ -82,6 +83,7 @@ internal fun BasalReminderCard(
                         }
                     }
                 )
+                HelpIconButton(helpTextKey = TranslationKey.BasalReminderHelp, currentLanguage = currentLanguage)
             }
 
             if (isEnabled && !hasExactAlarmPermission && scheduler != null) {

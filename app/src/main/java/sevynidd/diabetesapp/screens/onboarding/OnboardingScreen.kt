@@ -28,6 +28,7 @@ import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
 import sevynidd.diabetesapp.screens.factors.FactorScreen
+import sevynidd.diabetesapp.screens.factors.FactorScreenState
 import sevynidd.diabetesapp.screens.settings.appearance.ThemeSettingsScreen
 import sevynidd.diabetesapp.screens.settings.correction.CorrectionSettingsScreen
 import sevynidd.diabetesapp.screens.settings.correction.toCorrectionSettingsValues
@@ -128,12 +129,12 @@ private fun OnboardingStepContent(
     when (step) {
         OnboardingStep.Factors -> FactorScreen(
             modifier = modifier,
-            isEditMode = true,
             currentLanguage = values.currentLanguage,
-            factors = values.factors,
-            gender = values.gender,
-            onFactorsChange = callbacks.onFactorsChange,
-            onPeriodEnabledChange = callbacks.onPeriodEnabledChange
+            state = FactorScreenState(
+                factors = values.factors,
+                isEditMode = true,
+                onFactorsChange = callbacks.onFactorsChange
+            )
         )
 
         OnboardingStep.Gender -> GenderSettingsScreen(

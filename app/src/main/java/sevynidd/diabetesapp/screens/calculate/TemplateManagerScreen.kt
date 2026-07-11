@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -52,6 +53,7 @@ import sevynidd.diabetesapp.data.database.BolusTemplateEntity
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
+import sevynidd.diabetesapp.ui.HelpIconButton
 import java.util.Locale
 
 enum class TemplateSortOrder {
@@ -169,28 +171,31 @@ private fun TemplateSortSelector(
     val options = listOf(TemplateSortOrder.RecentlyUsed, TemplateSortOrder.Alphabetical)
     val groupLabel = translate(TranslationKey.TemplateSortTitle, currentLanguage)
 
-    SingleChoiceSegmentedButtonRow(
-        modifier = modifier
-            .fillMaxWidth()
-            .semantics { contentDescription = groupLabel }
-    ) {
-        options.forEachIndexed { index, option ->
-            SegmentedButton(
-                shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
-                selected = option == sortOrder,
-                onClick = { onSortOrderChange(option) },
-                label = {
-                    Text(
-                        text = when (option) {
-                            TemplateSortOrder.RecentlyUsed ->
-                                translate(TranslationKey.TemplateSortRecent, currentLanguage)
-                            TemplateSortOrder.Alphabetical ->
-                                translate(TranslationKey.TemplateSortAlphabetical, currentLanguage)
-                        }
-                    )
-                }
-            )
+    Row(modifier = modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        SingleChoiceSegmentedButtonRow(
+            modifier = Modifier
+                .weight(1f)
+                .semantics { contentDescription = groupLabel }
+        ) {
+            options.forEachIndexed { index, option ->
+                SegmentedButton(
+                    shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
+                    selected = option == sortOrder,
+                    onClick = { onSortOrderChange(option) },
+                    label = {
+                        Text(
+                            text = when (option) {
+                                TemplateSortOrder.RecentlyUsed ->
+                                    translate(TranslationKey.TemplateSortRecent, currentLanguage)
+                                TemplateSortOrder.Alphabetical ->
+                                    translate(TranslationKey.TemplateSortAlphabetical, currentLanguage)
+                            }
+                        )
+                    }
+                )
+            }
         }
+        HelpIconButton(helpTextKey = TranslationKey.TemplateSortHelp, currentLanguage = currentLanguage)
     }
 }
 

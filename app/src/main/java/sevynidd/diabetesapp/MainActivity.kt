@@ -196,11 +196,6 @@ class MainActivity : ComponentActivity() {
                             onFactorsChange = { updatedFactors ->
                                 coroutineScope.launch { factorsRepository.saveFactors(updatedFactors) }
                             },
-                            onPeriodEnabledChange = { enabled ->
-                                coroutineScope.launch {
-                                    factorsRepository.saveFactors(factors.copy(isPeriodEnabled = enabled))
-                                }
-                            },
                             onBreadUnitsChange = { breadUnits ->
                                 coroutineScope.launch { appSettingsStore.setBreadUnits(breadUnits) }
                             },

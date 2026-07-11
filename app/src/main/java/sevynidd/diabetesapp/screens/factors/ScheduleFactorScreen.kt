@@ -3,6 +3,7 @@ package sevynidd.diabetesapp.screens.factors
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -41,6 +42,7 @@ import sevynidd.diabetesapp.libraries.gappedPieChart.PieData
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
+import sevynidd.diabetesapp.ui.HelpIconButton
 import java.time.LocalTime
 import kotlin.math.max
 
@@ -108,6 +110,7 @@ fun ScheduleFactorScreen(
         )
 
         ScheduleTimesCard(
+            currentLanguage = currentLanguage,
             scheduleFields = scheduleFields,
             onFieldClick = { activePicker = it }
         )
@@ -226,6 +229,7 @@ private fun ScheduleChartCard(
 
 @Composable
 private fun ScheduleTimesCard(
+    currentLanguage: AppLanguage,
     scheduleFields: List<ScheduleFieldItem>,
     onFieldClick: (ScheduleEditTarget) -> Unit
 ) {
@@ -240,6 +244,14 @@ private fun ScheduleTimesCard(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = translate(TranslationKey.FactorStartTime, currentLanguage),
+                    style = MaterialTheme.typography.titleSmall,
+                    modifier = Modifier.weight(1f)
+                )
+                HelpIconButton(helpTextKey = TranslationKey.FactorStartTimeHelp, currentLanguage = currentLanguage)
+            }
             scheduleFields.forEach { item ->
                 TimePickerField(
                     description = item.title,

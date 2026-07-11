@@ -43,6 +43,7 @@ import sevynidd.diabetesapp.data.database.BolusTemplateEntity
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
+import sevynidd.diabetesapp.ui.HelpIconButton
 import java.util.Locale
 
 /**
@@ -112,11 +113,15 @@ fun TemplateEditorScreen(
             ) {
                 EmojiPreview(emoji = emoji.ifBlank { null })
 
-                EmojiInputField(
-                    value = emoji,
-                    onValueChange = { emoji = it },
-                    label = translate(TranslationKey.TemplateEmojiOptional, currentLanguage)
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    EmojiInputField(
+                        value = emoji,
+                        onValueChange = { emoji = it },
+                        label = translate(TranslationKey.TemplateEmojiOptional, currentLanguage),
+                        modifier = Modifier.weight(1f)
+                    )
+                    HelpIconButton(helpTextKey = TranslationKey.TemplateEmojiHelp, currentLanguage = currentLanguage)
+                }
             }
         }
 
@@ -129,32 +134,38 @@ fun TemplateEditorScreen(
                 modifier = Modifier.padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text(translate(TranslationKey.TemplateName, currentLanguage)) },
-                    singleLine = true,
-                    isError = hasDuplicateName,
-                    supportingText = {
-                        if (hasDuplicateName) {
-                            Text(translate(TranslationKey.TemplateDuplicateNameError, currentLanguage))
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    OutlinedTextField(
+                        value = name,
+                        onValueChange = { name = it },
+                        label = { Text(translate(TranslationKey.TemplateName, currentLanguage)) },
+                        singleLine = true,
+                        isError = hasDuplicateName,
+                        supportingText = {
+                            if (hasDuplicateName) {
+                                Text(translate(TranslationKey.TemplateDuplicateNameError, currentLanguage))
+                            }
+                        },
+                        modifier = Modifier.weight(1f)
+                    )
+                    HelpIconButton(helpTextKey = TranslationKey.TemplateNameHelp, currentLanguage = currentLanguage)
+                }
 
-                OutlinedTextField(
-                    value = carbohydrates,
-                    onValueChange = { newValue ->
-                        if (newValue.isEmpty() || newValue.matches(CarbohydratesInputRegex)) {
-                            carbohydrates = newValue
-                        }
-                    },
-                    label = { Text(translate(TranslationKey.Carbohydrates, currentLanguage)) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    OutlinedTextField(
+                        value = carbohydrates,
+                        onValueChange = { newValue ->
+                            if (newValue.isEmpty() || newValue.matches(CarbohydratesInputRegex)) {
+                                carbohydrates = newValue
+                            }
+                        },
+                        label = { Text(translate(TranslationKey.Carbohydrates, currentLanguage)) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        singleLine = true,
+                        modifier = Modifier.weight(1f)
+                    )
+                    HelpIconButton(helpTextKey = TranslationKey.CarbohydratesHelp, currentLanguage = currentLanguage)
+                }
             }
         }
 

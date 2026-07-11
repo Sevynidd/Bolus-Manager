@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,6 +32,7 @@ import sevynidd.diabetesapp.data.settings.profile.Gender
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
+import sevynidd.diabetesapp.ui.HelpIconButton
 import java.util.Locale
 
 /** Settings that tune the bolus/factor calculation itself: bread units and the period surcharge. */
@@ -88,7 +90,11 @@ private fun BreadUnitsCard(
     }
 
     FactorSettingCard {
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Icon(
                 imageVector = Icons.Filled.Grain,
                 contentDescription = null,
@@ -96,8 +102,10 @@ private fun BreadUnitsCard(
             )
             Text(
                 text = translate(TranslationKey.BreadUnits, currentLanguage),
-                style = MaterialTheme.typography.titleSmall
+                style = MaterialTheme.typography.titleSmall,
+                modifier = Modifier.weight(1f)
             )
+            HelpIconButton(helpTextKey = TranslationKey.BreadUnitsHelp, currentLanguage = currentLanguage)
         }
 
         OutlinedTextField(
@@ -127,7 +135,11 @@ private fun PeriodFactorCard(
     }
 
     FactorSettingCard {
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Icon(
                 imageVector = Icons.Filled.Percent,
                 contentDescription = null,
@@ -135,8 +147,10 @@ private fun PeriodFactorCard(
             )
             Text(
                 text = translate(TranslationKey.PeriodFactorPercent, currentLanguage),
-                style = MaterialTheme.typography.titleSmall
+                style = MaterialTheme.typography.titleSmall,
+                modifier = Modifier.weight(1f)
             )
+            HelpIconButton(helpTextKey = TranslationKey.PeriodFactorPercentHelp, currentLanguage = currentLanguage)
         }
 
         OutlinedTextField(

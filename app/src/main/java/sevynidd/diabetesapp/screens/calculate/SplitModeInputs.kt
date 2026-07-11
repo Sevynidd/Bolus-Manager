@@ -82,21 +82,27 @@ internal fun SplitInputsCard(
                 onImmediatePercentNext = { splitDurationRequester.requestFocus() }
             )
 
-            EditableNumberField(
-                value = inputs.durationMinutes,
-                onValueChange = inputs.onDurationMinutesChange,
-                label = translate(TranslationKey.BolusDurationMinutes, currentLanguage),
-                keyboardType = KeyboardType.Decimal,
-                imeAction = ImeAction.Done,
-                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(force = true) }),
-                sanitizeInput = { rawInput ->
-                    val sanitized = rawInput.replace('.', ',')
-                    if (sanitized.isEmpty() || sanitized.matches(DecimalInputRegex)) sanitized else null
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(splitDurationRequester)
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                EditableNumberField(
+                    value = inputs.durationMinutes,
+                    onValueChange = inputs.onDurationMinutesChange,
+                    label = translate(TranslationKey.BolusDurationMinutes, currentLanguage),
+                    keyboardType = KeyboardType.Decimal,
+                    imeAction = ImeAction.Done,
+                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(force = true) }),
+                    sanitizeInput = { rawInput ->
+                        val sanitized = rawInput.replace('.', ',')
+                        if (sanitized.isEmpty() || sanitized.matches(DecimalInputRegex)) sanitized else null
+                    },
+                    modifier = Modifier
+                        .weight(1f)
+                        .focusRequester(splitDurationRequester)
+                )
+                HelpIconButton(
+                    helpTextKey = TranslationKey.BolusDurationMinutesHelp,
+                    currentLanguage = currentLanguage
+                )
+            }
         }
     }
 }
@@ -115,21 +121,24 @@ private fun SplitCarbohydratesAndBloodSugarFields(
     currentLanguage: AppLanguage,
     focus: SplitCarbsAndBloodSugarFocus
 ) {
-    EditableNumberField(
-        value = inputs.carbohydrates,
-        onValueChange = inputs.onCarbohydratesChange,
-        label = translate(TranslationKey.Carbohydrates, currentLanguage),
-        keyboardType = KeyboardType.Decimal,
-        imeAction = ImeAction.Next,
-        keyboardActions = KeyboardActions(onNext = { focus.onCarbohydratesNext() }),
-        sanitizeInput = { rawInput ->
-            val sanitized = rawInput.replace('.', ',')
-            if (sanitized.isEmpty() || sanitized.matches(DecimalInputRegex)) sanitized else null
-        },
-        modifier = Modifier
-            .fillMaxWidth()
-            .focusRequester(focus.carbohydratesRequester)
-    )
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        EditableNumberField(
+            value = inputs.carbohydrates,
+            onValueChange = inputs.onCarbohydratesChange,
+            label = translate(TranslationKey.Carbohydrates, currentLanguage),
+            keyboardType = KeyboardType.Decimal,
+            imeAction = ImeAction.Next,
+            keyboardActions = KeyboardActions(onNext = { focus.onCarbohydratesNext() }),
+            sanitizeInput = { rawInput ->
+                val sanitized = rawInput.replace('.', ',')
+                if (sanitized.isEmpty() || sanitized.matches(DecimalInputRegex)) sanitized else null
+            },
+            modifier = Modifier
+                .weight(1f)
+                .focusRequester(focus.carbohydratesRequester)
+        )
+        HelpIconButton(helpTextKey = TranslationKey.CarbohydratesHelp, currentLanguage = currentLanguage)
+    }
 
     Row(verticalAlignment = Alignment.CenterVertically) {
         EditableNumberField(
@@ -160,7 +169,8 @@ private fun SplitPercentRow(
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         EditableNumberField(
             value = inputs.immediatePercent,
@@ -183,6 +193,8 @@ private fun SplitPercentRow(
             singleLine = true,
             modifier = Modifier.weight(1f)
         )
+
+        HelpIconButton(helpTextKey = TranslationKey.BolusImmediatePercentHelp, currentLanguage = currentLanguage)
     }
 }
 

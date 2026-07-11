@@ -38,14 +38,14 @@ and consult your doctor or diabetes care team before acting on them.
 - Keep a personal list of correction factors, each tied to a time of day, plus your basal rate
 - A pie chart gives you an at-a-glance overview of your daily schedule
 - The factor currently in effect is highlighted with a "Now" badge
-- A **Period** toggle temporarily scales up all factors by a percentage you set —
-  only shown and applied when your gender is set to Female
 
 ### Calculate
 
 - **Normal** and **Split Bolus** modes, calculated automatically as you type
 - Split bolus splits your carbs into an immediate and a delayed share, using the right factor for each
 - An optional blood-sugar field adds a correction dose to the total automatically
+- A **Period** toggle temporarily scales up all factors by a percentage you set —
+  only shown and applied when your gender is set to Female
 - Uses your configured bread-unit value
 - Save frequently used carb amounts as named, emoji-tagged **templates** for one-tap reuse
 
