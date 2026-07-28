@@ -193,8 +193,8 @@ class MainActivity : ComponentActivity() {
                             onGenderChange = { gender ->
                                 coroutineScope.launch { appSettingsStore.setGender(gender) }
                             },
-                            onFactorsChange = { updatedFactors ->
-                                coroutineScope.launch { factorsRepository.saveFactors(updatedFactors) }
+                            onFactorsChange = { transform ->
+                                coroutineScope.launch { factorsRepository.saveFactors(transform(factors)) }
                             },
                             onBreadUnitsChange = { breadUnits ->
                                 coroutineScope.launch { appSettingsStore.setBreadUnits(breadUnits) }

@@ -65,23 +65,23 @@ fun ScheduleFactorScreen(
     modifier: Modifier = Modifier,
     currentLanguage: AppLanguage = AppLanguage.System,
     factors: FactorsData = FactorsData(),
-    onFactorsChange: (FactorsData) -> Unit = {},
+    onFactorsChange: ((FactorsData) -> FactorsData) -> Unit = {},
     now: LocalTime = LocalTime.now()
 ) {
     var activePicker by rememberSaveable { mutableStateOf<ScheduleEditTarget?>(null) }
 
     fun updateTime(target: ScheduleEditTarget, selectedMinutes: Int) {
-        onFactorsChange(
+        onFactorsChange { current ->
             when (target) {
-                is ScheduleEditTarget.Factor -> factors.copy(
-                    factorSlots = factors.factorSlots.withUpdatedTime(target.index, selectedMinutes)
+                is ScheduleEditTarget.Factor -> current.copy(
+                    factorSlots = current.factorSlots.withUpdatedTime(target.index, selectedMinutes)
                 )
 
-                ScheduleEditTarget.Basal -> factors.copy(
+                ScheduleEditTarget.Basal -> current.copy(
                     basalTimeMinutes = selectedMinutes.coerceIn(0, MINUTES_PER_DAY - 1)
                 )
             }
-        )
+        }
     }
 
     val isDarkTheme = MaterialTheme.colorScheme.surface.luminance() < MID_LUMINANCE

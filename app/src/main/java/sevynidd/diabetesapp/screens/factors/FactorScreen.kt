@@ -51,7 +51,7 @@ private const val MINUTES_PER_HOUR = 60
 data class FactorScreenState(
     val factors: FactorsData = FactorsData(),
     val isEditMode: Boolean = false,
-    val onFactorsChange: (FactorsData) -> Unit = {}
+    val onFactorsChange: ((FactorsData) -> FactorsData) -> Unit = {}
 )
 
 /**
@@ -90,13 +90,13 @@ fun FactorScreen(
     var basalRate by rememberSaveable(factors.basalRate) { mutableStateOf(factors.basalRate) }
     var isAddDialogVisible by rememberSaveable { mutableStateOf(false) }
 
-    fun emitFactorsChanged(updatedSlots: List<FactorSlot> = factors.factorSlots) {
-        state.onFactorsChange(
-            factors.copy(
-                factorSlots = updatedSlots,
+    fun emitFactorsChanged(updateSlots: (List<FactorSlot>) -> List<FactorSlot> = { it }) {
+        state.onFactorsChange { current ->
+            current.copy(
+                factorSlots = updateSlots(current.factorSlots),
                 basalRate = basalRate
             )
-        )
+        }
     }
 
     val derived = deriveFactorScreenState(factors, now)
@@ -133,10 +133,11 @@ fun FactorScreen(
             initialTimeMinutes = factors.factorSlots.suggestedNewSlotTimeMinutes(),
             onDismissRequest = { isAddDialogVisible = false },
             onConfirm = { name, factorValue, timeMinutes ->
-                val withNewSlot = factors.factorSlots +
-                    FactorSlot(name = name, factorValue = factorValue, startTimeMinutes = timeMinutes)
-                val reordered = withNewSlot.withUpdatedTime(withNewSlot.lastIndex, timeMinutes)
-                emitFactorsChanged(reordered)
+                emitFactorsChanged { currentSlots ->
+                    val withNewSlot = currentSlots +
+                        FactorSlot(name = name, factorValue = factorValue, startTimeMinutes = timeMinutes)
+                    withNewSlot.withUpdatedTime(withNewSlot.lastIndex, timeMinutes)
+                }
                 isAddDialogVisible = false
             }
         )
@@ -152,7 +153,7 @@ private data class FactorsListState(
 
 /** The edit actions for [FactorsListCard], bundled to keep its parameter list short. */
 private data class FactorsListCallbacks(
-    val onSlotsChanged: (List<FactorSlot>) -> Unit,
+    val onSlotsChanged: ((List<FactorSlot>) -> List<FactorSlot>) -> Unit,
     val onAddClick: () -> Unit
 )
 
@@ -212,7 +213,7 @@ private fun FactorListItem(
     currentLanguage: AppLanguage,
     activeNowLabel: String,
     state: FactorsListState,
-    onSlotsChanged: (List<FactorSlot>) -> Unit
+    onSlotsChanged: ((List<FactorSlot>) -> List<FactorSlot>) -> Unit
 ) {
     val (index, slot) = item
     val factorSlots = state.factors.factorSlots
@@ -234,15 +235,17 @@ private fun FactorListItem(
         ),
         callbacks = FactorRowCallbacks(
             onNameChange = { newName ->
-                onSlotsChanged(factorSlots.toMutableList().apply { this[index] = this[index].copy(name = newName) })
+                onSlotsChanged { currentSlots ->
+                    currentSlots.toMutableList().apply { this[index] = this[index].copy(name = newName) }
+                }
             },
             onValueChange = { newValue ->
-                onSlotsChanged(
-                    factorSlots.toMutableList().apply { this[index] = this[index].copy(factorValue = newValue) }
-                )
+                onSlotsChanged { currentSlots ->
+                    currentSlots.toMutableList().apply { this[index] = this[index].copy(factorValue = newValue) }
+                }
             },
             onDeleteClick = {
-                onSlotsChanged(factorSlots.toMutableList().apply { removeAt(index) })
+                onSlotsChanged { currentSlots -> currentSlots.toMutableList().apply { removeAt(index) } }
             }
         )
     )

@@ -13,7 +13,7 @@ data class OnboardingCallbacks(
     val onContrastLevelChange: (ContrastLevel) -> Unit = {},
     val onLanguageChange: (AppLanguage) -> Unit = {},
     val onGenderChange: (Gender) -> Unit = {},
-    val onFactorsChange: (FactorsData) -> Unit = {},
+    val onFactorsChange: ((FactorsData) -> FactorsData) -> Unit = {},
     val onBreadUnitsChange: (Double) -> Unit = {},
     val onPeriodFactorPercentChange: (Double) -> Unit = {},
     val onBasalReminderEnabledChange: (Boolean) -> Unit = {},

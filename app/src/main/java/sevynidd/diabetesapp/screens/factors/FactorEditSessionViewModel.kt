@@ -43,9 +43,16 @@ class FactorEditSessionViewModel(
         }
     }
 
-    fun updateDraft(factors: FactorsData) {
-        if (uiState.factors != factors) {
-            updateState(uiState.copy(factors = factors))
+    /**
+     * Applies [transform] to the current draft rather than replacing it with a precomputed
+     * [FactorsData]: several fields can normalize and commit in the same frame (e.g. every field
+     * does so at once when edit mode ends), and each must see the others' just-applied edits
+     * instead of overwriting them with a snapshot captured before those edits landed.
+     */
+    fun updateDraft(transform: (FactorsData) -> FactorsData) {
+        val updatedFactors = transform(uiState.factors)
+        if (uiState.factors != updatedFactors) {
+            updateState(uiState.copy(factors = updatedFactors))
         }
     }
 

@@ -42,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -131,6 +132,7 @@ fun BolusManagerMainWindow(
     val factorEditorViewModel: FactorEditSessionViewModel = viewModel()
     val factorEditorState = factorEditorViewModel.uiState
     val updateCheckViewModel: UpdateCheckViewModel = viewModel()
+    val focusManager = LocalFocusManager.current
     val context = LocalContext.current
     val activity = remember(context) { context.findActivity() }
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -167,6 +169,11 @@ fun BolusManagerMainWindow(
     fun navigateTo(destination: AppDestinations) {
         if (destination == currentDestination) return
 
+        // Clearing focus first commits any in-progress text field edit via its
+        // onFocusChanged handler before the destination switch removes the field
+        // from composition, which would otherwise silently drop the edit.
+        focusManager.clearFocus(force = true)
+
         if (currentDestination == AppDestinations.FACTORS) {
             leaveFactorsEditMode(shouldSave = true)
         }
@@ -200,6 +207,7 @@ fun BolusManagerMainWindow(
         }
 
         if (currentDestination == AppDestinations.FACTORS) {
+            focusManager.clearFocus(force = true)
             leaveFactorsEditMode(shouldSave = true)
         }
     }
