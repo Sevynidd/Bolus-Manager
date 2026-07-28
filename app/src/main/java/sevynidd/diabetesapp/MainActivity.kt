@@ -31,10 +31,12 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import sevynidd.diabetesapp.calculation.diffFactorChanges
 import sevynidd.diabetesapp.data.AppSettings
 import sevynidd.diabetesapp.data.AppSettingsStore
 import sevynidd.diabetesapp.data.database.BolusTemplatesRepository
 import sevynidd.diabetesapp.data.database.DiabetesDatabase
+import sevynidd.diabetesapp.data.database.FactorAuditLogRepository
 import sevynidd.diabetesapp.data.model.FactorsData
 import sevynidd.diabetesapp.data.notifications.AppUpdateNotifier
 import sevynidd.diabetesapp.data.notifications.BasalReminderScheduler
@@ -70,6 +72,9 @@ class MainActivity : ComponentActivity() {
         val templatesRepository = BolusTemplatesRepository(
             DiabetesDatabase.getInstance(applicationContext).bolusTemplateDao()
         )
+        val factorAuditLogRepository = FactorAuditLogRepository(
+            DiabetesDatabase.getInstance(applicationContext).factorAuditLogDao()
+        )
         val basalReminderScheduler = BasalReminderScheduler(applicationContext)
 
         setContent {
@@ -82,6 +87,7 @@ class MainActivity : ComponentActivity() {
                 glucoseUnit = settings.glucoseUnit
             )
             val factors by factorsRepository.factorsFlow.collectAsState(initial = FactorsData())
+            val auditLog by factorAuditLogRepository.auditLogFlow.collectAsState(initial = emptyList())
             val templates by templatesRepository.templatesFlow.collectAsState(initial = emptyList())
             val lastDestination by appSettingsStore.lastDestinationFlow.collectAsState(initial = null)
             val coroutineScope = rememberCoroutineScope()
@@ -259,17 +265,25 @@ class MainActivity : ComponentActivity() {
                         openAppUpdateOnLaunch = openAppUpdateOnLaunch,
                         factorData = factors,
                         onFactorSaveRequested = { updatedFactors ->
-                            coroutineScope.launch { factorsRepository.saveFactors(updatedFactors) }
+                            val previousFactors = factors
+                            coroutineScope.launch {
+                                factorsRepository.saveFactors(updatedFactors)
+                                factorAuditLogRepository.logChanges(diffFactorChanges(previousFactors, updatedFactors))
+                            }
                         },
                         onImportResult = { imported ->
+                            val previousFactors = factors
                             coroutineScope.launch {
                                 factorsRepository.saveFactors(imported.factors)
+                                val changes = diffFactorChanges(previousFactors, imported.factors)
+                                factorAuditLogRepository.logChanges(changes)
                                 appSettingsStore.setBreadUnits(imported.breadUnits)
                                 appSettingsStore.setPeriodFactorPercent(imported.periodFactorPercent)
                                 appSettingsStore.setCorrectionSettings(imported.correctionSettings)
                                 appSettingsStore.setGender(imported.gender)
                             }
                         },
+                        auditLog = auditLog,
                         templates = templates,
                         onTemplateAddRequested = { name, emoji, carbohydrates ->
                             templatesRepository.addTemplate(name, emoji, carbohydrates)

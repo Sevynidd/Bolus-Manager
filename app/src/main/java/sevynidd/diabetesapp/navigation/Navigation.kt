@@ -40,6 +40,7 @@ enum class SettingsDestination {
     Correction,
     Notifications,
     DataManagement,
+    Statistics,
     Updates
 }
 

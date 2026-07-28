@@ -52,6 +52,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import sevynidd.diabetesapp.data.database.BolusTemplateEntity
 import sevynidd.diabetesapp.data.export.FactorsExportBundle
+import sevynidd.diabetesapp.data.model.FactorAuditLogEntry
 import sevynidd.diabetesapp.data.model.FactorsData
 import sevynidd.diabetesapp.data.settings.appearance.ThemeMode
 import sevynidd.diabetesapp.data.settings.correction.CorrectionSettings
@@ -89,6 +90,7 @@ import sevynidd.diabetesapp.screens.settings.factor.FactorSettingsValues
 import sevynidd.diabetesapp.screens.settings.language.LanguageSettingsScreen
 import sevynidd.diabetesapp.screens.settings.notifications.NotificationSettingsScreen
 import sevynidd.diabetesapp.screens.settings.profile.GenderSettingsScreen
+import sevynidd.diabetesapp.screens.settings.statistics.StatisticsSettingsScreen
 import sevynidd.diabetesapp.screens.settings.update.UpdateCheckViewModel
 import sevynidd.diabetesapp.screens.settings.update.UpdateSettingsScreen
 import sevynidd.diabetesapp.ui.theme.ContrastLevel
@@ -115,6 +117,7 @@ fun BolusManagerMainWindow(
     onReplayTutorialRequested: () -> Unit = {},
     onFactorSaveRequested: (FactorsData) -> Unit = {},
     onImportResult: (FactorsExportBundle) -> Unit = {},
+    auditLog: List<FactorAuditLogEntry> = emptyList(),
     lastDestination: AppDestinations? = null,
     onLastDestinationChange: (AppDestinations) -> Unit = {},
     openAppUpdateOnLaunch: Boolean = false,
@@ -274,6 +277,9 @@ fun BolusManagerMainWindow(
 
                     AppDestinations.SETTINGS if settingsDestination == SettingsDestination.DataManagement ->
                         translate(TranslationKey.DataManagementTitle, currentLanguage)
+
+                    AppDestinations.SETTINGS if settingsDestination == SettingsDestination.Statistics ->
+                        translate(TranslationKey.StatisticsSettingsTitle, currentLanguage)
 
                     AppDestinations.SETTINGS if settingsDestination == SettingsDestination.Updates ->
                         translate(TranslationKey.AppUpdateTitle, currentLanguage)
@@ -478,6 +484,9 @@ fun BolusManagerMainWindow(
                                     onNavigateToDataManagement = {
                                         settingsDestination = SettingsDestination.DataManagement
                                     },
+                                    onNavigateToStatistics = {
+                                        settingsDestination = SettingsDestination.Statistics
+                                    },
                                     onNavigateToUpdates = { settingsDestination = SettingsDestination.Updates },
                                     onReplayTutorial = onReplayTutorialRequested
                                 )
@@ -544,6 +553,12 @@ fun BolusManagerMainWindow(
                                     gender = gender
                                 ),
                                 onImportResult = onImportResult
+                            )
+
+                            SettingsDestination.Statistics -> StatisticsSettingsScreen(
+                                modifier = contentModifier,
+                                currentLanguage = currentLanguage,
+                                auditLog = auditLog
                             )
 
                             SettingsDestination.Updates -> UpdateSettingsScreen(

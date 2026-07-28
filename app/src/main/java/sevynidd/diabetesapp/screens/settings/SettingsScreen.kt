@@ -14,6 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
+import androidx.compose.material.icons.filled.Assessment
 import androidx.compose.material.icons.filled.Bloodtype
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.ImportExport
@@ -55,6 +56,7 @@ data class SettingsNavigationCallbacks(
     val onNavigateToCorrection: () -> Unit = {},
     val onNavigateToNotifications: () -> Unit = {},
     val onNavigateToDataManagement: () -> Unit = {},
+    val onNavigateToStatistics: () -> Unit = {},
     val onNavigateToUpdates: () -> Unit = {},
     val onReplayTutorial: () -> Unit = {}
 )
@@ -91,6 +93,11 @@ fun SettingsScreen(
             Icons.Filled.Bloodtype,
             TranslationKey.CorrectionSettingsTitle,
             navigation.onNavigateToCorrection
+        ),
+        SettingsEntry(
+            Icons.Filled.Assessment,
+            TranslationKey.StatisticsSettingsTitle,
+            navigation.onNavigateToStatistics
         ),
         SettingsEntry(Icons.Filled.History, TranslationKey.ReplayTutorial, navigation.onReplayTutorial)
     )

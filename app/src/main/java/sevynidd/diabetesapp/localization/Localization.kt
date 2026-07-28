@@ -176,7 +176,30 @@ enum class TranslationKey {
     ExportSuccessMessage,
     ExportErrorMessage,
     ImportSuccessMessage,
-    ImportErrorMessage
+    ImportErrorMessage,
+
+    // Statistics & documentation
+    StatisticsSettingsTitle,
+    StatisticsSettingsHelp,
+    StatisticsSectionTitle,
+    StatisticsSectionHelp,
+    StatisticsEmptyState,
+    StatisticsSeriesNotEnoughData,
+    DocumentationSectionTitle,
+    DocumentationSectionHelp,
+    DocumentationEmptyState,
+    LogExportSuccessMessage,
+    LogExportErrorMessage,
+    AuditLogCsvDateHeader,
+    AuditLogCsvDescriptionHeader,
+    AuditFactorAdded,
+    AuditFactorValueChanged,
+    AuditFactorTimeChanged,
+    AuditFactorDeleted,
+    AuditBasalRateChanged,
+    AuditBasalTimeChanged,
+    AuditUnknownChange,
+    AuditValueNotSet
 }
 
 /** The localized text for [key] in [language]; [AppLanguage.System] resolves to the device locale. */
@@ -398,6 +421,34 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ExportErrorMessage -> "Couldn't export factors."
             TranslationKey.ImportSuccessMessage -> "Factors imported successfully."
             TranslationKey.ImportErrorMessage -> "Couldn't import factors. Make sure the file is a valid export."
+
+            // Statistics & documentation
+            TranslationKey.StatisticsSettingsTitle -> "Statistics & Documentation"
+            TranslationKey.StatisticsSettingsHelp ->
+                "Shows how your factors and basal rate have changed over time, and keeps a written " +
+                    "log of every change. You can export this history to share with your endocrinologist."
+            TranslationKey.StatisticsSectionTitle -> "Statistics"
+            TranslationKey.StatisticsSectionHelp ->
+                "Charts how each factor's value and your basal rate developed over time, based on your edit history."
+            TranslationKey.StatisticsEmptyState -> "No value history recorded yet."
+            TranslationKey.StatisticsSeriesNotEnoughData -> "Not enough history yet"
+            TranslationKey.DocumentationSectionTitle -> "Change log"
+            TranslationKey.DocumentationSectionHelp ->
+                "A chronological record of every time a factor or your basal rate was added, edited, " +
+                    "or deleted, with the old and new values."
+            TranslationKey.DocumentationEmptyState -> "No changes recorded yet."
+            TranslationKey.LogExportSuccessMessage -> "Change log exported successfully."
+            TranslationKey.LogExportErrorMessage -> "Couldn't export the change log."
+            TranslationKey.AuditLogCsvDateHeader -> "Date"
+            TranslationKey.AuditLogCsvDescriptionHeader -> "Description"
+            TranslationKey.AuditFactorAdded -> "Factor \"%1\$s\" was added with value %2\$s."
+            TranslationKey.AuditFactorValueChanged -> "Factor \"%1\$s\" value changed from %2\$s to %3\$s."
+            TranslationKey.AuditFactorTimeChanged -> "Factor \"%1\$s\" start time changed from %2\$s to %3\$s."
+            TranslationKey.AuditFactorDeleted -> "Factor \"%1\$s\" (value %2\$s) was deleted."
+            TranslationKey.AuditBasalRateChanged -> "Basal rate changed from %1\$s to %2\$s units/hour."
+            TranslationKey.AuditBasalTimeChanged -> "Basal rate time changed from %1\$s to %2\$s."
+            TranslationKey.AuditUnknownChange -> "Unknown change."
+            TranslationKey.AuditValueNotSet -> "not set"
         }
 
         AppLanguage.German -> when (key) {
@@ -623,6 +674,37 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ImportSuccessMessage -> "Faktoren erfolgreich importiert."
             TranslationKey.ImportErrorMessage ->
                 "Faktoren konnten nicht importiert werden. Stelle sicher, dass die Datei ein gültiger Export ist."
+
+            // Statistics & documentation
+            TranslationKey.StatisticsSettingsTitle -> "Statistik & Dokumentation"
+            TranslationKey.StatisticsSettingsHelp ->
+                "Zeigt, wie sich deine Faktoren und deine Basalrate im Laufe der Zeit verändert haben, und " +
+                    "führt ein schriftliches Protokoll jeder Änderung. Du kannst diesen Verlauf exportieren, " +
+                    "um ihn mit deiner Diabetologin oder deinem Diabetologen zu teilen."
+            TranslationKey.StatisticsSectionTitle -> "Statistik"
+            TranslationKey.StatisticsSectionHelp ->
+                "Zeigt anhand deines Änderungsverlaufs in Diagrammen, wie sich der Wert jedes Faktors und " +
+                    "deine Basalrate über die Zeit entwickelt haben."
+            TranslationKey.StatisticsEmptyState -> "Noch kein Wertverlauf aufgezeichnet."
+            TranslationKey.StatisticsSeriesNotEnoughData -> "Noch nicht genug Verlaufsdaten"
+            TranslationKey.DocumentationSectionTitle -> "Änderungsprotokoll"
+            TranslationKey.DocumentationSectionHelp ->
+                "Eine chronologische Aufzeichnung jeder Hinzufügung, Änderung oder Löschung eines Faktors " +
+                    "oder deiner Basalrate, mit altem und neuem Wert."
+            TranslationKey.DocumentationEmptyState -> "Noch keine Änderungen aufgezeichnet."
+            TranslationKey.LogExportSuccessMessage -> "Änderungsprotokoll erfolgreich exportiert."
+            TranslationKey.LogExportErrorMessage -> "Änderungsprotokoll konnte nicht exportiert werden."
+            TranslationKey.AuditLogCsvDateHeader -> "Datum"
+            TranslationKey.AuditLogCsvDescriptionHeader -> "Beschreibung"
+            TranslationKey.AuditFactorAdded -> "Faktor \"%1\$s\" wurde mit dem Wert %2\$s hinzugefügt."
+            TranslationKey.AuditFactorValueChanged -> "Wert von Faktor \"%1\$s\" wurde von %2\$s auf %3\$s geändert."
+            TranslationKey.AuditFactorTimeChanged ->
+                "Startzeit von Faktor \"%1\$s\" wurde von %2\$s auf %3\$s geändert."
+            TranslationKey.AuditFactorDeleted -> "Faktor \"%1\$s\" (Wert %2\$s) wurde gelöscht."
+            TranslationKey.AuditBasalRateChanged -> "Basalrate wurde von %1\$s auf %2\$s Einheiten/Stunde geändert."
+            TranslationKey.AuditBasalTimeChanged -> "Basalrate-Uhrzeit wurde von %1\$s auf %2\$s geändert."
+            TranslationKey.AuditUnknownChange -> "Unbekannte Änderung."
+            TranslationKey.AuditValueNotSet -> "nicht festgelegt"
         }
 
         AppLanguage.French -> when (key) {
@@ -852,6 +934,37 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ImportSuccessMessage -> "Facteurs importés avec succès."
             TranslationKey.ImportErrorMessage ->
                 "Impossible d'importer les facteurs. Vérifiez que le fichier est un export valide."
+
+            // Statistics & documentation
+            TranslationKey.StatisticsSettingsTitle -> "Statistiques et documentation"
+            TranslationKey.StatisticsSettingsHelp ->
+                "Montre l'évolution de vos facteurs et de votre débit basal au fil du temps, et conserve un " +
+                    "journal écrit de chaque modification. Vous pouvez exporter cet historique pour le " +
+                    "partager avec votre endocrinologue."
+            TranslationKey.StatisticsSectionTitle -> "Statistiques"
+            TranslationKey.StatisticsSectionHelp ->
+                "Affiche sous forme de graphiques l'évolution de la valeur de chaque facteur et de votre " +
+                    "débit basal, d'après votre historique de modifications."
+            TranslationKey.StatisticsEmptyState -> "Aucun historique de valeurs enregistré pour le moment."
+            TranslationKey.StatisticsSeriesNotEnoughData -> "Pas encore assez d'historique"
+            TranslationKey.DocumentationSectionTitle -> "Journal des modifications"
+            TranslationKey.DocumentationSectionHelp ->
+                "Un enregistrement chronologique de chaque ajout, modification ou suppression d'un facteur " +
+                    "ou de votre débit basal, avec les anciennes et nouvelles valeurs."
+            TranslationKey.DocumentationEmptyState -> "Aucune modification enregistrée pour le moment."
+            TranslationKey.LogExportSuccessMessage -> "Journal des modifications exporté avec succès."
+            TranslationKey.LogExportErrorMessage -> "Impossible d'exporter le journal des modifications."
+            TranslationKey.AuditLogCsvDateHeader -> "Date"
+            TranslationKey.AuditLogCsvDescriptionHeader -> "Description"
+            TranslationKey.AuditFactorAdded -> "Le facteur « %1\$s » a été ajouté avec la valeur %2\$s."
+            TranslationKey.AuditFactorValueChanged -> "La valeur du facteur « %1\$s » est passée de %2\$s à %3\$s."
+            TranslationKey.AuditFactorTimeChanged ->
+                "L'heure de début du facteur « %1\$s » est passée de %2\$s à %3\$s."
+            TranslationKey.AuditFactorDeleted -> "Le facteur « %1\$s » (valeur %2\$s) a été supprimé."
+            TranslationKey.AuditBasalRateChanged -> "Le débit basal est passé de %1\$s à %2\$s unités/heure."
+            TranslationKey.AuditBasalTimeChanged -> "L'heure du débit basal est passée de %1\$s à %2\$s."
+            TranslationKey.AuditUnknownChange -> "Modification inconnue."
+            TranslationKey.AuditValueNotSet -> "non défini"
         }
 
         AppLanguage.Polish -> when (key) {
@@ -1080,6 +1193,37 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ImportSuccessMessage -> "Współczynniki zaimportowane pomyślnie."
             TranslationKey.ImportErrorMessage ->
                 "Nie udało się zaimportować współczynników. Upewnij się, że plik jest prawidłowym eksportem."
+
+            // Statistics & documentation
+            TranslationKey.StatisticsSettingsTitle -> "Statystyki i dokumentacja"
+            TranslationKey.StatisticsSettingsHelp ->
+                "Pokazuje, jak zmieniały się Twoje współczynniki i dawka podstawowa w czasie, oraz prowadzi " +
+                    "pisemny dziennik każdej zmiany. Możesz wyeksportować tę historię, aby podzielić się " +
+                    "nią z diabetologiem."
+            TranslationKey.StatisticsSectionTitle -> "Statystyki"
+            TranslationKey.StatisticsSectionHelp ->
+                "Pokazuje na wykresach, jak zmieniała się wartość każdego współczynnika i dawka podstawowa " +
+                    "w czasie, na podstawie historii zmian."
+            TranslationKey.StatisticsEmptyState -> "Nie zarejestrowano jeszcze historii wartości."
+            TranslationKey.StatisticsSeriesNotEnoughData -> "Za mało danych historycznych"
+            TranslationKey.DocumentationSectionTitle -> "Dziennik zmian"
+            TranslationKey.DocumentationSectionHelp ->
+                "Chronologiczny zapis każdego dodania, zmiany lub usunięcia współczynnika lub dawki " +
+                    "podstawowej, wraz ze starą i nową wartością."
+            TranslationKey.DocumentationEmptyState -> "Nie zarejestrowano jeszcze żadnych zmian."
+            TranslationKey.LogExportSuccessMessage -> "Dziennik zmian wyeksportowany pomyślnie."
+            TranslationKey.LogExportErrorMessage -> "Nie udało się wyeksportować dziennika zmian."
+            TranslationKey.AuditLogCsvDateHeader -> "Data"
+            TranslationKey.AuditLogCsvDescriptionHeader -> "Opis"
+            TranslationKey.AuditFactorAdded -> "Współczynnik „%1\$s” został dodany z wartością %2\$s."
+            TranslationKey.AuditFactorValueChanged -> "Wartość współczynnika „%1\$s” zmieniła się z %2\$s na %3\$s."
+            TranslationKey.AuditFactorTimeChanged ->
+                "Godzina rozpoczęcia współczynnika „%1\$s” zmieniła się z %2\$s na %3\$s."
+            TranslationKey.AuditFactorDeleted -> "Współczynnik „%1\$s” (wartość %2\$s) został usunięty."
+            TranslationKey.AuditBasalRateChanged -> "Dawka podstawowa zmieniła się z %1\$s na %2\$s jednostek/godzinę."
+            TranslationKey.AuditBasalTimeChanged -> "Godzina dawki podstawowej zmieniła się z %1\$s na %2\$s."
+            TranslationKey.AuditUnknownChange -> "Nieznana zmiana."
+            TranslationKey.AuditValueNotSet -> "nie ustawiono"
         }
 
         AppLanguage.System -> error("SystemDefault must be resolved before translating")
