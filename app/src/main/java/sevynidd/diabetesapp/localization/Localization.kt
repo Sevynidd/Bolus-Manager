@@ -445,7 +445,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.AuditFactorValueChanged -> "Factor \"%1\$s\" value changed from %2\$s to %3\$s."
             TranslationKey.AuditFactorTimeChanged -> "Factor \"%1\$s\" start time changed from %2\$s to %3\$s."
             TranslationKey.AuditFactorDeleted -> "Factor \"%1\$s\" (value %2\$s) was deleted."
-            TranslationKey.AuditBasalRateChanged -> "Basal rate changed from %1\$s to %2\$s units/hour."
+            TranslationKey.AuditBasalRateChanged -> "Basal rate changed from %1\$s to %2\$s units/day."
             TranslationKey.AuditBasalTimeChanged -> "Basal rate time changed from %1\$s to %2\$s."
             TranslationKey.AuditUnknownChange -> "Unknown change."
             TranslationKey.AuditValueNotSet -> "not set"
@@ -701,7 +701,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.AuditFactorTimeChanged ->
                 "Startzeit von Faktor \"%1\$s\" wurde von %2\$s auf %3\$s geändert."
             TranslationKey.AuditFactorDeleted -> "Faktor \"%1\$s\" (Wert %2\$s) wurde gelöscht."
-            TranslationKey.AuditBasalRateChanged -> "Basalrate wurde von %1\$s auf %2\$s Einheiten/Stunde geändert."
+            TranslationKey.AuditBasalRateChanged -> "Basalrate wurde von %1\$s auf %2\$s Einheiten/Tag geändert."
             TranslationKey.AuditBasalTimeChanged -> "Basalrate-Uhrzeit wurde von %1\$s auf %2\$s geändert."
             TranslationKey.AuditUnknownChange -> "Unbekannte Änderung."
             TranslationKey.AuditValueNotSet -> "nicht festgelegt"
@@ -961,7 +961,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.AuditFactorTimeChanged ->
                 "L'heure de début du facteur « %1\$s » est passée de %2\$s à %3\$s."
             TranslationKey.AuditFactorDeleted -> "Le facteur « %1\$s » (valeur %2\$s) a été supprimé."
-            TranslationKey.AuditBasalRateChanged -> "Le débit basal est passé de %1\$s à %2\$s unités/heure."
+            TranslationKey.AuditBasalRateChanged -> "Le débit basal est passé de %1\$s à %2\$s unités/jour."
             TranslationKey.AuditBasalTimeChanged -> "L'heure du débit basal est passée de %1\$s à %2\$s."
             TranslationKey.AuditUnknownChange -> "Modification inconnue."
             TranslationKey.AuditValueNotSet -> "non défini"
@@ -1220,7 +1220,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.AuditFactorTimeChanged ->
                 "Godzina rozpoczęcia współczynnika „%1\$s” zmieniła się z %2\$s na %3\$s."
             TranslationKey.AuditFactorDeleted -> "Współczynnik „%1\$s” (wartość %2\$s) został usunięty."
-            TranslationKey.AuditBasalRateChanged -> "Dawka podstawowa zmieniła się z %1\$s na %2\$s jednostek/godzinę."
+            TranslationKey.AuditBasalRateChanged -> "Dawka podstawowa zmieniła się z %1\$s na %2\$s jednostek/dzień."
             TranslationKey.AuditBasalTimeChanged -> "Godzina dawki podstawowej zmieniła się z %1\$s na %2\$s."
             TranslationKey.AuditUnknownChange -> "Nieznana zmiana."
             TranslationKey.AuditValueNotSet -> "nie ustawiono"
