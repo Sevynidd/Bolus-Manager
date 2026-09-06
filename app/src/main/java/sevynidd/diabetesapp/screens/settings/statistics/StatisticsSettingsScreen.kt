@@ -7,14 +7,17 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FileDownload
+import androidx.compose.material.icons.filled.PictureAsPdf
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,34 +33,45 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import sevynidd.diabetesapp.data.export.auditLogExportFileName
+import sevynidd.diabetesapp.data.export.buildFactorsPdfReportContent
+import sevynidd.diabetesapp.data.export.factorsPdfReportFileName
 import sevynidd.diabetesapp.data.export.toAuditLogCsv
 import sevynidd.diabetesapp.data.model.FactorAuditLogEntry
+import sevynidd.diabetesapp.data.model.FactorsData
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
 import java.time.LocalDate
 
-private const val EXPORT_MIME_TYPE = "text/csv"
+private const val CSV_EXPORT_MIME_TYPE = "text/csv"
+private const val PDF_EXPORT_MIME_TYPE = "application/pdf"
 
 private enum class LogExportOutcome { Success, Failure }
 
 /**
  * Shows how factors and the basal rate developed over time (Statistics) and a chronological log
  * of every add/edit/delete (Documentation), both derived from [auditLog], and lets the user export
- * the full log as CSV to share with their endocrinologist.
+ * the full log as CSV, or [factors] and the log together as a printable PDF report, to share with
+ * their endocrinologist.
  */
 @Composable
 fun StatisticsSettingsScreen(
     modifier: Modifier = Modifier,
     currentLanguage: AppLanguage = AppLanguage.System,
-    auditLog: List<FactorAuditLogEntry> = emptyList()
+    auditLog: List<FactorAuditLogEntry> = emptyList(),
+    factors: FactorsData = FactorsData()
 ) {
     val context = LocalContext.current
     val isPreview = LocalInspectionMode.current
     val coroutineScope = rememberCoroutineScope()
-    var exportOutcome by remember { mutableStateOf<LogExportOutcome?>(null) }
-    val exportLauncher = rememberLogExportLauncher(context, coroutineScope, auditLog, currentLanguage) {
-        exportOutcome = it
+    var csvExportOutcome by remember { mutableStateOf<LogExportOutcome?>(null) }
+    var pdfExportOutcome by remember { mutableStateOf<LogExportOutcome?>(null) }
+    val csvExportLauncher = rememberCsvExportLauncher(context, coroutineScope, auditLog, currentLanguage) {
+        csvExportOutcome = it
+    }
+    val pdfExportRequest = PdfExportRequest(factors, auditLog, currentLanguage)
+    val pdfExportLauncher = rememberPdfExportLauncher(context, coroutineScope, pdfExportRequest) {
+        pdfExportOutcome = it
     }
 
     Column(
@@ -72,10 +86,15 @@ fun StatisticsSettingsScreen(
 
         ExportCard(
             currentLanguage = currentLanguage,
-            outcome = exportOutcome,
-            onExportClick = {
-                exportOutcome = null
-                if (!isPreview) exportLauncher.launch(auditLogExportFileName(LocalDate.now()))
+            csvOutcome = csvExportOutcome,
+            pdfOutcome = pdfExportOutcome,
+            onExportCsvClick = {
+                csvExportOutcome = null
+                if (!isPreview) csvExportLauncher.launch(auditLogExportFileName(LocalDate.now()))
+            },
+            onExportPdfClick = {
+                pdfExportOutcome = null
+                if (!isPreview) pdfExportLauncher.launch(factorsPdfReportFileName(LocalDate.now()))
             }
         )
 
@@ -86,17 +105,40 @@ fun StatisticsSettingsScreen(
 }
 
 @Composable
-private fun rememberLogExportLauncher(
+private fun rememberCsvExportLauncher(
     context: Context,
     coroutineScope: CoroutineScope,
     auditLog: List<FactorAuditLogEntry>,
     currentLanguage: AppLanguage,
     onOutcome: (LogExportOutcome) -> Unit
 ): ActivityResultLauncher<String> {
-    return rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument(EXPORT_MIME_TYPE)) { uri ->
+    return rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument(CSV_EXPORT_MIME_TYPE)) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
         coroutineScope.launch {
             val success = writeAuditLogExport(context, uri, auditLog, currentLanguage)
+            onOutcome(if (success) LogExportOutcome.Success else LogExportOutcome.Failure)
+        }
+    }
+}
+
+/** The inputs [rememberPdfExportLauncher] needs, bundled to keep its parameter count reasonable. */
+private data class PdfExportRequest(
+    val factors: FactorsData,
+    val auditLog: List<FactorAuditLogEntry>,
+    val language: AppLanguage
+)
+
+@Composable
+private fun rememberPdfExportLauncher(
+    context: Context,
+    coroutineScope: CoroutineScope,
+    request: PdfExportRequest,
+    onOutcome: (LogExportOutcome) -> Unit
+): ActivityResultLauncher<String> {
+    return rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument(PDF_EXPORT_MIME_TYPE)) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        coroutineScope.launch {
+            val success = writeFactorsPdfExport(context, uri, request)
             onOutcome(if (success) LogExportOutcome.Success else LogExportOutcome.Failure)
         }
     }
@@ -115,39 +157,70 @@ private fun writeAuditLogExport(
     }.getOrDefault(false)
 }
 
+private fun writeFactorsPdfExport(context: Context, uri: Uri, request: PdfExportRequest): Boolean {
+    return runCatching {
+        val content = buildFactorsPdfReportContent(request.factors, request.auditLog, request.language)
+        context.contentResolver.openOutputStream(uri)?.use { stream ->
+            renderFactorsPdfReport(content, stream)
+        } == true
+    }.getOrDefault(false)
+}
+
 @Composable
 private fun ExportCard(
     currentLanguage: AppLanguage,
-    outcome: LogExportOutcome?,
-    onExportClick: () -> Unit
+    csvOutcome: LogExportOutcome?,
+    pdfOutcome: LogExportOutcome?,
+    onExportCsvClick: () -> Unit,
+    onExportPdfClick: () -> Unit
 ) {
     SettingsCard {
-        Button(onClick = onExportClick) {
-            Icon(imageVector = Icons.Filled.FileDownload, contentDescription = null)
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Button(onClick = onExportCsvClick) {
+                Icon(imageVector = Icons.Filled.FileDownload, contentDescription = null)
+                Text(
+                    text = translate(TranslationKey.ActionExportCsv, currentLanguage),
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+            }
+
+            OutlinedButton(onClick = onExportPdfClick) {
+                Icon(imageVector = Icons.Filled.PictureAsPdf, contentDescription = null)
+                Text(
+                    text = translate(TranslationKey.ActionExportPdf, currentLanguage),
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+            }
+        }
+
+        csvOutcome?.let {
             Text(
-                text = translate(TranslationKey.ActionExport, currentLanguage),
-                modifier = Modifier.padding(start = 8.dp)
+                text = translate(it.toMessageKey(isPdf = false), currentLanguage),
+                style = MaterialTheme.typography.bodyMedium,
+                color = it.toMessageColor()
             )
         }
 
-        outcome?.let {
+        pdfOutcome?.let {
             Text(
-                text = translate(it.toMessageKey(), currentLanguage),
+                text = translate(it.toMessageKey(isPdf = true), currentLanguage),
                 style = MaterialTheme.typography.bodyMedium,
-                color = if (it == LogExportOutcome.Failure) {
-                    MaterialTheme.colorScheme.error
-                } else {
-                    MaterialTheme.colorScheme.primary
-                }
+                color = it.toMessageColor()
             )
         }
     }
 }
 
-private fun LogExportOutcome.toMessageKey(): TranslationKey {
+@Composable
+private fun LogExportOutcome.toMessageColor() =
+    if (this == LogExportOutcome.Failure) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+
+private fun LogExportOutcome.toMessageKey(isPdf: Boolean): TranslationKey {
     return when (this) {
-        LogExportOutcome.Success -> TranslationKey.LogExportSuccessMessage
-        LogExportOutcome.Failure -> TranslationKey.LogExportErrorMessage
+        LogExportOutcome.Success ->
+            if (isPdf) TranslationKey.PdfExportSuccessMessage else TranslationKey.LogExportSuccessMessage
+        LogExportOutcome.Failure ->
+            if (isPdf) TranslationKey.PdfExportErrorMessage else TranslationKey.LogExportErrorMessage
     }
 }
 

@@ -188,10 +188,18 @@ enum class TranslationKey {
     DocumentationSectionTitle,
     DocumentationSectionHelp,
     DocumentationEmptyState,
+    ActionExportCsv,
+    ActionExportPdf,
     LogExportSuccessMessage,
     LogExportErrorMessage,
     AuditLogCsvDateHeader,
     AuditLogCsvDescriptionHeader,
+    PdfExportSuccessMessage,
+    PdfExportErrorMessage,
+    PdfReportTitle,
+    PdfGeneratedOnLabel,
+    PdfFactorTimeWindowHeader,
+    PdfBasalRateSummary,
     AuditFactorAdded,
     AuditFactorValueChanged,
     AuditFactorTimeChanged,
@@ -426,7 +434,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.StatisticsSettingsTitle -> "Statistics & Documentation"
             TranslationKey.StatisticsSettingsHelp ->
                 "Shows how your factors and basal rate have changed over time, and keeps a written " +
-                    "log of every change. You can export this history to share with your endocrinologist."
+                    "log of every change. You can export this history as a CSV file, or export your " +
+                    "current factors as a printable PDF report to share with your endocrinologist."
             TranslationKey.StatisticsSectionTitle -> "Statistics"
             TranslationKey.StatisticsSectionHelp ->
                 "Charts how each factor's value and your basal rate developed over time, based on your edit history."
@@ -437,10 +446,18 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                 "A chronological record of every time a factor or your basal rate was added, edited, " +
                     "or deleted, with the old and new values."
             TranslationKey.DocumentationEmptyState -> "No changes recorded yet."
+            TranslationKey.ActionExportCsv -> "Export CSV"
+            TranslationKey.ActionExportPdf -> "Export PDF"
             TranslationKey.LogExportSuccessMessage -> "Change log exported successfully."
             TranslationKey.LogExportErrorMessage -> "Couldn't export the change log."
             TranslationKey.AuditLogCsvDateHeader -> "Date"
             TranslationKey.AuditLogCsvDescriptionHeader -> "Description"
+            TranslationKey.PdfExportSuccessMessage -> "Factor report exported successfully."
+            TranslationKey.PdfExportErrorMessage -> "Couldn't export the factor report."
+            TranslationKey.PdfReportTitle -> "Factor Report"
+            TranslationKey.PdfGeneratedOnLabel -> "Generated on %1\$s"
+            TranslationKey.PdfFactorTimeWindowHeader -> "Time window"
+            TranslationKey.PdfBasalRateSummary -> "%1\$s units/day at %2\$s"
             TranslationKey.AuditFactorAdded -> "Factor \"%1\$s\" was added with value %2\$s."
             TranslationKey.AuditFactorValueChanged -> "Factor \"%1\$s\" value changed from %2\$s to %3\$s."
             TranslationKey.AuditFactorTimeChanged -> "Factor \"%1\$s\" start time changed from %2\$s to %3\$s."
@@ -679,8 +696,9 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.StatisticsSettingsTitle -> "Statistik & Dokumentation"
             TranslationKey.StatisticsSettingsHelp ->
                 "Zeigt, wie sich deine Faktoren und deine Basalrate im Laufe der Zeit verändert haben, und " +
-                    "führt ein schriftliches Protokoll jeder Änderung. Du kannst diesen Verlauf exportieren, " +
-                    "um ihn mit deiner Diabetologin oder deinem Diabetologen zu teilen."
+                    "führt ein schriftliches Protokoll jeder Änderung. Du kannst diesen Verlauf als CSV-Datei " +
+                    "exportieren oder deine aktuellen Faktoren als druckbaren PDF-Bericht, um ihn mit deiner " +
+                    "Diabetologin oder deinem Diabetologen zu teilen."
             TranslationKey.StatisticsSectionTitle -> "Statistik"
             TranslationKey.StatisticsSectionHelp ->
                 "Zeigt anhand deines Änderungsverlaufs in Diagrammen, wie sich der Wert jedes Faktors und " +
@@ -692,10 +710,18 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                 "Eine chronologische Aufzeichnung jeder Hinzufügung, Änderung oder Löschung eines Faktors " +
                     "oder deiner Basalrate, mit altem und neuem Wert."
             TranslationKey.DocumentationEmptyState -> "Noch keine Änderungen aufgezeichnet."
+            TranslationKey.ActionExportCsv -> "CSV exportieren"
+            TranslationKey.ActionExportPdf -> "PDF exportieren"
             TranslationKey.LogExportSuccessMessage -> "Änderungsprotokoll erfolgreich exportiert."
             TranslationKey.LogExportErrorMessage -> "Änderungsprotokoll konnte nicht exportiert werden."
             TranslationKey.AuditLogCsvDateHeader -> "Datum"
             TranslationKey.AuditLogCsvDescriptionHeader -> "Beschreibung"
+            TranslationKey.PdfExportSuccessMessage -> "Faktorenbericht erfolgreich exportiert."
+            TranslationKey.PdfExportErrorMessage -> "Faktorenbericht konnte nicht exportiert werden."
+            TranslationKey.PdfReportTitle -> "Faktorenbericht"
+            TranslationKey.PdfGeneratedOnLabel -> "Erstellt am %1\$s"
+            TranslationKey.PdfFactorTimeWindowHeader -> "Zeitfenster"
+            TranslationKey.PdfBasalRateSummary -> "%1\$s Einheiten/Tag um %2\$s"
             TranslationKey.AuditFactorAdded -> "Faktor \"%1\$s\" wurde mit dem Wert %2\$s hinzugefügt."
             TranslationKey.AuditFactorValueChanged -> "Wert von Faktor \"%1\$s\" wurde von %2\$s auf %3\$s geändert."
             TranslationKey.AuditFactorTimeChanged ->
@@ -939,8 +965,9 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.StatisticsSettingsTitle -> "Statistiques et documentation"
             TranslationKey.StatisticsSettingsHelp ->
                 "Montre l'évolution de vos facteurs et de votre débit basal au fil du temps, et conserve un " +
-                    "journal écrit de chaque modification. Vous pouvez exporter cet historique pour le " +
-                    "partager avec votre endocrinologue."
+                    "journal écrit de chaque modification. Vous pouvez exporter cet historique au format CSV, " +
+                    "ou exporter vos facteurs actuels sous forme de rapport PDF imprimable à partager avec " +
+                    "votre endocrinologue."
             TranslationKey.StatisticsSectionTitle -> "Statistiques"
             TranslationKey.StatisticsSectionHelp ->
                 "Affiche sous forme de graphiques l'évolution de la valeur de chaque facteur et de votre " +
@@ -952,10 +979,18 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                 "Un enregistrement chronologique de chaque ajout, modification ou suppression d'un facteur " +
                     "ou de votre débit basal, avec les anciennes et nouvelles valeurs."
             TranslationKey.DocumentationEmptyState -> "Aucune modification enregistrée pour le moment."
+            TranslationKey.ActionExportCsv -> "Exporter en CSV"
+            TranslationKey.ActionExportPdf -> "Exporter en PDF"
             TranslationKey.LogExportSuccessMessage -> "Journal des modifications exporté avec succès."
             TranslationKey.LogExportErrorMessage -> "Impossible d'exporter le journal des modifications."
             TranslationKey.AuditLogCsvDateHeader -> "Date"
             TranslationKey.AuditLogCsvDescriptionHeader -> "Description"
+            TranslationKey.PdfExportSuccessMessage -> "Rapport des facteurs exporté avec succès."
+            TranslationKey.PdfExportErrorMessage -> "Impossible d'exporter le rapport des facteurs."
+            TranslationKey.PdfReportTitle -> "Rapport des facteurs"
+            TranslationKey.PdfGeneratedOnLabel -> "Généré le %1\$s"
+            TranslationKey.PdfFactorTimeWindowHeader -> "Plage horaire"
+            TranslationKey.PdfBasalRateSummary -> "%1\$s unités/jour à %2\$s"
             TranslationKey.AuditFactorAdded -> "Le facteur « %1\$s » a été ajouté avec la valeur %2\$s."
             TranslationKey.AuditFactorValueChanged -> "La valeur du facteur « %1\$s » est passée de %2\$s à %3\$s."
             TranslationKey.AuditFactorTimeChanged ->
@@ -1198,8 +1233,9 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.StatisticsSettingsTitle -> "Statystyki i dokumentacja"
             TranslationKey.StatisticsSettingsHelp ->
                 "Pokazuje, jak zmieniały się Twoje współczynniki i dawka podstawowa w czasie, oraz prowadzi " +
-                    "pisemny dziennik każdej zmiany. Możesz wyeksportować tę historię, aby podzielić się " +
-                    "nią z diabetologiem."
+                    "pisemny dziennik każdej zmiany. Możesz wyeksportować tę historię jako plik CSV lub " +
+                    "wyeksportować bieżące współczynniki jako gotowy do druku raport PDF, aby podzielić się " +
+                    "nim z diabetologiem."
             TranslationKey.StatisticsSectionTitle -> "Statystyki"
             TranslationKey.StatisticsSectionHelp ->
                 "Pokazuje na wykresach, jak zmieniała się wartość każdego współczynnika i dawka podstawowa " +
@@ -1211,10 +1247,18 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                 "Chronologiczny zapis każdego dodania, zmiany lub usunięcia współczynnika lub dawki " +
                     "podstawowej, wraz ze starą i nową wartością."
             TranslationKey.DocumentationEmptyState -> "Nie zarejestrowano jeszcze żadnych zmian."
+            TranslationKey.ActionExportCsv -> "Eksportuj CSV"
+            TranslationKey.ActionExportPdf -> "Eksportuj PDF"
             TranslationKey.LogExportSuccessMessage -> "Dziennik zmian wyeksportowany pomyślnie."
             TranslationKey.LogExportErrorMessage -> "Nie udało się wyeksportować dziennika zmian."
             TranslationKey.AuditLogCsvDateHeader -> "Data"
             TranslationKey.AuditLogCsvDescriptionHeader -> "Opis"
+            TranslationKey.PdfExportSuccessMessage -> "Raport współczynników wyeksportowany pomyślnie."
+            TranslationKey.PdfExportErrorMessage -> "Nie udało się wyeksportować raportu współczynników."
+            TranslationKey.PdfReportTitle -> "Raport współczynników"
+            TranslationKey.PdfGeneratedOnLabel -> "Wygenerowano dnia %1\$s"
+            TranslationKey.PdfFactorTimeWindowHeader -> "Przedział czasowy"
+            TranslationKey.PdfBasalRateSummary -> "%1\$s jednostek/dobę o %2\$s"
             TranslationKey.AuditFactorAdded -> "Współczynnik „%1\$s” został dodany z wartością %2\$s."
             TranslationKey.AuditFactorValueChanged -> "Wartość współczynnika „%1\$s” zmieniła się z %2\$s na %3\$s."
             TranslationKey.AuditFactorTimeChanged ->

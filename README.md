@@ -61,7 +61,8 @@ and consult your doctor or diabetes care team before acting on them.
   settings, gender) to a file and import them again later, e.g. to move to a new device
 - A **Statistics & Documentation** section keeps a written log of every time a factor or your
   basal rate is added, edited, or deleted, charts how their values developed over time, and lets
-  you export the full change log as a CSV file to share with your endocrinologist
+  you export the full change log as a CSV file, or your current factors and that log together as
+  a printable PDF report, to share with your endocrinologist
 - Replay the first-run onboarding tutorial whenever you like
 
 ### UI & Navigation

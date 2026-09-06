@@ -558,7 +558,8 @@ fun BolusManagerMainWindow(
                             SettingsDestination.Statistics -> StatisticsSettingsScreen(
                                 modifier = contentModifier,
                                 currentLanguage = currentLanguage,
-                                auditLog = auditLog
+                                auditLog = auditLog,
+                                factors = factorEditorState.factors
                             )
 
                             SettingsDestination.Updates -> UpdateSettingsScreen(
