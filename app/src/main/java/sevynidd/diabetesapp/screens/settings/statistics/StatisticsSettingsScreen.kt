@@ -7,7 +7,9 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -166,6 +168,7 @@ private fun writeFactorsPdfExport(context: Context, uri: Uri, request: PdfExport
     }.getOrDefault(false)
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ExportCard(
     currentLanguage: AppLanguage,
@@ -175,7 +178,11 @@ private fun ExportCard(
     onExportPdfClick: () -> Unit
 ) {
     SettingsCard {
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
             Button(onClick = onExportCsvClick) {
                 Icon(imageVector = Icons.Filled.FileDownload, contentDescription = null)
                 Text(
