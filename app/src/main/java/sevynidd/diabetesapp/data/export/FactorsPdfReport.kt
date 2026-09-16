@@ -100,8 +100,8 @@ fun buildFactorsPdfReportContent(
     )
 }
 
-private const val FIRST_PLACEHOLDER = "%1\$s"
-private const val SECOND_PLACEHOLDER = "%2\$s"
+private const val FIRST_PLACEHOLDER = $$"%1$s"
+private const val SECOND_PLACEHOLDER = $$"%2$s"
 
 private fun Long.toReportTimestampLabel(zone: ZoneId): String =
     Instant.ofEpochMilli(this).atZone(zone).format(REPORT_LOG_TIMESTAMP_FORMATTER)

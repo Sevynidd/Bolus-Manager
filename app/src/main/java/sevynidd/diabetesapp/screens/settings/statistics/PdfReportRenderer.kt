@@ -3,7 +3,6 @@ package sevynidd.diabetesapp.screens.settings.statistics
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.graphics.RectF
 import android.graphics.pdf.PdfDocument
 import sevynidd.diabetesapp.data.export.FactorReportRow
 import sevynidd.diabetesapp.data.export.FactorsPdfReportContent
@@ -11,48 +10,36 @@ import java.io.OutputStream
 
 private const val PAGE_WIDTH = 595
 private const val PAGE_HEIGHT = 842
-private const val MARGIN = 40f
+private const val MARGIN = 48f
+private const val CONTENT_WIDTH = PAGE_WIDTH - 2 * MARGIN
+private const val CONTENT_RIGHT = PAGE_WIDTH - MARGIN
 
 private const val TITLE_TEXT_SIZE = 20f
+private const val RUNNING_HEADER_TEXT_SIZE = 9f
 private const val META_TEXT_SIZE = 10f
-private const val SECTION_TEXT_SIZE = 14f
+private const val SECTION_TEXT_SIZE = 11f
 private const val BODY_TEXT_SIZE = 11f
 private const val FOOTER_TEXT_SIZE = 9f
 
+private const val LETTER_SPACING = 0.04f
+private const val HAIRLINE_STROKE_WIDTH = 0.75f
+
 private const val LINE_HEIGHT = 16f
-private const val SECTION_GAP = 22f
-private const val VALUE_COLUMN_OFFSET = 220f
-private const val TIME_COLUMN_OFFSET = 320f
-private const val CONTENT_WIDTH = PAGE_WIDTH - 2 * MARGIN
+private const val ROW_HEIGHT = 22f
+private const val SECTION_GAP = 20f
+private const val HAIRLINE_GAP = 10f
 
-private const val HEADER_BAND_PADDING = 12f
-private const val HEADER_BAND_CORNER_RADIUS = 8f
-private const val HEADER_BAND_HEIGHT = TITLE_TEXT_SIZE + LINE_HEIGHT + 2 * HEADER_BAND_PADDING
-
-private const val SECTION_BAR_WIDTH = 4f
-private const val SECTION_BAR_GAP = 8f
-
-private const val TABLE_HEADER_RULE_WIDTH = 1.5f
-private const val ROW_FILL_TOP_INSET = 12f
-private const val ROW_FILL_BOTTOM_INSET = 4f
-
-private const val CALLOUT_PADDING = 10f
-private const val CALLOUT_CORNER_RADIUS = 6f
-private const val CALLOUT_HEIGHT = LINE_HEIGHT + 2 * CALLOUT_PADDING
+private const val VALUE_COLUMN_RIGHT = PAGE_WIDTH - MARGIN - 160f
+private const val LOG_DESCRIPTION_X = MARGIN + 100f
 
 private const val FOOTER_MARGIN = 24f
-
-private const val LOG_BULLET_RADIUS = 2f
-private const val LOG_BULLET_GAP = 10f
-private const val LOG_ENTRY_GAP = 4f
+private const val LOG_ENTRY_GAP = 6f
 
 /** Material-theme-matched colors (see `ui/theme/Color.kt`'s light scheme) used to style the PDF. */
 private val accentColor = Color.parseColor("#8F4C38")
-private val accentContainerColor = Color.parseColor("#FFDBD1")
-private val onAccentContainerColor = Color.parseColor("#723523")
-private val surfaceStripeColor = Color.parseColor("#FFF1ED")
 private val onSurfaceColor = Color.parseColor("#231917")
 private val onSurfaceVariantColor = Color.parseColor("#53433F")
+private val hairlineColor = Color.parseColor("#D8C2BC")
 
 /**
  * Draws [content] onto a paginated A4 PDF and writes it to [outputStream]; returns whether the
@@ -63,7 +50,7 @@ private val onSurfaceVariantColor = Color.parseColor("#53433F")
 fun renderFactorsPdfReport(content: FactorsPdfReportContent, outputStream: OutputStream): Boolean {
     return runCatching {
         val document = PdfDocument()
-        val writer = PdfReportWriter(document)
+        val writer = PdfReportWriter(document, content.title)
         writer.drawHeader(content.title, content.generatedAtLabel)
         writer.drawFactorsTable(content)
         writer.drawLogSection(content)
@@ -73,34 +60,44 @@ fun renderFactorsPdfReport(content: FactorsPdfReportContent, outputStream: Outpu
     }.isSuccess
 }
 
-/** Lays out [FactorsPdfReportContent] top-to-bottom, starting a new A4 page whenever content would overflow. */
-private class PdfReportWriter(private val document: PdfDocument) {
+/**
+ * Lays out [FactorsPdfReportContent] top-to-bottom in a clean, clinical-report style: hairline
+ * rules instead of filled bands, generous whitespace, and the accent color reserved for section
+ * labels. Starts a new A4 page whenever content would overflow, repeating a compact running
+ * header (see [drawRunningHeader]) on every page after the first.
+ */
+private class PdfReportWriter(private val document: PdfDocument, private val reportTitle: String) {
     private val titlePaint = Paint().apply {
         textSize = TITLE_TEXT_SIZE
         isFakeBoldText = true
-        color = onAccentContainerColor
+        color = onSurfaceColor
     }
-    private val metaPaint = Paint().apply { textSize = META_TEXT_SIZE; color = onAccentContainerColor }
+    private val runningHeaderPaint = Paint().apply {
+        textSize = RUNNING_HEADER_TEXT_SIZE
+        color = onSurfaceVariantColor
+        letterSpacing = LETTER_SPACING
+    }
+    private val metaPaint = Paint().apply { textSize = META_TEXT_SIZE; color = onSurfaceVariantColor }
     private val sectionPaint = Paint().apply {
         textSize = SECTION_TEXT_SIZE
         isFakeBoldText = true
         color = accentColor
+        letterSpacing = LETTER_SPACING
     }
     private val headerPaint = Paint().apply {
         textSize = BODY_TEXT_SIZE
         isFakeBoldText = true
-        color = onAccentContainerColor
+        color = onSurfaceColor
     }
     private val bodyPaint = Paint().apply { textSize = BODY_TEXT_SIZE; color = onSurfaceColor }
+    private val mutedBodyPaint = Paint().apply { textSize = BODY_TEXT_SIZE; color = onSurfaceVariantColor }
     private val footerPaint = Paint().apply {
         textSize = FOOTER_TEXT_SIZE
         color = onSurfaceVariantColor
         textAlign = Paint.Align.CENTER
     }
-    private val bandFillPaint = Paint().apply { color = accentContainerColor; style = Paint.Style.FILL }
-    private val stripeFillPaint = Paint().apply { color = surfaceStripeColor; style = Paint.Style.FILL }
-    private val accentFillPaint = Paint().apply { color = accentColor; style = Paint.Style.FILL }
-    private val rulePaint = Paint().apply { color = accentColor; strokeWidth = TABLE_HEADER_RULE_WIDTH }
+    private val hairlinePaint = Paint().apply { color = hairlineColor; strokeWidth = HAIRLINE_STROKE_WIDTH }
+    private val tablePaints = TablePaints(headerPaint, bodyPaint, hairlinePaint)
 
     private var pageNumber = 0
     private var page: PdfDocument.Page = startPage()
@@ -109,10 +106,23 @@ private class PdfReportWriter(private val document: PdfDocument) {
     private fun startPage(): PdfDocument.Page {
         pageNumber++
         val pageInfo = PdfDocument.PageInfo.Builder(PAGE_WIDTH, PAGE_HEIGHT, pageNumber).create()
-        return document.startPage(pageInfo)
+        val newPage = document.startPage(pageInfo)
+        if (pageNumber > 1) y = drawRunningHeader(newPage.canvas)
+        return newPage
+    }
+
+    /** Draws the compact repeating header shown on every page after the first; returns the next baseline y. */
+    private fun drawRunningHeader(canvas: Canvas): Float {
+        var headerY = MARGIN + RUNNING_HEADER_TEXT_SIZE
+        canvas.drawText(reportTitle, MARGIN, headerY, runningHeaderPaint)
+        headerY += HAIRLINE_GAP
+        canvas.drawLine(MARGIN, headerY, CONTENT_RIGHT, headerY, hairlinePaint)
+        return headerY + SECTION_GAP
     }
 
     private fun finishCurrentPage() {
+        val ruleY = PAGE_HEIGHT - FOOTER_MARGIN - FOOTER_TEXT_SIZE
+        page.canvas.drawLine(MARGIN, ruleY, CONTENT_RIGHT, ruleY, hairlinePaint)
         page.canvas.drawText(pageNumber.toString(), PAGE_WIDTH / 2f, PAGE_HEIGHT - FOOTER_MARGIN, footerPaint)
         document.finishPage(page)
     }
@@ -121,7 +131,6 @@ private class PdfReportWriter(private val document: PdfDocument) {
         if (y + height > PAGE_HEIGHT - MARGIN) {
             finishCurrentPage()
             page = startPage()
-            y = MARGIN + LINE_HEIGHT
         }
     }
 
@@ -136,44 +145,34 @@ private class PdfReportWriter(private val document: PdfDocument) {
     }
 
     fun drawHeader(title: String, generatedAtLabel: String) {
-        ensureSpace(HEADER_BAND_HEIGHT)
-        val bandTop = y - TITLE_TEXT_SIZE
-        val bandBottom = bandTop + HEADER_BAND_HEIGHT
-        page.canvas.drawRoundRect(
-            RectF(MARGIN, bandTop, PAGE_WIDTH - MARGIN, bandBottom),
-            HEADER_BAND_CORNER_RADIUS,
-            HEADER_BAND_CORNER_RADIUS,
-            bandFillPaint
-        )
-        y = bandTop + HEADER_BAND_PADDING + TITLE_TEXT_SIZE
-        page.canvas.drawText(title, MARGIN + HEADER_BAND_PADDING, y, titlePaint)
+        page.canvas.drawText(title, MARGIN, y, titlePaint)
         y += LINE_HEIGHT
-        page.canvas.drawText(generatedAtLabel, MARGIN + HEADER_BAND_PADDING, y, metaPaint)
-        y = bandBottom + SECTION_GAP
+        page.canvas.drawText(generatedAtLabel, MARGIN, y, metaPaint)
+        y += HAIRLINE_GAP
+        page.canvas.drawLine(MARGIN, y, CONTENT_RIGHT, y, hairlinePaint)
+        y += SECTION_GAP
     }
 
     fun drawFactorsTable(content: FactorsPdfReportContent) {
         ensureSpace(LINE_HEIGHT)
-        y = drawSectionTitle(page.canvas, y, content.factorsSectionTitle, sectionPaint, accentFillPaint)
+        y = drawSectionTitle(page.canvas, y, content.factorsSectionTitle, sectionPaint)
 
-        val tablePaints = TablePaints(bandFillPaint, headerPaint, bodyPaint, stripeFillPaint, rulePaint)
-
-        ensureSpace(LINE_HEIGHT)
+        ensureSpace(ROW_HEIGHT)
         y = drawTableHeaderRow(page.canvas, y, content, tablePaints)
 
-        content.factorRows.forEachIndexed { index, row ->
-            ensureSpace(LINE_HEIGHT)
-            y = drawTableRow(page.canvas, y, row, index, tablePaints)
+        content.factorRows.forEach { row ->
+            ensureSpace(ROW_HEIGHT)
+            y = drawTableRow(page.canvas, y, row, tablePaints)
         }
 
-        y += SECTION_GAP - LINE_HEIGHT
-        ensureSpace(CALLOUT_HEIGHT)
-        y = drawBasalRateCallout(page.canvas, y, content, bandFillPaint, headerPaint)
+        y += SECTION_GAP - ROW_HEIGHT
+        ensureSpace(LINE_HEIGHT * 2)
+        y = drawBasalRateLine(page.canvas, y, content, tablePaints)
     }
 
     fun drawLogSection(content: FactorsPdfReportContent) {
         ensureSpace(LINE_HEIGHT)
-        y = drawSectionTitle(page.canvas, y, content.logSectionTitle, sectionPaint, accentFillPaint)
+        y = drawSectionTitle(page.canvas, y, content.logSectionTitle, sectionPaint)
 
         if (content.logEntries.isEmpty()) {
             drawLine(content.logEmptyLabel, bodyPaint)
@@ -182,13 +181,12 @@ private class PdfReportWriter(private val document: PdfDocument) {
 
         content.logEntries.forEach { entry ->
             ensureSpace(LINE_HEIGHT)
-            val bulletY = y - BODY_TEXT_SIZE / 2
-            page.canvas.drawCircle(MARGIN + LOG_BULLET_RADIUS, bulletY, LOG_BULLET_RADIUS, accentFillPaint)
+            page.canvas.drawText(entry.timestampLabel, MARGIN, y, mutedBodyPaint)
             drawWrappedLines(
-                "${entry.timestampLabel} - ${entry.description}",
+                entry.description,
                 bodyPaint,
-                x = MARGIN + LOG_BULLET_GAP,
-                width = CONTENT_WIDTH - LOG_BULLET_GAP
+                x = LOG_DESCRIPTION_X,
+                width = CONTENT_RIGHT - LOG_DESCRIPTION_X
             )
             y += LOG_ENTRY_GAP
         }
@@ -199,61 +197,48 @@ private class PdfReportWriter(private val document: PdfDocument) {
     }
 }
 
-/** Paints shared by the factors table's header row and data rows, grouped to keep their draw functions short. */
-private class TablePaints(val band: Paint, val header: Paint, val body: Paint, val stripe: Paint, val rule: Paint)
-
-/** Fills the row band from [y]'s baseline upward, used for table header/zebra-stripe backgrounds. */
-private fun drawRowFill(canvas: Canvas, y: Float, paint: Paint) {
-    canvas.drawRect(MARGIN, y - ROW_FILL_TOP_INSET, PAGE_WIDTH - MARGIN, y + ROW_FILL_BOTTOM_INSET, paint)
-}
-
-/** Draws a colored accent bar followed by bold section text at [y]; returns the next baseline y. */
-private fun drawSectionTitle(canvas: Canvas, y: Float, text: String, sectionPaint: Paint, accentPaint: Paint): Float {
-    canvas.drawRect(MARGIN, y - SECTION_TEXT_SIZE, MARGIN + SECTION_BAR_WIDTH, y, accentPaint)
-    canvas.drawText(text, MARGIN + SECTION_BAR_WIDTH + SECTION_BAR_GAP, y, sectionPaint)
+/** Draws a small accent-colored, letter-spaced section label at [y]; returns the next baseline y. */
+private fun drawSectionTitle(canvas: Canvas, y: Float, text: String, sectionPaint: Paint): Float {
+    canvas.drawText(text, MARGIN, y, sectionPaint)
     return y + LINE_HEIGHT
 }
 
-/** Draws the shaded factor-table header row and its accent rule at [y]; returns the next baseline y. */
+/** Paints shared by the factors table's rows and the basal-rate line, grouped to keep draw functions short. */
+private class TablePaints(val header: Paint, val body: Paint, val hairline: Paint)
+
+/** Draws the factor-table header row with right-aligned columns and a hairline rule beneath; returns the next y. */
 private fun drawTableHeaderRow(canvas: Canvas, y: Float, content: FactorsPdfReportContent, paints: TablePaints): Float {
-    drawRowFill(canvas, y, paints.band)
     canvas.drawText(content.factorNameHeader, MARGIN, y, paints.header)
-    canvas.drawText(content.factorValueHeader, MARGIN + VALUE_COLUMN_OFFSET, y, paints.header)
-    canvas.drawText(content.factorTimeHeader, MARGIN + TIME_COLUMN_OFFSET, y, paints.header)
-    val nextY = y + LINE_HEIGHT
-    val ruleY = nextY - LINE_HEIGHT / 2
-    canvas.drawLine(MARGIN, ruleY, PAGE_WIDTH - MARGIN, ruleY, paints.rule)
-    return nextY
+    canvas.drawRightAlignedText(content.factorValueHeader, VALUE_COLUMN_RIGHT, y, paints.header)
+    canvas.drawRightAlignedText(content.factorTimeHeader, CONTENT_RIGHT, y, paints.header)
+    val ruleY = y + HAIRLINE_GAP
+    canvas.drawLine(MARGIN, ruleY, CONTENT_RIGHT, ruleY, paints.hairline)
+    return y + ROW_HEIGHT
 }
 
-/** Draws one factor row at [y], zebra-striped on odd [index]s; returns the next baseline y. */
-private fun drawTableRow(canvas: Canvas, y: Float, row: FactorReportRow, index: Int, paints: TablePaints): Float {
-    if (index % 2 == 1) drawRowFill(canvas, y, paints.stripe)
+/** Draws one factor row at [y] with a thin hairline beneath it; returns the next baseline y. */
+private fun drawTableRow(canvas: Canvas, y: Float, row: FactorReportRow, paints: TablePaints): Float {
     canvas.drawText(row.name, MARGIN, y, paints.body)
-    canvas.drawText(row.value, MARGIN + VALUE_COLUMN_OFFSET, y, paints.body)
-    canvas.drawText(row.timeRange, MARGIN + TIME_COLUMN_OFFSET, y, paints.body)
-    return y + LINE_HEIGHT
+    canvas.drawRightAlignedText(row.value, VALUE_COLUMN_RIGHT, y, paints.body)
+    canvas.drawRightAlignedText(row.timeRange, CONTENT_RIGHT, y, paints.body)
+    val ruleY = y + HAIRLINE_GAP
+    canvas.drawLine(MARGIN, ruleY, CONTENT_RIGHT, ruleY, paints.hairline)
+    return y + ROW_HEIGHT
 }
 
-/** Draws the basal-rate summary as a rounded callout starting at [y]; returns the next baseline y. */
-private fun drawBasalRateCallout(
-    canvas: Canvas,
-    y: Float,
-    content: FactorsPdfReportContent,
-    bandPaint: Paint,
-    headerPaint: Paint
-): Float {
-    val calloutBottom = y + CALLOUT_HEIGHT
-    canvas.drawRoundRect(
-        RectF(MARGIN, y, PAGE_WIDTH - MARGIN, calloutBottom),
-        CALLOUT_CORNER_RADIUS,
-        CALLOUT_CORNER_RADIUS,
-        bandPaint
-    )
-    val textY = y + CALLOUT_PADDING + BODY_TEXT_SIZE
-    val calloutText = "${content.basalRateLabel}: ${content.basalRateSummary}"
-    canvas.drawText(calloutText, MARGIN + CALLOUT_PADDING, textY, headerPaint)
-    return calloutBottom + SECTION_GAP
+/** Draws the basal-rate summary as a plain label/value line under a hairline; returns the next baseline y. */
+private fun drawBasalRateLine(canvas: Canvas, y: Float, content: FactorsPdfReportContent, paints: TablePaints): Float {
+    canvas.drawText("${content.basalRateLabel}:", MARGIN, y, paints.header)
+    val labelWidth = paints.header.measureText("${content.basalRateLabel}: ")
+    canvas.drawText(content.basalRateSummary, MARGIN + labelWidth, y, paints.body)
+    val ruleY = y + HAIRLINE_GAP
+    canvas.drawLine(MARGIN, ruleY, CONTENT_RIGHT, ruleY, paints.hairline)
+    return ruleY + SECTION_GAP - HAIRLINE_GAP
+}
+
+/** Draws [text] ending at [rightEdge] instead of starting at a fixed x, for right-aligned table columns. */
+private fun Canvas.drawRightAlignedText(text: String, rightEdge: Float, y: Float, paint: Paint) {
+    drawText(text, rightEdge - paint.measureText(text), y, paint)
 }
 
 /** Greedily wraps [text] into lines no wider than [maxWidth] under [paint], breaking on spaces. */
