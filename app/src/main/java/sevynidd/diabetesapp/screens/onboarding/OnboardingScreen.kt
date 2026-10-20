@@ -41,7 +41,7 @@ import sevynidd.diabetesapp.screens.settings.notifications.NotificationSettingsS
 import sevynidd.diabetesapp.screens.settings.profile.GenderSettingsScreen
 
 /**
- * The first-run onboarding wizard: walks a new user through [OnboardingStep.entries] in order,
+ * The first-run onboarding wizard: walks a new user through [onboardingSteps] in order,
  * embedding the real settings/factor screens as steps rather than duplicating their UI.
  */
 @Composable
@@ -51,8 +51,8 @@ fun OnboardingScreen(
     callbacks: OnboardingCallbacks = OnboardingCallbacks()
 ) {
     var stepIndex by rememberSaveable { mutableIntStateOf(0) }
-    val steps = OnboardingStep.entries
-    val step = steps[stepIndex]
+    val steps = onboardingSteps(values.therapyMode)
+    val step = steps[stepIndex.coerceAtMost(steps.lastIndex)]
 
     Column(
         modifier = modifier

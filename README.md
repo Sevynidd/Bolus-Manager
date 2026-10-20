@@ -40,7 +40,7 @@ and consult your doctor or diabetes care team before acting on them.
 - The factor currently in effect is highlighted with a "Now" badge
 - Pen or insulin-pump therapy: with a pump (e.g. the YpsoPump), factors are shown and edited
   as "1 unit per x grams of carbohydrates" and the basal rate as 24 hourly rates in units per
-  hour, with the daily total
+  hour (collapsible, with the daily total always shown)
 
 ### Calculate
 
@@ -59,7 +59,7 @@ and consult your doctor or diabetes care team before acting on them.
 - Set your gender (Male, Female, or Prefer not to say), which determines whether Period is shown
 - Tune the bread-unit value, Period surcharge, and blood-sugar correction thresholds to your needs, in either mg/dl or mmol/l
 - Choose between pen and insulin-pump therapy
-- Optional daily reminder notification for your basal rate
+- Optional daily reminder notification for your basal injection (pen therapy only)
 - Check for and install app updates directly from within the app
 - Export your factor profile and calculation settings (bread units, Period surcharge, correction
   settings, gender) to a file and import them again later, e.g. to move to a new device

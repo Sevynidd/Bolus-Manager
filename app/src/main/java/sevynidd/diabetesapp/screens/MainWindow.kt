@@ -55,6 +55,7 @@ import sevynidd.diabetesapp.data.export.FactorsExportBundle
 import sevynidd.diabetesapp.data.model.FactorAuditLogEntry
 import sevynidd.diabetesapp.data.model.FactorsData
 import sevynidd.diabetesapp.data.settings.appearance.ThemeMode
+import sevynidd.diabetesapp.calculation.isBasalReminderApplicable
 import sevynidd.diabetesapp.data.settings.correction.CorrectionSettings
 import sevynidd.diabetesapp.data.settings.correction.GlucoseUnit
 import sevynidd.diabetesapp.data.settings.therapy.TherapyMode
@@ -498,7 +499,8 @@ fun BolusManagerMainWindow(
                                     },
                                     onNavigateToUpdates = { settingsDestination = SettingsDestination.Updates },
                                     onReplayTutorial = onReplayTutorialRequested
-                                )
+                                ),
+                                showNotifications = isBasalReminderApplicable(therapyMode)
                             )
 
                             SettingsDestination.Theme -> ThemeSettingsScreen(

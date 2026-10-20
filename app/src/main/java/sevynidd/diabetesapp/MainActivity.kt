@@ -32,6 +32,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import sevynidd.diabetesapp.calculation.diffFactorChanges
+import sevynidd.diabetesapp.calculation.shouldScheduleBasalReminder
 import sevynidd.diabetesapp.data.AppSettings
 import sevynidd.diabetesapp.data.AppSettingsStore
 import sevynidd.diabetesapp.data.database.BolusTemplatesRepository
@@ -110,8 +111,8 @@ class MainActivity : ComponentActivity() {
                 )
             }
 
-            LaunchedEffect(factors.basalReminderEnabled, factors.basalTimeMinutes) {
-                if (factors.basalReminderEnabled) {
+            LaunchedEffect(factors.basalReminderEnabled, factors.basalTimeMinutes, settings.therapyMode) {
+                if (shouldScheduleBasalReminder(factors.basalReminderEnabled, settings.therapyMode)) {
                     basalReminderScheduler.scheduleDaily(factors.basalTimeMinutes)
                 } else {
                     basalReminderScheduler.cancel()

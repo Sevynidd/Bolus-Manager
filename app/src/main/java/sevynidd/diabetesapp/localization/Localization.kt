@@ -80,6 +80,8 @@ enum class TranslationKey {
     PumpBasalRatesHelp,
     PumpBasalRateUnit,
     PumpBasalDailyTotal,
+    ActionShowHours,
+    ActionHideHours,
     FactorNameLabel,
     FactorNameHelp,
     FactorStartTime,
@@ -311,15 +313,20 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                     "shows factors the way pumps such as the YpsoPump do — one unit per x grams of " +
                     "carbohydrates (e.g. 8 g/U with 12 g per bread unit) — and the basal rate as 24 " +
                     "hourly rates in units per hour. Factors mean the same in both, so bolus " +
-                    "calculations don't change. Your pen dose and pump rates are kept separately."
+                    "calculations don't change. Your pen dose and pump rates are kept separately." +
+                    " The daily basal reminder is only available with a pen, since a pump delivers basal " +
+                    "insulin on its own."
             TranslationKey.TherapyModePen -> "Pen"
             TranslationKey.TherapyModePump -> "Insulin pump"
             TranslationKey.PumpBasalRatesTitle -> "Basal rate (pump)"
             TranslationKey.PumpBasalRatesHelp ->
                 "The basal rate programmed in your pump, one value per hour of the day in units " +
                     "per hour, rounded to 0.01 U/h. The daily total is the sum of all 24 hours. It's a " +
-                    "record for you and your diabetes team — it doesn't change any bolus calculation."
+                    "record for you and your diabetes team — it doesn't change any bolus calculation." +
+                    " Tap the header to show or hide the 24 hours; the daily total always stays visible."
             TranslationKey.PumpBasalRateUnit -> "U/h"
+            TranslationKey.ActionShowHours -> "Show hours"
+            TranslationKey.ActionHideHours -> "Hide hours"
             TranslationKey.PumpBasalDailyTotal -> $$"Daily total: %1$s U"
             TranslationKey.FactorNameLabel -> "Name"
             TranslationKey.FactorNameHelp ->
@@ -598,7 +605,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                     "eine Einheit pro x Gramm Kohlenhydrate (z. B. 8 g/IE bei 12 g pro Broteinheit) — und " +
                     "die Basalrate als 24 stündliche Raten in Einheiten pro Stunde. Faktoren bedeuten in " +
                     "beiden dasselbe, die Bolusberechnung ändert sich also nicht. Pen-Dosis und " +
-                    "Pumpenraten werden getrennt gespeichert."
+                    "Pumpenraten werden getrennt gespeichert." +
+                    " Die Basal-Erinnerung gibt es nur beim Pen, da eine Pumpe das Basalinsulin selbst abgibt."
             TranslationKey.TherapyModePen -> "Pen"
             TranslationKey.TherapyModePump -> "Insulinpumpe"
             TranslationKey.PumpBasalRatesTitle -> "Basalrate (Pumpe)"
@@ -606,8 +614,12 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                 "Die in deiner Pumpe programmierte Basalrate, ein Wert pro Stunde des Tages in " +
                     "Einheiten pro Stunde, gerundet auf 0,01 IE/h. Die Tagessumme ist die Summe aller 24 " +
                     "Stunden. Sie dient als Eintrag für dich und dein Diabetesteam — sie ändert keine " +
-                    "Bolusberechnung."
+                    "Bolusberechnung." +
+                    " Tippe auf die Überschrift, um die 24 Stunden ein- oder auszublenden; die Tagessumme " +
+                    "bleibt immer sichtbar."
             TranslationKey.PumpBasalRateUnit -> "IE/h"
+            TranslationKey.ActionShowHours -> "Stunden anzeigen"
+            TranslationKey.ActionHideHours -> "Stunden ausblenden"
             TranslationKey.PumpBasalDailyTotal -> $$"Tagessumme: %1$s IE"
             TranslationKey.FactorNameLabel -> "Name"
             TranslationKey.FactorNameHelp ->
@@ -897,7 +909,9 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                     "pompes telles que la YpsoPump — une unité pour x grammes de glucides (par ex. 8 g/U " +
                     "avec 12 g par unité de pain) — et le débit basal comme 24 débits horaires en unités " +
                     "par heure. Les facteurs ont le même sens dans les deux cas, le calcul du bolus ne " +
-                    "change donc pas. La dose au stylo et les débits de la pompe sont conservés séparément."
+                    "change donc pas. La dose au stylo et les débits de la pompe sont conservés séparément." +
+                    " Le rappel de basal n'est disponible qu'avec un stylo, car une pompe délivre " +
+                    "l'insuline basale elle-même."
             TranslationKey.TherapyModePen -> "Stylo"
             TranslationKey.TherapyModePump -> "Pompe à insuline"
             TranslationKey.PumpBasalRatesTitle -> "Débit basal (pompe)"
@@ -905,8 +919,12 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                 "Le débit basal programmé dans votre pompe, une valeur par heure de la journée en " +
                     "unités par heure, arrondie à 0,01 U/h. Le total journalier est la somme des 24 " +
                     "heures. C'est un relevé pour vous et votre équipe soignante — il ne modifie aucun " +
-                    "calcul de bolus."
+                    "calcul de bolus." +
+                    " Touchez l'en-tête pour afficher ou masquer les 24 heures ; le total journalier reste " +
+                    "toujours visible."
             TranslationKey.PumpBasalRateUnit -> "U/h"
+            TranslationKey.ActionShowHours -> "Afficher les heures"
+            TranslationKey.ActionHideHours -> "Masquer les heures"
             TranslationKey.PumpBasalDailyTotal -> $$"Total journalier : %1$s U"
             TranslationKey.FactorNameLabel -> "Nom"
             TranslationKey.FactorNameHelp ->
@@ -1198,7 +1216,9 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                     "YpsoPump — jedna jednostka na x gramów węglowodanów (np. 8 g/j. przy 12 g na " +
                     "wymiennik) — a dawkę podstawową jako 24 godzinowe przepływy w jednostkach na " +
                     "godzinę. Czynniki znaczą w obu trybach to samo, więc obliczenia bolusa się nie " +
-                    "zmieniają. Dawka z pena i przepływy pompy są zapisywane osobno."
+                    "zmieniają. Dawka z pena i przepływy pompy są zapisywane osobno." +
+                    " Przypomnienie o dawce podstawowej jest dostępne tylko przy penie, bo pompa podaje " +
+                    "insulinę podstawową sama."
             TranslationKey.TherapyModePen -> "Pen"
             TranslationKey.TherapyModePump -> "Pompa insulinowa"
             TranslationKey.PumpBasalRatesTitle -> "Dawka podstawowa (pompa)"
@@ -1206,8 +1226,11 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                 "Dawka podstawowa zaprogramowana w pompie, jedna wartość na każdą godzinę doby w " +
                     "jednostkach na godzinę, zaokrąglona do 0,01 j./h. Suma dobowa to suma wszystkich 24 " +
                     "godzin. To zapis dla Ciebie i Twojego zespołu diabetologicznego — nie zmienia " +
-                    "żadnych obliczeń bolusa."
+                    "żadnych obliczeń bolusa." +
+                    " Dotknij nagłówka, aby pokazać lub ukryć 24 godziny; suma dobowa jest zawsze widoczna."
             TranslationKey.PumpBasalRateUnit -> "j./h"
+            TranslationKey.ActionShowHours -> "Pokaż godziny"
+            TranslationKey.ActionHideHours -> "Ukryj godziny"
             TranslationKey.PumpBasalDailyTotal -> $$"Suma dobowa: %1$s j."
             TranslationKey.FactorNameLabel -> "Nazwa"
             TranslationKey.FactorNameHelp ->

@@ -72,9 +72,10 @@ private data class SettingsEntry(
 fun SettingsScreen(
     modifier: Modifier = Modifier,
     currentLanguage: AppLanguage = AppLanguage.System,
-    navigation: SettingsNavigationCallbacks = SettingsNavigationCallbacks()
+    navigation: SettingsNavigationCallbacks = SettingsNavigationCallbacks(),
+    showNotifications: Boolean = true
 ) {
-    val entries = listOf(
+    val entries = listOfNotNull(
         SettingsEntry(Icons.Filled.Palette, TranslationKey.Appearance, navigation.onNavigateToTheme),
         SettingsEntry(Icons.Filled.Language, TranslationKey.Language, navigation.onNavigateToLanguage),
         SettingsEntry(Icons.Filled.Wc, TranslationKey.GenderSettingsTitle, navigation.onNavigateToGender),
@@ -87,7 +88,7 @@ fun SettingsScreen(
             Icons.Filled.Notifications,
             TranslationKey.NotificationSettingsTitle,
             navigation.onNavigateToNotifications
-        ),
+        ).takeIf { showNotifications },
         SettingsEntry(Icons.Filled.Tune, TranslationKey.FactorSettingsTitle, navigation.onNavigateToFactorSettings),
         SettingsEntry(
             Icons.Filled.Bloodtype,
