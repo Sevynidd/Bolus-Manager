@@ -14,6 +14,7 @@ import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.data.settings.appearance.ThemeMode
 import sevynidd.diabetesapp.data.settings.correction.CorrectionSettings
 import sevynidd.diabetesapp.data.settings.correction.GlucoseUnit
+import sevynidd.diabetesapp.data.settings.factor.FactorDisplayMode
 import sevynidd.diabetesapp.data.settings.profile.Gender
 import sevynidd.diabetesapp.navigation.AppDestinations
 import sevynidd.diabetesapp.ui.theme.ContrastLevel
@@ -41,6 +42,7 @@ data class AppSettings(
     val correctionStepMgDl: Double = DEFAULT_CORRECTION_STEP_MGDL,
     val glucoseUnit: GlucoseUnit = GlucoseUnit.MgDl,
     val gender: Gender = Gender.PreferNotToSay,
+    val factorDisplayMode: FactorDisplayMode = FactorDisplayMode.UnitsPerBreadUnit,
     val hasCompletedOnboarding: Boolean = false
 )
 
@@ -60,6 +62,7 @@ class AppSettingsStore(private val context: Context) {
         val CORRECTION_STEP_MGDL = stringPreferencesKey("correction_step_mgdl")
         val GLUCOSE_UNIT = stringPreferencesKey("glucose_unit")
         val GENDER = stringPreferencesKey("gender")
+        val FACTOR_DISPLAY_MODE = stringPreferencesKey("factor_display_mode")
         val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
     }
 
@@ -80,6 +83,8 @@ class AppSettingsStore(private val context: Context) {
                 .toDoubleOrDefault(DEFAULT_CORRECTION_STEP_MGDL),
             glucoseUnit = preferences[Keys.GLUCOSE_UNIT].toEnumOrDefault(GlucoseUnit.MgDl),
             gender = preferences[Keys.GENDER].toEnumOrDefault(Gender.PreferNotToSay),
+            factorDisplayMode = preferences[Keys.FACTOR_DISPLAY_MODE]
+                .toEnumOrDefault(FactorDisplayMode.UnitsPerBreadUnit),
             hasCompletedOnboarding = preferences[Keys.ONBOARDING_COMPLETED] ?: false
         )
     }
@@ -136,6 +141,13 @@ class AppSettingsStore(private val context: Context) {
     suspend fun setGender(gender: Gender) {
         context.appSettingsDataStore.edit { preferences ->
             preferences[Keys.GENDER] = gender.name
+        }
+    }
+
+    /** Persists whether factors are shown per bread unit or as an insulin-pump ratio. */
+    suspend fun setFactorDisplayMode(mode: FactorDisplayMode) {
+        context.appSettingsDataStore.edit { preferences ->
+            preferences[Keys.FACTOR_DISPLAY_MODE] = mode.name
         }
     }
 

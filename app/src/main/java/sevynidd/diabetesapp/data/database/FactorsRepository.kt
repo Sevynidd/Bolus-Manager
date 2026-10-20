@@ -98,11 +98,13 @@ private fun String.toDbDoubleOrNull(): Double? {
     return replace(',', '.').toDoubleOrNull()
 }
 
+// 5 decimals rather than 2: factors entered as a pump ratio (see gramsPerUnitTextToFactorText)
+// aren't on the 0.25 grid and need the extra precision to show the same ratio after a reload.
 private fun Double?.toUiString(): String {
     if (this == null) return ""
     if (this % 1.0 == 0.0) return toInt().toString()
 
-    return String.format(Locale.US, "%.2f", this)
+    return String.format(Locale.US, "%.5f", this)
         .replace('.', ',')
         .trimEnd('0')
         .trimEnd(',')

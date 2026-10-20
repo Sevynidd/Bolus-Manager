@@ -36,11 +36,13 @@ import androidx.compose.ui.unit.dp
 import sevynidd.diabetesapp.data.model.FactorsData
 import sevynidd.diabetesapp.data.settings.correction.CorrectionSettings
 import sevynidd.diabetesapp.data.settings.correction.GlucoseUnit
+import sevynidd.diabetesapp.data.settings.factor.FactorDisplayMode
 import sevynidd.diabetesapp.data.settings.profile.Gender
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
 import sevynidd.diabetesapp.ui.HelpIconButton
+import sevynidd.diabetesapp.ui.glucoseUnitLabel
 import java.time.LocalTime
 import java.util.Locale
 
@@ -72,6 +74,7 @@ data class CalculateScreenValues(
     val periodFactorPercent: Double = 0.0,
     val correctionSettings: CorrectionSettings = CorrectionSettings(),
     val gender: Gender = Gender.PreferNotToSay,
+    val factorDisplayMode: FactorDisplayMode = FactorDisplayMode.UnitsPerBreadUnit,
     val templatePrefillCarbohydrates: Double? = null,
     val templatePrefillToken: Int = 0,
     val selectedMode: BolusMode = BolusMode.Normal
@@ -119,8 +122,8 @@ fun CalculateScreen(
     }
 
     val computed = computeCalculateScreenState(
-        values = values,
-        now = now,
+        values = values, now = now,
+        pumpRatioUnit = translate(TranslationKey.PumpRatioUnit, currentLanguage),
         inputs = RawBolusInputs(
             carbohydrates = carbohydrates,
             bloodSugar = bloodSugar,
@@ -372,10 +375,7 @@ private fun NormalModeInputFields(
 }
 
 private fun bloodSugarLabel(currentLanguage: AppLanguage, glucoseUnit: GlucoseUnit): String {
-    val unitSuffix = when (glucoseUnit) {
-        GlucoseUnit.MgDl -> "mg/dl"
-        GlucoseUnit.MmolL -> "mmol/l"
-    }
+    val unitSuffix = glucoseUnitLabel(glucoseUnit)
     return "${translate(TranslationKey.BloodSugar, currentLanguage)} ($unitSuffix)"
 }
 

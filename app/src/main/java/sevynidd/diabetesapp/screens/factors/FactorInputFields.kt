@@ -30,7 +30,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import sevynidd.diabetesapp.calculation.normalizeBasalRateValue
-import sevynidd.diabetesapp.calculation.normalizeQuarterStepValue
 
 internal val DecimalInputRegex = Regex("^\\d*,?\\d*$")
 private val IntegerInputRegex = Regex("^\\d+$")
@@ -102,7 +101,7 @@ internal fun DoubleInputField(
     onValueChange: (String) -> Unit,
     labels: FieldLabels,
     enabled: Boolean,
-    modifier: Modifier = Modifier
+    normalize: (String) -> String
 ) {
     var draftValue by rememberSaveable(value, stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(text = value, selection = TextRange(value.length)))
@@ -111,12 +110,15 @@ internal fun DoubleInputField(
     val focusManager = LocalFocusManager.current
 
     fun applyNormalization() {
-        val normalized = normalizeQuarterStepValue(draftValue.text)
+        // Untouched values are left as stored: leaving edit mode normalizes every field at once,
+        // and re-rounding would e.g. snap a factor entered as a pump ratio onto the 0.25 grid.
+        if (draftValue.text == value) return
+        val normalized = normalize(draftValue.text)
         draftValue = TextFieldValue(text = normalized, selection = TextRange(normalized.length))
         onValueChange(normalized)
     }
 
-    Column(modifier = modifier.activeFieldHighlight(labels.activeNowLabel != null)) {
+    Column(modifier = Modifier.activeFieldHighlight(labels.activeNowLabel != null)) {
         if (labels.description.isNotEmpty() || labels.activeNowLabel != null) {
             FieldDescriptionRow(description = labels.description, activeNowLabel = labels.activeNowLabel)
         }

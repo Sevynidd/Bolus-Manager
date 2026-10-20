@@ -10,13 +10,19 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bloodtype
 import androidx.compose.material.icons.filled.Grain
 import androidx.compose.material.icons.filled.Percent
+import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,21 +34,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import sevynidd.diabetesapp.data.settings.correction.GlucoseUnit
+import sevynidd.diabetesapp.data.settings.factor.FactorDisplayMode
 import sevynidd.diabetesapp.data.settings.profile.Gender
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
 import sevynidd.diabetesapp.ui.HelpIconButton
+import sevynidd.diabetesapp.ui.glucoseUnitLabel
 import java.util.Locale
 
-/** Settings that tune the bolus/factor calculation itself: bread units and the period surcharge. */
+/**
+ * Settings that tune the bolus/factor calculation itself: bread units, the period surcharge,
+ * whether factors are shown per bread unit or as a pump ratio, and the blood-sugar unit.
+ */
 @Composable
 fun FactorSettingsScreen(
     modifier: Modifier = Modifier,
     currentLanguage: AppLanguage = AppLanguage.System,
     values: FactorSettingsValues = FactorSettingsValues(),
-    onBreadUnitsChange: (Double) -> Unit = {},
-    onPeriodFactorPercentChange: (Double) -> Unit = {}
+    callbacks: FactorSettingsCallbacks = FactorSettingsCallbacks()
 ) {
     Column(
         modifier = modifier.verticalScroll(rememberScrollState()),
@@ -51,17 +62,112 @@ fun FactorSettingsScreen(
         BreadUnitsCard(
             currentLanguage = currentLanguage,
             currentBreadUnits = values.breadUnits,
-            onBreadUnitsChange = onBreadUnitsChange
+            onBreadUnitsChange = callbacks.onBreadUnitsChange
+        )
+
+        FactorDisplayModeCard(
+            currentLanguage = currentLanguage,
+            currentMode = values.factorDisplayMode,
+            onModeChange = callbacks.onFactorDisplayModeChange
+        )
+
+        GlucoseUnitCard(
+            currentLanguage = currentLanguage,
+            currentGlucoseUnit = values.glucoseUnit,
+            onGlucoseUnitChange = callbacks.onGlucoseUnitChange
         )
 
         if (values.gender == Gender.Female) {
             PeriodFactorCard(
                 currentLanguage = currentLanguage,
                 currentPeriodFactorPercent = values.periodFactorPercent,
-                onPeriodFactorPercentChange = onPeriodFactorPercentChange
+                onPeriodFactorPercentChange = callbacks.onPeriodFactorPercentChange
             )
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun FactorDisplayModeCard(
+    currentLanguage: AppLanguage,
+    currentMode: FactorDisplayMode,
+    onModeChange: (FactorDisplayMode) -> Unit
+) {
+    FactorSettingCard {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(
+                imageVector = Icons.Filled.SwapHoriz,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
+            Text(
+                text = translate(TranslationKey.FactorDisplayModeTitle, currentLanguage),
+                style = MaterialTheme.typography.titleSmall,
+                modifier = Modifier.weight(1f)
+            )
+            HelpIconButton(helpTextKey = TranslationKey.FactorDisplayModeHelp, currentLanguage = currentLanguage)
+        }
+
+        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+            FactorDisplayMode.entries.forEachIndexed { index, mode ->
+                SegmentedButton(
+                    shape = SegmentedButtonDefaults.itemShape(index, FactorDisplayMode.entries.size),
+                    selected = currentMode == mode,
+                    onClick = { onModeChange(mode) },
+                    label = { Text(translate(factorDisplayModeLabelKey(mode), currentLanguage)) }
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun GlucoseUnitCard(
+    currentLanguage: AppLanguage,
+    currentGlucoseUnit: GlucoseUnit,
+    onGlucoseUnitChange: (GlucoseUnit) -> Unit
+) {
+    FactorSettingCard {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Bloodtype,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
+            Text(
+                text = translate(TranslationKey.GlucoseUnitLabel, currentLanguage),
+                style = MaterialTheme.typography.titleSmall,
+                modifier = Modifier.weight(1f)
+            )
+            HelpIconButton(helpTextKey = TranslationKey.GlucoseUnitHelp, currentLanguage = currentLanguage)
+        }
+
+        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+            GlucoseUnit.entries.forEachIndexed { index, unit ->
+                SegmentedButton(
+                    shape = SegmentedButtonDefaults.itemShape(index, GlucoseUnit.entries.size),
+                    selected = currentGlucoseUnit == unit,
+                    onClick = { onGlucoseUnitChange(unit) },
+                    label = { Text(glucoseUnitLabel(unit)) }
+                )
+            }
+        }
+    }
+}
+
+private fun factorDisplayModeLabelKey(mode: FactorDisplayMode): TranslationKey = when (mode) {
+    FactorDisplayMode.UnitsPerBreadUnit -> TranslationKey.FactorDisplayUnitsPerBreadUnit
+    FactorDisplayMode.GramsPerUnit -> TranslationKey.FactorDisplayGramsPerUnit
 }
 
 @Composable

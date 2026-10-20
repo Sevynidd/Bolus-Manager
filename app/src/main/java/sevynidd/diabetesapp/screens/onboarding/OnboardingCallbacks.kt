@@ -2,6 +2,8 @@ package sevynidd.diabetesapp.screens.onboarding
 
 import sevynidd.diabetesapp.data.model.FactorsData
 import sevynidd.diabetesapp.data.settings.appearance.ThemeMode
+import sevynidd.diabetesapp.data.settings.correction.GlucoseUnit
+import sevynidd.diabetesapp.data.settings.factor.FactorDisplayMode
 import sevynidd.diabetesapp.data.settings.profile.Gender
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.screens.settings.correction.CorrectionSettingsCallbacks
@@ -16,6 +18,8 @@ data class OnboardingCallbacks(
     val onFactorsChange: ((FactorsData) -> FactorsData) -> Unit = {},
     val onBreadUnitsChange: (Double) -> Unit = {},
     val onPeriodFactorPercentChange: (Double) -> Unit = {},
+    val onFactorDisplayModeChange: (FactorDisplayMode) -> Unit = {},
+    val onGlucoseUnitChange: (GlucoseUnit) -> Unit = {},
     val onBasalReminderEnabledChange: (Boolean) -> Unit = {},
     val onCorrectionSettingsChange: CorrectionSettingsCallbacks = CorrectionSettingsCallbacks(),
     val onFinished: () -> Unit = {}

@@ -23,7 +23,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import sevynidd.diabetesapp.calculation.normalizeQuarterStepValue
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
@@ -32,24 +31,32 @@ import java.util.Locale
 
 private const val MINUTES_PER_HOUR = 60
 
+/** What [AddFactorDialog] needs to know about the existing schedule to seed a new factor. */
+internal data class NewFactorContext(
+    val existingNames: List<String>,
+    val initialTimeMinutes: Int,
+    val displayFormat: FactorDisplayFormat
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun AddFactorDialog(
     currentLanguage: AppLanguage,
-    existingNames: List<String>,
-    initialTimeMinutes: Int,
+    newFactor: NewFactorContext,
     onDismissRequest: () -> Unit,
     onConfirm: (name: String, factorValue: String, timeMinutes: Int) -> Unit
 ) {
     var name by rememberSaveable { mutableStateOf("") }
     var factorValue by rememberSaveable { mutableStateOf("") }
     val pickerState = rememberTimePickerState(
-        initialHour = (initialTimeMinutes / MINUTES_PER_HOUR) % HOURS_PER_DAY,
-        initialMinute = initialTimeMinutes % MINUTES_PER_HOUR,
+        initialHour = (newFactor.initialTimeMinutes / MINUTES_PER_HOUR) % HOURS_PER_DAY,
+        initialMinute = newFactor.initialTimeMinutes % MINUTES_PER_HOUR,
         is24Hour = true
     )
 
-    val normalizedExisting = remember(existingNames) { existingNames.map { it.trim().lowercase(Locale.ROOT) } }
+    val normalizedExisting = remember(newFactor.existingNames) {
+        newFactor.existingNames.map { it.trim().lowercase(Locale.ROOT) }
+    }
     val hasDuplicateName = name.trim().isNotEmpty() && normalizedExisting.contains(name.trim().lowercase(Locale.ROOT))
     val isValid = name.trim().isNotEmpty() && !hasDuplicateName
 
@@ -64,20 +71,24 @@ internal fun AddFactorDialog(
                     onNameChange = { name = it },
                     hasDuplicateName = hasDuplicateName
                 ),
-                factorValue = factorValue,
-                onFactorValueChange = { newValue ->
-                    val sanitizedValue = newValue.replace('.', ',')
-                    if (sanitizedValue.isEmpty() || sanitizedValue.matches(DecimalInputRegex)) {
-                        factorValue = sanitizedValue
-                    }
-                },
+                valueField = FactorValueFieldState(
+                    value = factorValue,
+                    onValueChange = { newValue ->
+                        val sanitizedValue = newValue.replace('.', ',')
+                        if (sanitizedValue.isEmpty() || sanitizedValue.matches(DecimalInputRegex)) {
+                            factorValue = sanitizedValue
+                        }
+                    },
+                    displayFormat = newFactor.displayFormat
+                ),
                 pickerState = pickerState
             )
         },
         confirmButton = {
             TextButton(
                 onClick = {
-                    val normalizedValue = normalizeQuarterStepValue(factorValue)
+                    val displayFormat = newFactor.displayFormat
+                    val normalizedValue = displayFormat.toFactorText(displayFormat.normalizeInput(factorValue))
                     val timeMinutes = (pickerState.hour * MINUTES_PER_HOUR) + pickerState.minute
                     onConfirm(name.trim(), normalizedValue, timeMinutes)
                 },
@@ -101,13 +112,22 @@ private data class NameFieldState(
     val hasDuplicateName: Boolean
 )
 
+/**
+ * The factor value field's state for [AddFactorDialogFields]; [value] is in [displayFormat]'s
+ * notation, not yet converted to the stored factor.
+ */
+private data class FactorValueFieldState(
+    val value: String,
+    val onValueChange: (String) -> Unit,
+    val displayFormat: FactorDisplayFormat
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AddFactorDialogFields(
     currentLanguage: AppLanguage,
     nameField: NameFieldState,
-    factorValue: String,
-    onFactorValueChange: (String) -> Unit,
+    valueField: FactorValueFieldState,
     pickerState: TimePickerState
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -129,14 +149,14 @@ private fun AddFactorDialogFields(
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(
-                value = factorValue,
-                onValueChange = onFactorValueChange,
-                label = { Text(translate(TranslationKey.LabelFactor, currentLanguage)) },
+                value = valueField.value,
+                onValueChange = valueField.onValueChange,
+                label = { Text(translate(valueField.displayFormat.labelKey, currentLanguage)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 singleLine = true,
                 modifier = Modifier.weight(1f)
             )
-            HelpIconButton(helpTextKey = TranslationKey.FactorValueHelp, currentLanguage = currentLanguage)
+            HelpIconButton(helpTextKey = valueField.displayFormat.valueHelpKey, currentLanguage = currentLanguage)
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(

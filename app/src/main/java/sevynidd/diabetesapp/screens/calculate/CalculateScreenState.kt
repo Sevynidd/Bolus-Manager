@@ -6,6 +6,9 @@ import sevynidd.diabetesapp.calculation.SplitBolusResult
 import sevynidd.diabetesapp.calculation.activeFactorForTime
 import sevynidd.diabetesapp.calculation.applyPeriodMultiplier
 import sevynidd.diabetesapp.calculation.calculateSplitBolus
+import sevynidd.diabetesapp.calculation.gramsPerUnitFromFactor
+import sevynidd.diabetesapp.calculation.roundToTenthGram
+import sevynidd.diabetesapp.data.settings.factor.FactorDisplayMode
 import sevynidd.diabetesapp.data.settings.profile.Gender
 import java.time.LocalTime
 import kotlin.math.roundToInt
@@ -36,6 +39,7 @@ internal data class CalculateScreenComputed(
 internal fun computeCalculateScreenState(
     values: CalculateScreenValues,
     now: LocalTime,
+    pumpRatioUnit: String,
     inputs: RawBolusInputs
 ): CalculateScreenComputed {
     val factors = values.factors
@@ -76,19 +80,33 @@ internal fun computeCalculateScreenState(
         correctionSettings = values.correctionSettings
     )
 
+    val factorValueDisplay = FactorValueDisplay(values.factorDisplayMode, effectiveBreadUnits, pumpRatioUnit)
     return CalculateScreenComputed(
-        activeFactorText = activeFactorInfo.toDisplayText(activeFactor),
+        activeFactorText = activeFactorInfo.toDisplayText(factorValueDisplay.format(activeFactor)),
         calculatedUnitsText = normalUnits.calculatedUnitsText,
         correctionUnitsText = normalUnits.correctionUnitsText,
-        futureFactorText = futureFactorInfo.toDisplayText(futureFactor),
+        futureFactorText = futureFactorInfo.toDisplayText(factorValueDisplay.format(futureFactor)),
         splitBolus = splitBolus,
         splitUnits = splitUnits
     )
 }
 
-private fun ActiveFactorInfo.toDisplayText(factorValue: Double? = factor): String {
-    val valueText = factorValue.toUiDecimalOrEmpty()
-    return if (valueText.isBlank()) factorName else "$factorName · $valueText"
+private fun ActiveFactorInfo.toDisplayText(valueText: String): String =
+    if (valueText.isBlank()) factorName else "$factorName · $valueText"
+
+/** Renders an effective factor in the user's chosen [mode], e.g. `1,5` or `8 g/U`. */
+private data class FactorValueDisplay(
+    val mode: FactorDisplayMode,
+    val breadUnits: Double,
+    val pumpRatioUnit: String
+) {
+    fun format(factor: Double?): String = when (mode) {
+        FactorDisplayMode.UnitsPerBreadUnit -> factor.toUiDecimalOrEmpty()
+        FactorDisplayMode.GramsPerUnit -> factor
+            ?.let { gramsPerUnitFromFactor(it, breadUnits) }
+            ?.let { "${roundToTenthGram(it).toUiDecimalOrEmpty()} $pumpRatioUnit" }
+            .orEmpty()
+    }
 }
 
 private fun splitBolusOrNull(

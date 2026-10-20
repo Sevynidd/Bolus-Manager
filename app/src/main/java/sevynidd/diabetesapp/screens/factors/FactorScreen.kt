@@ -34,6 +34,7 @@ import sevynidd.diabetesapp.calculation.suggestedNewSlotTimeMinutes
 import sevynidd.diabetesapp.calculation.withUpdatedTime
 import sevynidd.diabetesapp.data.model.FactorSlot
 import sevynidd.diabetesapp.data.model.FactorsData
+import sevynidd.diabetesapp.data.settings.factor.FactorDisplayMode
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
@@ -51,6 +52,7 @@ private const val MINUTES_PER_HOUR = 60
 data class FactorScreenState(
     val factors: FactorsData = FactorsData(),
     val isEditMode: Boolean = false,
+    val displayFormat: FactorDisplayFormat = FactorDisplayFormat(),
     val onFactorsChange: ((FactorsData) -> FactorsData) -> Unit = {}
 )
 
@@ -107,7 +109,7 @@ fun FactorScreen(
     ) {
         FactorsListCard(
             currentLanguage = currentLanguage,
-            state = FactorsListState(factors, isEditMode, derived),
+            state = FactorsListState(factors, isEditMode, derived, state.displayFormat),
             callbacks = FactorsListCallbacks(
                 onSlotsChanged = ::emitFactorsChanged,
                 onAddClick = { isAddDialogVisible = true }
@@ -129,8 +131,11 @@ fun FactorScreen(
     if (isAddDialogVisible) {
         AddFactorDialog(
             currentLanguage = currentLanguage,
-            existingNames = derived.existingNames,
-            initialTimeMinutes = factors.factorSlots.suggestedNewSlotTimeMinutes(),
+            newFactor = NewFactorContext(
+                existingNames = derived.existingNames,
+                initialTimeMinutes = factors.factorSlots.suggestedNewSlotTimeMinutes(),
+                displayFormat = state.displayFormat
+            ),
             onDismissRequest = { isAddDialogVisible = false },
             onConfirm = { name, factorValue, timeMinutes ->
                 emitFactorsChanged { currentSlots ->
@@ -148,7 +153,8 @@ fun FactorScreen(
 private data class FactorsListState(
     val factors: FactorsData,
     val isEditMode: Boolean,
-    val derived: FactorScreenDerived
+    val derived: FactorScreenDerived,
+    val displayFormat: FactorDisplayFormat
 )
 
 /** The edit actions for [FactorsListCard], bundled to keep its parameter list short. */
@@ -180,7 +186,7 @@ private fun FactorsListCard(
                     style = MaterialTheme.typography.titleSmall,
                     modifier = Modifier.weight(1f)
                 )
-                HelpIconButton(helpTextKey = TranslationKey.FactorsListHelp, currentLanguage = currentLanguage)
+                HelpIconButton(helpTextKey = state.displayFormat.listHelpKey, currentLanguage = currentLanguage)
             }
 
             val activeNowLabel = translate(TranslationKey.ActiveNowBadge, currentLanguage)
@@ -231,7 +237,8 @@ private fun FactorListItem(
             enabled = state.isEditMode,
             isActiveNow = index == state.derived.activeIndex,
             isDuplicateName = isDuplicateName,
-            canDelete = state.isEditMode && factorSlots.size > MIN_FACTOR_COUNT
+            canDelete = state.isEditMode && factorSlots.size > MIN_FACTOR_COUNT,
+            displayFormat = state.displayFormat
         ),
         callbacks = FactorRowCallbacks(
             onNameChange = { newName ->
@@ -240,8 +247,9 @@ private fun FactorListItem(
                 }
             },
             onValueChange = { newValue ->
+                val factorValue = state.displayFormat.toFactorText(newValue)
                 onSlotsChanged { currentSlots ->
-                    currentSlots.toMutableList().apply { this[index] = this[index].copy(factorValue = newValue) }
+                    currentSlots.toMutableList().apply { this[index] = this[index].copy(factorValue = factorValue) }
                 }
             },
             onDeleteClick = {
@@ -302,7 +310,8 @@ private data class FactorRowState(
     val enabled: Boolean,
     val isActiveNow: Boolean,
     val isDuplicateName: Boolean,
-    val canDelete: Boolean
+    val canDelete: Boolean,
+    val displayFormat: FactorDisplayFormat
 )
 
 /** The edit actions for one [FactorRow], grouped to keep the composable's own parameter list short. */
@@ -356,10 +365,11 @@ private fun FactorRow(
         }
 
         DoubleInputField(
-            value = state.slot.factorValue,
+            value = state.displayFormat.toDisplayText(state.slot.factorValue),
             onValueChange = callbacks.onValueChange,
-            labels = FieldLabels(label = translate(TranslationKey.LabelFactor, currentLanguage), description = ""),
-            enabled = state.enabled
+            labels = FieldLabels(label = translate(state.displayFormat.labelKey, currentLanguage), description = ""),
+            enabled = state.enabled,
+            normalize = state.displayFormat::normalizeInput
         )
     }
 }
@@ -371,4 +381,13 @@ private const val PREVIEW_MINUTE = 0
 @Composable
 private fun FactorScreenPreview() {
     FactorScreen(now = LocalTime.of(PREVIEW_HOUR, PREVIEW_MINUTE))
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun FactorScreenPumpRatioPreview() {
+    FactorScreen(
+        state = FactorScreenState(displayFormat = FactorDisplayFormat(mode = FactorDisplayMode.GramsPerUnit)),
+        now = LocalTime.of(PREVIEW_HOUR, PREVIEW_MINUTE)
+    )
 }

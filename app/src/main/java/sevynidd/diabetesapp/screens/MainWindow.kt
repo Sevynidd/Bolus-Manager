@@ -56,6 +56,8 @@ import sevynidd.diabetesapp.data.model.FactorAuditLogEntry
 import sevynidd.diabetesapp.data.model.FactorsData
 import sevynidd.diabetesapp.data.settings.appearance.ThemeMode
 import sevynidd.diabetesapp.data.settings.correction.CorrectionSettings
+import sevynidd.diabetesapp.data.settings.correction.GlucoseUnit
+import sevynidd.diabetesapp.data.settings.factor.FactorDisplayMode
 import sevynidd.diabetesapp.data.settings.profile.Gender
 import sevynidd.diabetesapp.navigation.AppDestinations
 import sevynidd.diabetesapp.navigation.destinationLabel
@@ -75,6 +77,7 @@ import sevynidd.diabetesapp.screens.calculate.CalculateScreenValues
 import sevynidd.diabetesapp.screens.calculate.TemplateEditorScreen
 import sevynidd.diabetesapp.screens.calculate.TemplateManagerScreen
 import sevynidd.diabetesapp.screens.factors.FactorEditSessionViewModel
+import sevynidd.diabetesapp.screens.factors.FactorDisplayFormat
 import sevynidd.diabetesapp.screens.factors.FactorScreen
 import sevynidd.diabetesapp.screens.factors.FactorScreenState
 import sevynidd.diabetesapp.screens.factors.ScheduleFactorScreen
@@ -85,6 +88,7 @@ import sevynidd.diabetesapp.screens.settings.correction.CorrectionSettingsCallba
 import sevynidd.diabetesapp.screens.settings.correction.CorrectionSettingsScreen
 import sevynidd.diabetesapp.screens.settings.correction.toCorrectionSettingsValues
 import sevynidd.diabetesapp.screens.settings.datamanagement.ImportExportSettingsScreen
+import sevynidd.diabetesapp.screens.settings.factor.FactorSettingsCallbacks
 import sevynidd.diabetesapp.screens.settings.factor.FactorSettingsScreen
 import sevynidd.diabetesapp.screens.settings.factor.FactorSettingsValues
 import sevynidd.diabetesapp.screens.settings.language.LanguageSettingsScreen
@@ -106,13 +110,16 @@ fun BolusManagerMainWindow(
     periodFactorPercent: Double = 0.0,
     correctionSettings: CorrectionSettings = CorrectionSettings(),
     gender: Gender = Gender.PreferNotToSay,
+    factorDisplayMode: FactorDisplayMode = FactorDisplayMode.UnitsPerBreadUnit,
     factorData: FactorsData = FactorsData(),
     onThemeModeChange: (ThemeMode) -> Unit = {},
     onContrastLevelChange: (ContrastLevel) -> Unit = {},
     onLanguageChange: (AppLanguage) -> Unit = {},
     onBreadUnitsChange: (Double) -> Unit = {},
     onPeriodFactorPercentChange: (Double) -> Unit = {},
+    onFactorDisplayModeChange: (FactorDisplayMode) -> Unit = {},
     onCorrectionSettingsChange: CorrectionSettingsCallbacks = CorrectionSettingsCallbacks(),
+    onGlucoseUnitChange: (GlucoseUnit) -> Unit = {},
     onGenderChange: (Gender) -> Unit = {},
     onReplayTutorialRequested: () -> Unit = {},
     onFactorSaveRequested: (FactorsData) -> Unit = {},
@@ -381,6 +388,7 @@ fun BolusManagerMainWindow(
                                 state = FactorScreenState(
                                     factors = factorEditorState.factors,
                                     isEditMode = factorEditorState.isEditMode,
+                                    displayFormat = FactorDisplayFormat(factorDisplayMode, breadUnits),
                                     onFactorsChange = factorEditorViewModel::updateDraft
                                 )
                             )
@@ -412,6 +420,7 @@ fun BolusManagerMainWindow(
                                     periodFactorPercent = periodFactorPercent,
                                     correctionSettings = correctionSettings,
                                     gender = gender,
+                                    factorDisplayMode = factorDisplayMode,
                                     templatePrefillCarbohydrates = templatePrefillCarbohydrates,
                                     templatePrefillToken = templatePrefillToken,
                                     selectedMode = calculateBolusMode
@@ -522,10 +531,16 @@ fun BolusManagerMainWindow(
                                 values = FactorSettingsValues(
                                     breadUnits = breadUnits,
                                     periodFactorPercent = periodFactorPercent,
-                                    gender = gender
+                                    gender = gender,
+                                    factorDisplayMode = factorDisplayMode,
+                                    glucoseUnit = correctionSettings.glucoseUnit
                                 ),
-                                onBreadUnitsChange = onBreadUnitsChange,
-                                onPeriodFactorPercentChange = onPeriodFactorPercentChange
+                                callbacks = FactorSettingsCallbacks(
+                                    onBreadUnitsChange = onBreadUnitsChange,
+                                    onPeriodFactorPercentChange = onPeriodFactorPercentChange,
+                                    onFactorDisplayModeChange = onFactorDisplayModeChange,
+                                    onGlucoseUnitChange = onGlucoseUnitChange
+                                )
                             )
 
                             SettingsDestination.Correction -> CorrectionSettingsScreen(

@@ -68,6 +68,14 @@ enum class TranslationKey {
     BasalRateHelp,
     LabelFactor,
     FactorValueHelp,
+    FactorsListPumpHelp,
+    LabelPumpRatio,
+    PumpRatioValueHelp,
+    PumpRatioUnit,
+    FactorDisplayModeTitle,
+    FactorDisplayModeHelp,
+    FactorDisplayUnitsPerBreadUnit,
+    FactorDisplayGramsPerUnit,
     FactorNameLabel,
     FactorNameHelp,
     FactorStartTime,
@@ -280,6 +288,25 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.FactorValueHelp ->
                 "Units of insulin per bread unit during this time window. A higher factor means " +
                     "more insulin for the same amount of carbohydrates."
+            TranslationKey.FactorsListPumpHelp ->
+                "Each row is a time window: name it (e.g. \"Breakfast\") and set its pump ratio — " +
+                    "how many grams of carbohydrates one unit of insulin covers whenever the current " +
+                    "time falls in that window. Windows are ordered automatically by start time."
+            TranslationKey.LabelPumpRatio -> "1 U per … g carbs"
+            TranslationKey.PumpRatioValueHelp ->
+                "The insulin-to-carb ratio as your pump shows it: one unit of insulin per this many " +
+                    "grams of carbohydrates. It's converted from your factor using your bread-unit " +
+                    "value (grams ÷ factor) and rounded to 0.1 g. A lower number means more insulin " +
+                    "for the same amount of carbohydrates."
+            TranslationKey.PumpRatioUnit -> "g/U"
+            TranslationKey.FactorDisplayModeTitle -> "Factor display"
+            TranslationKey.FactorDisplayModeHelp ->
+                "Choose how factors are shown and entered. \"Per bread unit\" shows units of insulin " +
+                    "per bread unit (e.g. 1.5). \"Pump\" shows the ratio insulin pumps such as the " +
+                    "YpsoPump use: one unit per x grams of carbohydrates (e.g. 8 g/U with 12 g per " +
+                    "bread unit). Both describe the same factor, so calculations don't change."
+            TranslationKey.FactorDisplayUnitsPerBreadUnit -> "Per bread unit"
+            TranslationKey.FactorDisplayGramsPerUnit -> "Pump (g/U)"
             TranslationKey.FactorNameLabel -> "Name"
             TranslationKey.FactorNameHelp ->
                 "The name for this time window, e.g. \"Breakfast\" or \"Lunch\" — shown " +
@@ -535,6 +562,27 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.FactorValueHelp ->
                 "Einheiten Insulin pro Broteinheit in diesem Zeitfenster. Ein höherer Faktor " +
                     "bedeutet mehr Insulin für dieselbe Menge Kohlenhydrate."
+            TranslationKey.FactorsListPumpHelp ->
+                "Jede Zeile ist ein Zeitfenster: benenne es (z. B. \"Frühstück\") und lege sein " +
+                    "Pumpenverhältnis fest — wie viel Gramm Kohlenhydrate eine Einheit Insulin abdeckt, " +
+                    "wenn die aktuelle Zeit in dieses Fenster fällt. Fenster werden automatisch " +
+                    "nach Startzeit sortiert."
+            TranslationKey.LabelPumpRatio -> "1 IE pro … g KH"
+            TranslationKey.PumpRatioValueHelp ->
+                "Das Insulin-Kohlenhydrat-Verhältnis, wie es deine Pumpe anzeigt: eine Einheit " +
+                    "Insulin pro so viel Gramm Kohlenhydrate. Es wird mit deinem Broteinheiten-Wert " +
+                    "aus deinem Faktor umgerechnet (Gramm ÷ Faktor) und auf 0,1 g gerundet. Eine " +
+                    "kleinere Zahl bedeutet mehr Insulin für dieselbe Menge Kohlenhydrate."
+            TranslationKey.PumpRatioUnit -> "g/IE"
+            TranslationKey.FactorDisplayModeTitle -> "Faktor-Anzeige"
+            TranslationKey.FactorDisplayModeHelp ->
+                "Wähle, wie Faktoren angezeigt und eingegeben werden. \"Pro BE\" zeigt Einheiten " +
+                    "Insulin pro Broteinheit (z. B. 1,5). \"Pumpe\" zeigt das Verhältnis, das " +
+                    "Insulinpumpen wie die YpsoPump verwenden: eine Einheit pro x Gramm Kohlenhydrate " +
+                    "(z. B. 8 g/IE bei 12 g pro Broteinheit). Beide beschreiben denselben Faktor, " +
+                    "die Berechnungen ändern sich also nicht."
+            TranslationKey.FactorDisplayUnitsPerBreadUnit -> "Pro BE"
+            TranslationKey.FactorDisplayGramsPerUnit -> "Pumpe (g/IE)"
             TranslationKey.FactorNameLabel -> "Name"
             TranslationKey.FactorNameHelp ->
                 "Der Name für dieses Zeitfenster, z. B. \"Frühstück\" oder \"Mittagessen\" — wird " +
@@ -801,6 +849,27 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.FactorValueHelp ->
                 "Unités d'insuline par unité de pain pendant cette plage horaire. Un facteur plus " +
                     "élevé signifie plus d'insuline pour la même quantité de glucides."
+            TranslationKey.FactorsListPumpHelp ->
+                "Chaque ligne est une plage horaire : nommez-la (par ex. \"Petit-déjeuner\") et " +
+                    "définissez son ratio de pompe — combien de grammes de glucides une unité " +
+                    "d'insuline couvre lorsque l'heure actuelle se situe dans cette plage. Les plages " +
+                    "sont triées automatiquement par heure de début."
+            TranslationKey.LabelPumpRatio -> "1 U pour … g de glucides"
+            TranslationKey.PumpRatioValueHelp ->
+                "Le ratio insuline/glucides tel que votre pompe l'affiche : une unité d'insuline " +
+                    "pour ce nombre de grammes de glucides. Il est converti depuis votre facteur à " +
+                    "l'aide de votre valeur d'unité de pain (grammes ÷ facteur) et arrondi à 0,1 g. " +
+                    "Un nombre plus petit signifie plus d'insuline pour la même quantité de glucides."
+            TranslationKey.PumpRatioUnit -> "g/U"
+            TranslationKey.FactorDisplayModeTitle -> "Affichage des facteurs"
+            TranslationKey.FactorDisplayModeHelp ->
+                "Choisissez comment les facteurs sont affichés et saisis. \"Par unité de pain\" " +
+                    "affiche les unités d'insuline par unité de pain (par ex. 1,5). \"Pompe\" affiche " +
+                    "le ratio utilisé par les pompes à insuline comme la YpsoPump : une unité pour " +
+                    "x grammes de glucides (par ex. 8 g/U avec 12 g par unité de pain). Les deux " +
+                    "décrivent le même facteur, les calculs ne changent donc pas."
+            TranslationKey.FactorDisplayUnitsPerBreadUnit -> "Par unité de pain"
+            TranslationKey.FactorDisplayGramsPerUnit -> "Pompe (g/U)"
             TranslationKey.FactorNameLabel -> "Nom"
             TranslationKey.FactorNameHelp ->
                 "Le nom de cette plage horaire, par ex. \"Petit-déjeuner\" ou \"Déjeuner\" — " +
@@ -1069,6 +1138,27 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.FactorValueHelp ->
                 "Jednostki insuliny na wymiennik chlebowy w tym przedziale czasowym. Wyższy " +
                     "czynnik oznacza więcej insuliny dla tej samej ilości węglowodanów."
+            TranslationKey.FactorsListPumpHelp ->
+                "Każdy wiersz to przedział czasu: nazwij go (np. \"Śniadanie\") i ustaw jego " +
+                    "przelicznik pompy — ile gramów węglowodanów pokrywa jedna jednostka insuliny, " +
+                    "gdy bieżąca godzina mieści się w tym przedziale. Przedziały są sortowane " +
+                    "automatycznie według godziny rozpoczęcia."
+            TranslationKey.LabelPumpRatio -> "1 j. na … g węglowodanów"
+            TranslationKey.PumpRatioValueHelp ->
+                "Przelicznik insuliny do węglowodanów tak, jak pokazuje go pompa: jedna jednostka " +
+                    "insuliny na tyle gramów węglowodanów. Jest przeliczany z Twojego czynnika przy " +
+                    "użyciu wartości wymiennika chlebowego (gramy ÷ czynnik) i zaokrąglany do 0,1 g. " +
+                    "Mniejsza liczba oznacza więcej insuliny na tę samą ilość węglowodanów."
+            TranslationKey.PumpRatioUnit -> "g/j."
+            TranslationKey.FactorDisplayModeTitle -> "Wyświetlanie czynników"
+            TranslationKey.FactorDisplayModeHelp ->
+                "Wybierz, jak czynniki są wyświetlane i wprowadzane. \"Na wymiennik\" pokazuje jednostki " +
+                    "insuliny na wymiennik chlebowy (np. 1,5). \"Pompa\" pokazuje przelicznik używany " +
+                    "przez pompy insulinowe, takie jak YpsoPump: jedna jednostka na x gramów " +
+                    "węglowodanów (np. 8 g/j. przy 12 g na wymiennik). Oba opisują ten sam czynnik, " +
+                    "więc obliczenia się nie zmieniają."
+            TranslationKey.FactorDisplayUnitsPerBreadUnit -> "Na wymiennik"
+            TranslationKey.FactorDisplayGramsPerUnit -> "Pompa (g/j.)"
             TranslationKey.FactorNameLabel -> "Nazwa"
             TranslationKey.FactorNameHelp ->
                 "Nazwa tego przedziału czasowego, np. \"Śniadanie\" lub \"Obiad\" — wyświetlana " +

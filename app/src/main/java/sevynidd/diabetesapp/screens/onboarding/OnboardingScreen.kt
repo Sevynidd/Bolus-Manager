@@ -27,11 +27,13 @@ import androidx.compose.ui.unit.dp
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
+import sevynidd.diabetesapp.screens.factors.FactorDisplayFormat
 import sevynidd.diabetesapp.screens.factors.FactorScreen
 import sevynidd.diabetesapp.screens.factors.FactorScreenState
 import sevynidd.diabetesapp.screens.settings.appearance.ThemeSettingsScreen
 import sevynidd.diabetesapp.screens.settings.correction.CorrectionSettingsScreen
 import sevynidd.diabetesapp.screens.settings.correction.toCorrectionSettingsValues
+import sevynidd.diabetesapp.screens.settings.factor.FactorSettingsCallbacks
 import sevynidd.diabetesapp.screens.settings.factor.FactorSettingsScreen
 import sevynidd.diabetesapp.screens.settings.factor.FactorSettingsValues
 import sevynidd.diabetesapp.screens.settings.language.LanguageSettingsScreen
@@ -127,15 +129,7 @@ private fun OnboardingStepContent(
     callbacks: OnboardingCallbacks
 ) {
     when (step) {
-        OnboardingStep.Factors -> FactorScreen(
-            modifier = modifier,
-            currentLanguage = values.currentLanguage,
-            state = FactorScreenState(
-                factors = values.factors,
-                isEditMode = true,
-                onFactorsChange = callbacks.onFactorsChange
-            )
-        )
+        OnboardingStep.Factors -> OnboardingFactorsStep(modifier, values, callbacks)
 
         OnboardingStep.Gender -> GenderSettingsScreen(
             modifier = modifier,
@@ -166,17 +160,7 @@ private fun OnboardingStepContent(
             onBasalReminderEnabledChange = callbacks.onBasalReminderEnabledChange
         )
 
-        OnboardingStep.FactorSettings -> FactorSettingsScreen(
-            modifier = modifier,
-            currentLanguage = values.currentLanguage,
-            values = FactorSettingsValues(
-                breadUnits = values.breadUnits,
-                periodFactorPercent = values.periodFactorPercent,
-                gender = values.gender
-            ),
-            onBreadUnitsChange = callbacks.onBreadUnitsChange,
-            onPeriodFactorPercentChange = callbacks.onPeriodFactorPercentChange
-        )
+        OnboardingStep.FactorSettings -> OnboardingFactorSettingsStep(modifier, values, callbacks)
 
         OnboardingStep.Correction -> CorrectionSettingsScreen(
             modifier = modifier,
@@ -185,6 +169,41 @@ private fun OnboardingStepContent(
             callbacks = callbacks.onCorrectionSettingsChange
         )
     }
+}
+
+@Composable
+private fun OnboardingFactorsStep(modifier: Modifier, values: OnboardingValues, callbacks: OnboardingCallbacks) {
+    FactorScreen(
+        modifier = modifier,
+        currentLanguage = values.currentLanguage,
+        state = FactorScreenState(
+            factors = values.factors,
+            isEditMode = true,
+            displayFormat = FactorDisplayFormat(values.factorDisplayMode, values.breadUnits),
+            onFactorsChange = callbacks.onFactorsChange
+        )
+    )
+}
+
+@Composable
+private fun OnboardingFactorSettingsStep(modifier: Modifier, values: OnboardingValues, callbacks: OnboardingCallbacks) {
+    FactorSettingsScreen(
+        modifier = modifier,
+        currentLanguage = values.currentLanguage,
+        values = FactorSettingsValues(
+            breadUnits = values.breadUnits,
+            periodFactorPercent = values.periodFactorPercent,
+            gender = values.gender,
+            factorDisplayMode = values.factorDisplayMode,
+            glucoseUnit = values.correctionSettings.glucoseUnit
+        ),
+        callbacks = FactorSettingsCallbacks(
+            onBreadUnitsChange = callbacks.onBreadUnitsChange,
+            onPeriodFactorPercentChange = callbacks.onPeriodFactorPercentChange,
+            onFactorDisplayModeChange = callbacks.onFactorDisplayModeChange,
+            onGlucoseUnitChange = callbacks.onGlucoseUnitChange
+        )
+    )
 }
 
 private fun onboardingStepTitle(step: OnboardingStep, currentLanguage: AppLanguage): String {

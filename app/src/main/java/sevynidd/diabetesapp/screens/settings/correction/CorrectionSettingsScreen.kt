@@ -10,17 +10,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Bloodtype
 import androidx.compose.material.icons.filled.Percent
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -39,9 +34,13 @@ import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
 import sevynidd.diabetesapp.ui.HelpIconButton
+import sevynidd.diabetesapp.ui.glucoseUnitLabel
 import java.util.Locale
 
-/** Settings that tune the blood-sugar correction dose: high/low thresholds, step, and display unit. */
+/**
+ * Settings that tune the blood-sugar correction dose: high/low thresholds and step, shown in the
+ * glucose unit chosen in the factor settings.
+ */
 @Composable
 fun CorrectionSettingsScreen(
     modifier: Modifier = Modifier,
@@ -53,12 +52,6 @@ fun CorrectionSettingsScreen(
         modifier = modifier.verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        GlucoseUnitCard(
-            currentLanguage = currentLanguage,
-            currentGlucoseUnit = values.glucoseUnit,
-            onGlucoseUnitChange = callbacks.onGlucoseUnitChange
-        )
-
         CorrectionValueCard(
             labels = CorrectionValueLabels(TranslationKey.CorrectionThreshold, TranslationKey.CorrectionThresholdHelp),
             currentLanguage = currentLanguage,
@@ -100,45 +93,6 @@ private fun CorrectionSettingCard(content: @Composable ColumnScope.() -> Unit) {
             verticalArrangement = Arrangement.spacedBy(12.dp),
             content = content
         )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun GlucoseUnitCard(
-    currentLanguage: AppLanguage,
-    currentGlucoseUnit: GlucoseUnit,
-    onGlucoseUnitChange: (GlucoseUnit) -> Unit
-) {
-    CorrectionSettingCard {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Bloodtype,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
-            )
-            Text(
-                text = translate(TranslationKey.GlucoseUnitLabel, currentLanguage),
-                style = MaterialTheme.typography.titleSmall,
-                modifier = Modifier.weight(1f)
-            )
-            HelpIconButton(helpTextKey = TranslationKey.GlucoseUnitHelp, currentLanguage = currentLanguage)
-        }
-
-        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-            GlucoseUnit.entries.forEachIndexed { index, unit ->
-                SegmentedButton(
-                    shape = SegmentedButtonDefaults.itemShape(index, GlucoseUnit.entries.size),
-                    selected = currentGlucoseUnit == unit,
-                    onClick = { onGlucoseUnitChange(unit) },
-                    label = { Text(glucoseUnitLabel(unit)) }
-                )
-            }
-        }
     }
 }
 
@@ -190,11 +144,6 @@ private fun CorrectionValueCard(
             modifier = Modifier.fillMaxWidth()
         )
     }
-}
-
-private fun glucoseUnitLabel(unit: GlucoseUnit): String = when (unit) {
-    GlucoseUnit.MgDl -> "mg/dl"
-    GlucoseUnit.MmolL -> "mmol/l"
 }
 
 private fun Double.toDisplayValue(unit: GlucoseUnit): Double =

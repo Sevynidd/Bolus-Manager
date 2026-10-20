@@ -43,6 +43,7 @@ import sevynidd.diabetesapp.data.notifications.BasalReminderScheduler
 import sevynidd.diabetesapp.data.notifications.EXTRA_OPEN_APP_UPDATE
 import sevynidd.diabetesapp.data.settings.appearance.ThemeMode
 import sevynidd.diabetesapp.data.settings.correction.CorrectionSettings
+import sevynidd.diabetesapp.data.settings.correction.GlucoseUnit
 import sevynidd.diabetesapp.data.database.FactorsRepository
 import sevynidd.diabetesapp.data.update.GitHubRelease
 import sevynidd.diabetesapp.localization.TranslationKey
@@ -183,6 +184,7 @@ class MainActivity : ComponentActivity() {
                             factors = factors,
                             breadUnits = settings.breadUnits,
                             periodFactorPercent = settings.periodFactorPercent,
+                            factorDisplayMode = settings.factorDisplayMode,
                             correctionSettings = correctionSettings,
                             isBasalReminderEnabled = factors.basalReminderEnabled
                         ),
@@ -208,11 +210,19 @@ class MainActivity : ComponentActivity() {
                             onPeriodFactorPercentChange = { percentage ->
                                 coroutineScope.launch { appSettingsStore.setPeriodFactorPercent(percentage) }
                             },
+                            onFactorDisplayModeChange = { mode ->
+                                coroutineScope.launch { appSettingsStore.setFactorDisplayMode(mode) }
+                            },
                             onBasalReminderEnabledChange = { enabled ->
                                 coroutineScope.launch {
                                     factorsRepository.saveFactors(factors.copy(basalReminderEnabled = enabled))
                                 }
                             },
+                            onGlucoseUnitChange = glucoseUnitChangeCallback(
+                                coroutineScope,
+                                appSettingsStore,
+                                correctionSettings
+                            ),
                             onCorrectionSettingsChange = correctionSettingsCallbacks(
                                 coroutineScope,
                                 appSettingsStore,
@@ -230,6 +240,7 @@ class MainActivity : ComponentActivity() {
                         currentLanguage = settings.language,
                         breadUnits = settings.breadUnits,
                         periodFactorPercent = settings.periodFactorPercent,
+                        factorDisplayMode = settings.factorDisplayMode,
                         correctionSettings = correctionSettings,
                         gender = settings.gender,
                         onThemeModeChange = { themeMode ->
@@ -247,6 +258,14 @@ class MainActivity : ComponentActivity() {
                         onPeriodFactorPercentChange = { percentage ->
                             coroutineScope.launch { appSettingsStore.setPeriodFactorPercent(percentage) }
                         },
+                        onFactorDisplayModeChange = { mode ->
+                            coroutineScope.launch { appSettingsStore.setFactorDisplayMode(mode) }
+                        },
+                        onGlucoseUnitChange = glucoseUnitChangeCallback(
+                            coroutineScope,
+                            appSettingsStore,
+                            correctionSettings
+                        ),
                         onCorrectionSettingsChange = correctionSettingsCallbacks(
                             coroutineScope,
                             appSettingsStore,
@@ -335,11 +354,6 @@ private fun correctionSettingsCallbacks(
             coroutineScope.launch {
                 appSettingsStore.setCorrectionSettings(correctionSettings.copy(stepMgDl = stepMgDl))
             }
-        },
-        onGlucoseUnitChange = { glucoseUnit ->
-            coroutineScope.launch {
-                appSettingsStore.setCorrectionSettings(correctionSettings.copy(glucoseUnit = glucoseUnit))
-            }
         }
     )
 }
@@ -356,4 +370,14 @@ private fun Context.hasNotificationPermission(): Boolean {
 
     return ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) ==
         PackageManager.PERMISSION_GRANTED
+}
+
+private fun glucoseUnitChangeCallback(
+    coroutineScope: CoroutineScope,
+    appSettingsStore: AppSettingsStore,
+    correctionSettings: CorrectionSettings
+): (GlucoseUnit) -> Unit = { glucoseUnit ->
+    coroutineScope.launch {
+        appSettingsStore.setCorrectionSettings(correctionSettings.copy(glucoseUnit = glucoseUnit))
+    }
 }
