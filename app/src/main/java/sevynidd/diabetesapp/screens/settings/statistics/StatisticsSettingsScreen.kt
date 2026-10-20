@@ -34,12 +34,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import sevynidd.diabetesapp.data.export.FactorsPdfReportData
 import sevynidd.diabetesapp.data.export.auditLogExportFileName
 import sevynidd.diabetesapp.data.export.buildFactorsPdfReportContent
 import sevynidd.diabetesapp.data.export.factorsPdfReportFileName
 import sevynidd.diabetesapp.data.export.toAuditLogCsv
 import sevynidd.diabetesapp.data.model.FactorAuditLogEntry
 import sevynidd.diabetesapp.data.model.FactorsData
+import sevynidd.diabetesapp.data.settings.therapy.TherapyMode
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
@@ -53,15 +55,16 @@ private enum class LogExportOutcome { Success, Failure }
 /**
  * Shows how factors and the basal rate developed over time (Statistics) and a chronological log
  * of every add/edit/delete (Documentation), both derived from [auditLog], and lets the user export
- * the full log as CSV, or [factors] and the log together as a printable PDF report, to share with
- * their endocrinologist.
+ * the full log as CSV, or [factors] and the log together as a printable PDF report (with the basal
+ * rate shown the way [therapyMode] uses it), to share with their endocrinologist.
  */
 @Composable
 fun StatisticsSettingsScreen(
     modifier: Modifier = Modifier,
     currentLanguage: AppLanguage = AppLanguage.System,
     auditLog: List<FactorAuditLogEntry> = emptyList(),
-    factors: FactorsData = FactorsData()
+    factors: FactorsData = FactorsData(),
+    therapyMode: TherapyMode = TherapyMode.Pen
 ) {
     val context = LocalContext.current
     val isPreview = LocalInspectionMode.current
@@ -71,7 +74,7 @@ fun StatisticsSettingsScreen(
     val csvExportLauncher = rememberCsvExportLauncher(context, coroutineScope, auditLog, currentLanguage) {
         csvExportOutcome = it
     }
-    val pdfExportRequest = PdfExportRequest(factors, auditLog, currentLanguage)
+    val pdfExportRequest = PdfExportRequest(FactorsPdfReportData(factors, auditLog, therapyMode), currentLanguage)
     val pdfExportLauncher = rememberPdfExportLauncher(context, coroutineScope, pdfExportRequest) {
         pdfExportOutcome = it
     }
@@ -125,8 +128,7 @@ private fun rememberCsvExportLauncher(
 
 /** The inputs [rememberPdfExportLauncher] needs, bundled to keep its parameter count reasonable. */
 private data class PdfExportRequest(
-    val factors: FactorsData,
-    val auditLog: List<FactorAuditLogEntry>,
+    val report: FactorsPdfReportData,
     val language: AppLanguage
 )
 
@@ -161,7 +163,7 @@ private fun writeAuditLogExport(
 
 private fun writeFactorsPdfExport(context: Context, uri: Uri, request: PdfExportRequest): Boolean {
     return runCatching {
-        val content = buildFactorsPdfReportContent(request.factors, request.auditLog, request.language)
+        val content = buildFactorsPdfReportContent(request.report, request.language)
         context.contentResolver.openOutputStream(uri)?.use { stream ->
             renderFactorsPdfReport(content, stream)
         } == true

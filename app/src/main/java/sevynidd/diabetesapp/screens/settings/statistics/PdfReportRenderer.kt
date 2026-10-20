@@ -6,6 +6,7 @@ import android.graphics.Paint
 import android.graphics.pdf.PdfDocument
 import sevynidd.diabetesapp.data.export.FactorReportRow
 import sevynidd.diabetesapp.data.export.FactorsPdfReportContent
+import sevynidd.diabetesapp.data.export.PumpBasalReportSection
 import java.io.OutputStream
 
 private const val PAGE_WIDTH = 595
@@ -54,7 +55,7 @@ fun renderFactorsPdfReport(content: FactorsPdfReportContent, outputStream: Outpu
         writer.drawHeader(content.title, content.generatedAtLabel)
         writer.drawFactorsTable(content)
         writer.drawLogSection(content)
-        writer.finish()
+        writer.finishCurrentPage()
         document.writeTo(outputStream)
         document.close()
     }.isSuccess
@@ -120,7 +121,8 @@ private class PdfReportWriter(private val document: PdfDocument, private val rep
         return headerY + SECTION_GAP
     }
 
-    private fun finishCurrentPage() {
+    /** Closes the current page with its footer; also called once after the last section. */
+    fun finishCurrentPage() {
         val ruleY = PAGE_HEIGHT - FOOTER_MARGIN - FOOTER_TEXT_SIZE
         page.canvas.drawLine(MARGIN, ruleY, CONTENT_RIGHT, ruleY, hairlinePaint)
         page.canvas.drawText(pageNumber.toString(), PAGE_WIDTH / 2f, PAGE_HEIGHT - FOOTER_MARGIN, footerPaint)
@@ -166,8 +168,31 @@ private class PdfReportWriter(private val document: PdfDocument, private val rep
         }
 
         y += SECTION_GAP - ROW_HEIGHT
+        val pumpBasal = content.pumpBasal
+        if (pumpBasal != null) {
+            drawPumpBasalTable(pumpBasal)
+        } else {
+            ensureSpace(LINE_HEIGHT * 2)
+            y = drawBasalRateLine(page.canvas, y, content, tablePaints)
+        }
+    }
+
+    private fun drawPumpBasalTable(section: PumpBasalReportSection) {
+        y += SECTION_GAP
+        ensureSpace(LINE_HEIGHT)
+        y = drawSectionTitle(page.canvas, y, section.title, sectionPaint)
+
+        ensureSpace(ROW_HEIGHT)
+        y = drawTwoColumnRow(page.canvas, y, section.timeHeader to section.rateHeader, tablePaints.header, tablePaints)
+        section.rows.forEach { row ->
+            ensureSpace(ROW_HEIGHT)
+            y = drawTwoColumnRow(page.canvas, y, row.timeRange to row.rate, tablePaints.body, tablePaints)
+        }
+
+        y += SECTION_GAP - ROW_HEIGHT
         ensureSpace(LINE_HEIGHT * 2)
-        y = drawBasalRateLine(page.canvas, y, content, tablePaints)
+        page.canvas.drawText(section.dailyTotalLabel, MARGIN, y, headerPaint)
+        y += SECTION_GAP + LINE_HEIGHT
     }
 
     fun drawLogSection(content: FactorsPdfReportContent) {
@@ -190,10 +215,6 @@ private class PdfReportWriter(private val document: PdfDocument, private val rep
             )
             y += LOG_ENTRY_GAP
         }
-    }
-
-    fun finish() {
-        finishCurrentPage()
     }
 }
 
@@ -223,6 +244,21 @@ private fun drawTableRow(canvas: Canvas, y: Float, row: FactorReportRow, paints:
     canvas.drawRightAlignedText(row.timeRange, CONTENT_RIGHT, y, paints.body)
     val ruleY = y + HAIRLINE_GAP
     canvas.drawLine(MARGIN, ruleY, CONTENT_RIGHT, ruleY, paints.hairline)
+    return y + ROW_HEIGHT
+}
+
+/** Draws a label and a right-aligned value (e.g. an hour and its U/h rate) over a hairline; returns the next y. */
+private fun drawTwoColumnRow(
+    canvas: Canvas,
+    y: Float,
+    cells: Pair<String, String>,
+    paint: Paint,
+    paints: TablePaints
+): Float {
+    canvas.drawText(cells.first, MARGIN, y, paint)
+    canvas.drawRightAlignedText(cells.second, VALUE_COLUMN_RIGHT, y, paint)
+    val ruleY = y + HAIRLINE_GAP
+    canvas.drawLine(MARGIN, ruleY, VALUE_COLUMN_RIGHT, ruleY, paints.hairline)
     return y + ROW_HEIGHT
 }
 

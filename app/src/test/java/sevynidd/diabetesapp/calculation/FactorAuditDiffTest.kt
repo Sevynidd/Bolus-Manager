@@ -129,4 +129,40 @@ class FactorAuditDiffTest {
         assertEquals(1140, event.oldTimeMinutes)
         assertEquals(1200, event.newTimeMinutes)
     }
+
+    @Test
+    fun `normal case changing one hourly pump rate produces a single PUMP_BASAL_RATE_CHANGED event`() {
+        val previous = baseFactors.copy(pumpBasalRates = List(24) { "0,5" })
+        val updated = previous.copy(pumpBasalRates = previous.pumpBasalRates.withRate(hour = 6, rate = "0,85"))
+
+        val event = diffFactorChanges(previous, updated).single()
+
+        assertEquals(FactorChangeType.PUMP_BASAL_RATE_CHANGED, event.changeType)
+        assertEquals(null, event.factorName)
+        assertEquals(0.5, event.oldValue)
+        assertEquals(0.85, event.newValue)
+        assertEquals(6 * 60, event.newTimeMinutes)
+    }
+
+    @Test
+    fun `boundary of setting a previously unset hour logs a change from not set`() {
+        val updated = baseFactors.copy(pumpBasalRates = baseFactors.pumpBasalRates.withRate(hour = 23, rate = "0,4"))
+
+        val event = diffFactorChanges(baseFactors, updated).single()
+
+        assertEquals(null, event.oldValue)
+        assertEquals(0.4, event.newValue)
+        assertEquals(23 * 60, event.oldTimeMinutes)
+    }
+
+    @Test
+    fun `invalid case of rewriting an hourly rate with the same value produces no event`() {
+        val previous = baseFactors.copy(pumpBasalRates = List(24) { "0,5" })
+        val updated = previous.copy(pumpBasalRates = List(24) { "0,50" })
+
+        assertTrue(diffFactorChanges(previous, updated).isEmpty())
+    }
 }
+
+private fun List<String>.withRate(hour: Int, rate: String): List<String> =
+    toMutableList().apply { this[hour] = rate }

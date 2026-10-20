@@ -57,6 +57,14 @@ private fun FactorAuditLogEntry.templateAndArgs(language: AppLanguage): Pair<Tra
             TranslationKey.AuditBasalTimeChanged to
                 listOf(oldTimeMinutes.toTimeLabel(language), newTimeMinutes.toTimeLabel(language))
 
+        FactorChangeType.PUMP_BASAL_RATE_CHANGED ->
+            TranslationKey.AuditPumpBasalRateChanged to
+                listOf(
+                    newTimeMinutes.toHourRangeLabel(language),
+                    oldValue.toDisplayValue(language),
+                    newValue.toDisplayValue(language)
+                )
+
         null -> null to emptyList()
     }
 }
@@ -75,6 +83,9 @@ private fun Double?.toDisplayValue(language: AppLanguage): String {
             .trimEnd(',')
     }
 }
+
+private fun Int?.toHourRangeLabel(language: AppLanguage): String =
+    this?.let { pumpBasalHourRangeLabel(it / MINUTES_PER_HOUR) } ?: translate(TranslationKey.AuditValueNotSet, language)
 
 private fun Int?.toTimeLabel(language: AppLanguage): String {
     if (this == null) return translate(TranslationKey.AuditValueNotSet, language)

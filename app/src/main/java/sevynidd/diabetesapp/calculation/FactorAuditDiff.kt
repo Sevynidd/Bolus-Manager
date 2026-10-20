@@ -10,7 +10,8 @@ enum class FactorChangeType {
     FACTOR_TIME_CHANGED,
     FACTOR_DELETED,
     BASAL_RATE_CHANGED,
-    BASAL_TIME_CHANGED
+    BASAL_TIME_CHANGED,
+    PUMP_BASAL_RATE_CHANGED
 }
 
 /**
@@ -18,8 +19,9 @@ enum class FactorChangeType {
  * Which of [oldValue]/[newValue] (the factor value or basal rate, unitless/units-per-hour) and
  * [oldTimeMinutes]/[newTimeMinutes] (minutes since midnight) are set depends on [changeType]:
  * value fields for `*_VALUE_CHANGED`/`BASAL_RATE_CHANGED`, time fields for `*_TIME_CHANGED`, both
- * "new" fields for `FACTOR_ADDED`, both "old" fields for `FACTOR_DELETED`. [factorName] is `null`
- * for basal-rate/-time events.
+ * "new" fields for `FACTOR_ADDED`, both "old" fields for `FACTOR_DELETED`, and for
+ * `PUMP_BASAL_RATE_CHANGED` both value fields (in U/h) plus both time fields set to the start of
+ * the changed hour. [factorName] is `null` for basal-rate/-time and pump-basal events.
  */
 data class FactorChangeEvent(
     val changeType: FactorChangeType,
@@ -33,10 +35,13 @@ data class FactorChangeEvent(
 /**
  * Computes the audit-log-worthy differences between [previous] and [updated]: factor slots added,
  * removed, or changed in value/time (matched between the two snapshots by name, since a slot has
- * no persisted identity beyond its name), plus basal-rate/basal-time changes.
+ * no persisted identity beyond its name), plus basal-rate/basal-time changes and changed hourly
+ * pump basal rates.
  */
 fun diffFactorChanges(previous: FactorsData, updated: FactorsData): List<FactorChangeEvent> {
-    return diffFactorSlots(previous.factorSlots, updated.factorSlots) + diffBasal(previous, updated)
+    return diffFactorSlots(previous.factorSlots, updated.factorSlots) +
+        diffBasal(previous, updated) +
+        diffPumpBasalRates(previous.pumpBasalRates, updated.pumpBasalRates)
 }
 
 private fun diffFactorSlots(previous: List<FactorSlot>, updated: List<FactorSlot>): List<FactorChangeEvent> {
@@ -117,6 +122,26 @@ private fun diffBasal(previous: FactorsData, updated: FactorsData): List<FactorC
     }
     return events
 }
+
+private fun diffPumpBasalRates(previous: List<String>, updated: List<String>): List<FactorChangeEvent> {
+    return previous.indices.intersect(updated.indices).mapNotNull { hour ->
+        val oldRate = previous[hour].toAuditDouble()
+        val newRate = updated[hour].toAuditDouble()
+        if (oldRate == newRate) return@mapNotNull null
+
+        val hourStartMinutes = hour * MINUTES_PER_HOUR
+        FactorChangeEvent(
+            changeType = FactorChangeType.PUMP_BASAL_RATE_CHANGED,
+            factorName = null,
+            oldValue = oldRate,
+            newValue = newRate,
+            oldTimeMinutes = hourStartMinutes,
+            newTimeMinutes = hourStartMinutes
+        )
+    }
+}
+
+private const val MINUTES_PER_HOUR = 60
 
 /** Parses a UI comma-decimal factor/basal string (see [FactorsData]) into a [Double], or `null` if unset/invalid. */
 private fun String.toAuditDouble(): Double? = replace(',', '.').toDoubleOrNull()

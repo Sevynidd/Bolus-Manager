@@ -2,9 +2,11 @@ package sevynidd.diabetesapp.data.export
 
 import sevynidd.diabetesapp.data.model.FactorSlot
 import sevynidd.diabetesapp.data.model.FactorsData
+import sevynidd.diabetesapp.data.model.PUMP_BASAL_HOURS
 import sevynidd.diabetesapp.data.settings.correction.CorrectionSettings
 import sevynidd.diabetesapp.data.settings.correction.GlucoseUnit
 import sevynidd.diabetesapp.data.settings.profile.Gender
+import sevynidd.diabetesapp.data.settings.therapy.TherapyMode
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -15,10 +17,15 @@ import java.time.format.DateTimeFormatter
  * fields with a variable-length `"factors"` array (see [FactorSlot]). Version 3 added the
  * calculation-relevant app settings that live outside the Room-backed factor profile (bread
  * units, Period surcharge, correction threshold/step/unit, gender) so a restore doesn't silently
- * drop them. Version 4 added the low correction threshold used to subtract insulin below target
- * — v1 through v3 exports are rejected outright rather than upgraded.
+ * drop them. Version 4 added the low correction threshold used to subtract insulin below target.
+ * Version 5 added the therapy mode and the 24 hourly pump basal rates (as flat
+ * `pumpBasalRate00`..`pumpBasalRate23` fields, so the flat-object parser can read them). v4
+ * exports are still accepted — imported as pen therapy with no pump rates, since v4 adds no
+ * information v5 lacks — while v1 through v3 are rejected outright rather than upgraded.
  */
-private const val EXPORT_SCHEMA_VERSION = 4
+private const val EXPORT_SCHEMA_VERSION = 5
+private const val PREVIOUS_SUPPORTED_SCHEMA_VERSION = 4
+private const val PUMP_BASAL_RATE_KEY_PREFIX = "pumpBasalRate"
 
 private val EXPORT_FILE_NAME_DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
@@ -28,7 +35,7 @@ fun factorsExportFileName(date: LocalDate): String =
 
 /**
  * Everything [toExportJson] serializes: the Room-backed factor profile (correction factors, time
- * windows, basal rate) plus the calculation-relevant app settings that are persisted separately
+ * windows, pen basal dose, hourly pump basal rates) plus the app settings that are persisted separately
  * in DataStore but feed the same bolus/correction calculations, so they travel together in a
  * backup/device-transfer.
  */
@@ -37,7 +44,8 @@ data class FactorsExportBundle(
     val breadUnits: Double,
     val periodFactorPercent: Double,
     val correctionSettings: CorrectionSettings,
-    val gender: Gender
+    val gender: Gender,
+    val therapyMode: TherapyMode = TherapyMode.Pen
 )
 
 /** Serializes this factor profile and its associated calculation settings to portable JSON. */
@@ -61,8 +69,10 @@ fun FactorsExportBundle.toExportJson(): String {
         "correctionStepMgDl" to correctionSettings.stepMgDl.toString(),
         "glucoseUnit" to correctionSettings.glucoseUnit.name.toJsonStringLiteral(),
         "gender" to gender.name.toJsonStringLiteral(),
-        "factors" to factorsArray
-    )
+        "therapyMode" to therapyMode.name.toJsonStringLiteral()
+    ) + factors.pumpBasalRates.mapIndexed { hour, rate ->
+        pumpBasalRateKey(hour) to rate.toJsonStringLiteral()
+    } + listOf("factors" to factorsArray)
     return entries.joinToString(separator = ",\n", prefix = "{\n", postfix = "\n}") { (key, value) ->
         "  \"$key\": $value"
     }
@@ -71,15 +81,18 @@ fun FactorsExportBundle.toExportJson(): String {
 /**
  * Parses JSON previously produced by [FactorsExportBundle.toExportJson] back into a [FactorsExportBundle].
  * Returns `null` for anything that isn't a recognizable export of the current [EXPORT_SCHEMA_VERSION]
- * (malformed JSON, missing fields, unreadable numbers) so callers can show one generic import-failed
- * message instead of handling a list of distinct parse-error types.
+ * or the still-supported [PREVIOUS_SUPPORTED_SCHEMA_VERSION] (malformed JSON, missing fields,
+ * unreadable numbers) so callers can show one generic import-failed message instead of handling a
+ * list of distinct parse-error types.
  */
 fun parseFactorsExportJson(json: String): FactorsExportBundle? {
     val extracted = extractFactorsArray(json)
     val fields = extracted?.let { runCatching { parseFlatJsonObject(it.remainingJson) }.getOrNull() }
-    if (extracted == null || fields == null || fields["schemaVersion"] != EXPORT_SCHEMA_VERSION.toString()) {
+    val schemaVersion = fields?.get("schemaVersion")?.toIntOrNull()
+    if (extracted == null || fields == null || schemaVersion !in SUPPORTED_SCHEMA_VERSIONS) {
         return null
     }
+    val hasPumpFields = schemaVersion == EXPORT_SCHEMA_VERSION
 
     return runCatching {
         FactorsExportBundle(
@@ -88,7 +101,8 @@ fun parseFactorsExportJson(json: String): FactorsExportBundle? {
                 factorSlots = parseFactorSlotArray(extracted.arrayJson),
                 basalRate = fields.requireJsonString("basalRate"),
                 basalTimeMinutes = fields.requireInt("basalTimeMinutes"),
-                basalReminderEnabled = fields.requireBoolean("basalReminderEnabled")
+                basalReminderEnabled = fields.requireBoolean("basalReminderEnabled"),
+                pumpBasalRates = if (hasPumpFields) fields.requirePumpBasalRates() else FactorsData().pumpBasalRates
             ),
             breadUnits = fields.requireDouble("breadUnits"),
             periodFactorPercent = fields.requireDouble("periodFactorPercent"),
@@ -98,10 +112,18 @@ fun parseFactorsExportJson(json: String): FactorsExportBundle? {
                 stepMgDl = fields.requireDouble("correctionStepMgDl"),
                 glucoseUnit = fields.requireEnum<GlucoseUnit>("glucoseUnit")
             ),
-            gender = fields.requireEnum<Gender>("gender")
+            gender = fields.requireEnum<Gender>("gender"),
+            therapyMode = if (hasPumpFields) fields.requireEnum<TherapyMode>("therapyMode") else TherapyMode.Pen
         )
     }.getOrNull()
 }
+
+private val SUPPORTED_SCHEMA_VERSIONS = setOf(PREVIOUS_SUPPORTED_SCHEMA_VERSION, EXPORT_SCHEMA_VERSION)
+
+private fun pumpBasalRateKey(hour: Int): String = PUMP_BASAL_RATE_KEY_PREFIX + hour.toString().padStart(2, '0')
+
+private fun Map<String, String>.requirePumpBasalRates(): List<String> =
+    List(PUMP_BASAL_HOURS) { hour -> requireJsonString(pumpBasalRateKey(hour)) }
 
 private fun String.toJsonStringLiteral(): String {
     val escaped = replace("\\", "\\\\").replace("\"", "\\\"")

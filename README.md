@@ -38,8 +38,9 @@ and consult your doctor or diabetes care team before acting on them.
 - Keep a personal list of correction factors, each tied to a time of day, plus your basal rate
 - A pie chart gives you an at-a-glance overview of your daily schedule
 - The factor currently in effect is highlighted with a "Now" badge
-- Show and edit factors either per bread unit or as an insulin-pump ratio
-  ("1 unit per x grams of carbohydrates", as used by e.g. the YpsoPump)
+- Pen or insulin-pump therapy: with a pump (e.g. the YpsoPump), factors are shown and edited
+  as "1 unit per x grams of carbohydrates" and the basal rate as 24 hourly rates in units per
+  hour, with the daily total
 
 ### Calculate
 
@@ -57,7 +58,7 @@ and consult your doctor or diabetes care team before acting on them.
 - Available in German, English, French, and Polish (or follow your system language)
 - Set your gender (Male, Female, or Prefer not to say), which determines whether Period is shown
 - Tune the bread-unit value, Period surcharge, and blood-sugar correction thresholds to your needs, in either mg/dl or mmol/l
-- Choose whether factors are displayed per bread unit or in pump notation (grams per unit)
+- Choose between pen and insulin-pump therapy
 - Optional daily reminder notification for your basal rate
 - Check for and install app updates directly from within the app
 - Export your factor profile and calculation settings (bread units, Period surcharge, correction
@@ -85,8 +86,8 @@ active on your schedule, and your configured bread-unit value:
 ### Pump Ratio
 
 Insulin pumps such as the YpsoPump usually describe a factor the other way
-round: one unit of insulin per so many grams of carbohydrates. When the pump
-display is enabled, each factor is shown (and can be entered) in that form,
+round: one unit of insulin per so many grams of carbohydrates. With insulin-pump
+therapy selected, each factor is shown (and can be entered) in that form,
 derived from your bread-unit value and rounded to 0.1 g:
 
 `GramsPerUnit = BreadUnits / Factor`

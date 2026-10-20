@@ -8,7 +8,7 @@ import sevynidd.diabetesapp.calculation.applyPeriodMultiplier
 import sevynidd.diabetesapp.calculation.calculateSplitBolus
 import sevynidd.diabetesapp.calculation.gramsPerUnitFromFactor
 import sevynidd.diabetesapp.calculation.roundToTenthGram
-import sevynidd.diabetesapp.data.settings.factor.FactorDisplayMode
+import sevynidd.diabetesapp.data.settings.therapy.TherapyMode
 import sevynidd.diabetesapp.data.settings.profile.Gender
 import java.time.LocalTime
 import kotlin.math.roundToInt
@@ -80,7 +80,7 @@ internal fun computeCalculateScreenState(
         correctionSettings = values.correctionSettings
     )
 
-    val factorValueDisplay = FactorValueDisplay(values.factorDisplayMode, effectiveBreadUnits, pumpRatioUnit)
+    val factorValueDisplay = FactorValueDisplay(values.therapyMode, effectiveBreadUnits, pumpRatioUnit)
     return CalculateScreenComputed(
         activeFactorText = activeFactorInfo.toDisplayText(factorValueDisplay.format(activeFactor)),
         calculatedUnitsText = normalUnits.calculatedUnitsText,
@@ -96,13 +96,13 @@ private fun ActiveFactorInfo.toDisplayText(valueText: String): String =
 
 /** Renders an effective factor in the user's chosen [mode], e.g. `1,5` or `8 g/U`. */
 private data class FactorValueDisplay(
-    val mode: FactorDisplayMode,
+    val mode: TherapyMode,
     val breadUnits: Double,
     val pumpRatioUnit: String
 ) {
     fun format(factor: Double?): String = when (mode) {
-        FactorDisplayMode.UnitsPerBreadUnit -> factor.toUiDecimalOrEmpty()
-        FactorDisplayMode.GramsPerUnit -> factor
+        TherapyMode.Pen -> factor.toUiDecimalOrEmpty()
+        TherapyMode.Pump -> factor
             ?.let { gramsPerUnitFromFactor(it, breadUnits) }
             ?.let { "${roundToTenthGram(it).toUiDecimalOrEmpty()} $pumpRatioUnit" }
             .orEmpty()

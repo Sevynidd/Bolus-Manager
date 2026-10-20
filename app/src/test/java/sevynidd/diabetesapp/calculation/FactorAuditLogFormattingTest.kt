@@ -124,4 +124,32 @@ class FactorAuditLogFormattingTest {
         assertTrue(series.any { it.factorName == null })
         assertTrue(series.any { it.factorName == "Morning" })
     }
+
+    @Test
+    fun `normal case describes a pump basal change with the hour range and both rates`() {
+        val description = entry(
+            changeType = FactorChangeType.PUMP_BASAL_RATE_CHANGED,
+            factorName = null,
+            values = 0.5 to 0.85,
+            times = 360 to 360
+        ).describe(AppLanguage.English)
+
+        assertEquals("Pump basal rate 06:00 - 07:00 changed from 0,5 to 0,85 U/h.", description)
+    }
+
+    @Test
+    fun `pump basal changes don't add a chart series`() {
+        val series = factorHistorySeries(
+            listOf(
+                entry(
+                    changeType = FactorChangeType.PUMP_BASAL_RATE_CHANGED,
+                    factorName = null,
+                    values = 0.5 to 0.85,
+                    times = 360 to 360
+                )
+            )
+        )
+
+        assertTrue(series.isEmpty())
+    }
 }

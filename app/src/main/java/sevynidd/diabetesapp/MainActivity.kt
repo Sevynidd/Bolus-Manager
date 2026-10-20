@@ -68,7 +68,8 @@ class MainActivity : ComponentActivity() {
         val appSettingsStore = AppSettingsStore(applicationContext)
         val factorsRepository = FactorsRepository(
             DiabetesDatabase.getInstance(applicationContext).factorProfileDao(),
-            DiabetesDatabase.getInstance(applicationContext).factorSlotDao()
+            DiabetesDatabase.getInstance(applicationContext).factorSlotDao(),
+            DiabetesDatabase.getInstance(applicationContext).pumpBasalRateDao()
         )
         val templatesRepository = BolusTemplatesRepository(
             DiabetesDatabase.getInstance(applicationContext).bolusTemplateDao()
@@ -184,7 +185,7 @@ class MainActivity : ComponentActivity() {
                             factors = factors,
                             breadUnits = settings.breadUnits,
                             periodFactorPercent = settings.periodFactorPercent,
-                            factorDisplayMode = settings.factorDisplayMode,
+                            therapyMode = settings.therapyMode,
                             correctionSettings = correctionSettings,
                             isBasalReminderEnabled = factors.basalReminderEnabled
                         ),
@@ -210,8 +211,8 @@ class MainActivity : ComponentActivity() {
                             onPeriodFactorPercentChange = { percentage ->
                                 coroutineScope.launch { appSettingsStore.setPeriodFactorPercent(percentage) }
                             },
-                            onFactorDisplayModeChange = { mode ->
-                                coroutineScope.launch { appSettingsStore.setFactorDisplayMode(mode) }
+                            onTherapyModeChange = { mode ->
+                                coroutineScope.launch { appSettingsStore.setTherapyMode(mode) }
                             },
                             onBasalReminderEnabledChange = { enabled ->
                                 coroutineScope.launch {
@@ -240,7 +241,7 @@ class MainActivity : ComponentActivity() {
                         currentLanguage = settings.language,
                         breadUnits = settings.breadUnits,
                         periodFactorPercent = settings.periodFactorPercent,
-                        factorDisplayMode = settings.factorDisplayMode,
+                        therapyMode = settings.therapyMode,
                         correctionSettings = correctionSettings,
                         gender = settings.gender,
                         onThemeModeChange = { themeMode ->
@@ -258,8 +259,8 @@ class MainActivity : ComponentActivity() {
                         onPeriodFactorPercentChange = { percentage ->
                             coroutineScope.launch { appSettingsStore.setPeriodFactorPercent(percentage) }
                         },
-                        onFactorDisplayModeChange = { mode ->
-                            coroutineScope.launch { appSettingsStore.setFactorDisplayMode(mode) }
+                        onTherapyModeChange = { mode ->
+                            coroutineScope.launch { appSettingsStore.setTherapyMode(mode) }
                         },
                         onGlucoseUnitChange = glucoseUnitChangeCallback(
                             coroutineScope,
@@ -300,6 +301,7 @@ class MainActivity : ComponentActivity() {
                                 appSettingsStore.setPeriodFactorPercent(imported.periodFactorPercent)
                                 appSettingsStore.setCorrectionSettings(imported.correctionSettings)
                                 appSettingsStore.setGender(imported.gender)
+                                appSettingsStore.setTherapyMode(imported.therapyMode)
                             }
                         },
                         auditLog = auditLog,

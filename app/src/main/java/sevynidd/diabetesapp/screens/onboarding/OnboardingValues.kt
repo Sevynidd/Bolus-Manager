@@ -3,7 +3,7 @@ package sevynidd.diabetesapp.screens.onboarding
 import sevynidd.diabetesapp.data.model.FactorsData
 import sevynidd.diabetesapp.data.settings.appearance.ThemeMode
 import sevynidd.diabetesapp.data.settings.correction.CorrectionSettings
-import sevynidd.diabetesapp.data.settings.factor.FactorDisplayMode
+import sevynidd.diabetesapp.data.settings.therapy.TherapyMode
 import sevynidd.diabetesapp.data.settings.profile.Gender
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.ui.theme.ContrastLevel
@@ -17,7 +17,7 @@ data class OnboardingValues(
     val factors: FactorsData = FactorsData(),
     val breadUnits: Double = 12.0,
     val periodFactorPercent: Double = 0.0,
-    val factorDisplayMode: FactorDisplayMode = FactorDisplayMode.UnitsPerBreadUnit,
+    val therapyMode: TherapyMode = TherapyMode.Pen,
     val correctionSettings: CorrectionSettings = CorrectionSettings(),
     val isBasalReminderEnabled: Boolean = false
 )

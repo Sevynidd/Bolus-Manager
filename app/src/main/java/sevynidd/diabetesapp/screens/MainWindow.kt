@@ -57,7 +57,7 @@ import sevynidd.diabetesapp.data.model.FactorsData
 import sevynidd.diabetesapp.data.settings.appearance.ThemeMode
 import sevynidd.diabetesapp.data.settings.correction.CorrectionSettings
 import sevynidd.diabetesapp.data.settings.correction.GlucoseUnit
-import sevynidd.diabetesapp.data.settings.factor.FactorDisplayMode
+import sevynidd.diabetesapp.data.settings.therapy.TherapyMode
 import sevynidd.diabetesapp.data.settings.profile.Gender
 import sevynidd.diabetesapp.navigation.AppDestinations
 import sevynidd.diabetesapp.navigation.destinationLabel
@@ -110,14 +110,14 @@ fun BolusManagerMainWindow(
     periodFactorPercent: Double = 0.0,
     correctionSettings: CorrectionSettings = CorrectionSettings(),
     gender: Gender = Gender.PreferNotToSay,
-    factorDisplayMode: FactorDisplayMode = FactorDisplayMode.UnitsPerBreadUnit,
+    therapyMode: TherapyMode = TherapyMode.Pen,
     factorData: FactorsData = FactorsData(),
     onThemeModeChange: (ThemeMode) -> Unit = {},
     onContrastLevelChange: (ContrastLevel) -> Unit = {},
     onLanguageChange: (AppLanguage) -> Unit = {},
     onBreadUnitsChange: (Double) -> Unit = {},
     onPeriodFactorPercentChange: (Double) -> Unit = {},
-    onFactorDisplayModeChange: (FactorDisplayMode) -> Unit = {},
+    onTherapyModeChange: (TherapyMode) -> Unit = {},
     onCorrectionSettingsChange: CorrectionSettingsCallbacks = CorrectionSettingsCallbacks(),
     onGlucoseUnitChange: (GlucoseUnit) -> Unit = {},
     onGenderChange: (Gender) -> Unit = {},
@@ -388,7 +388,7 @@ fun BolusManagerMainWindow(
                                 state = FactorScreenState(
                                     factors = factorEditorState.factors,
                                     isEditMode = factorEditorState.isEditMode,
-                                    displayFormat = FactorDisplayFormat(factorDisplayMode, breadUnits),
+                                    displayFormat = FactorDisplayFormat(therapyMode, breadUnits),
                                     onFactorsChange = factorEditorViewModel::updateDraft
                                 )
                             )
@@ -420,7 +420,7 @@ fun BolusManagerMainWindow(
                                     periodFactorPercent = periodFactorPercent,
                                     correctionSettings = correctionSettings,
                                     gender = gender,
-                                    factorDisplayMode = factorDisplayMode,
+                                    therapyMode = therapyMode,
                                     templatePrefillCarbohydrates = templatePrefillCarbohydrates,
                                     templatePrefillToken = templatePrefillToken,
                                     selectedMode = calculateBolusMode
@@ -532,13 +532,13 @@ fun BolusManagerMainWindow(
                                     breadUnits = breadUnits,
                                     periodFactorPercent = periodFactorPercent,
                                     gender = gender,
-                                    factorDisplayMode = factorDisplayMode,
+                                    therapyMode = therapyMode,
                                     glucoseUnit = correctionSettings.glucoseUnit
                                 ),
                                 callbacks = FactorSettingsCallbacks(
                                     onBreadUnitsChange = onBreadUnitsChange,
                                     onPeriodFactorPercentChange = onPeriodFactorPercentChange,
-                                    onFactorDisplayModeChange = onFactorDisplayModeChange,
+                                    onTherapyModeChange = onTherapyModeChange,
                                     onGlucoseUnitChange = onGlucoseUnitChange
                                 )
                             )
@@ -565,7 +565,8 @@ fun BolusManagerMainWindow(
                                     breadUnits = breadUnits,
                                     periodFactorPercent = periodFactorPercent,
                                     correctionSettings = correctionSettings,
-                                    gender = gender
+                                    gender = gender,
+                                    therapyMode = therapyMode
                                 ),
                                 onImportResult = onImportResult
                             )
@@ -574,7 +575,8 @@ fun BolusManagerMainWindow(
                                 modifier = contentModifier,
                                 currentLanguage = currentLanguage,
                                 auditLog = auditLog,
-                                factors = factorEditorState.factors
+                                factors = factorEditorState.factors,
+                                therapyMode = therapyMode
                             )
 
                             SettingsDestination.Updates -> UpdateSettingsScreen(

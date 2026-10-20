@@ -2,13 +2,13 @@ package sevynidd.diabetesapp.screens.factors
 
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import sevynidd.diabetesapp.data.settings.factor.FactorDisplayMode
+import sevynidd.diabetesapp.data.settings.therapy.TherapyMode
 import sevynidd.diabetesapp.localization.TranslationKey
 
 class FactorDisplayFormatTest {
 
-    private val perBreadUnit = FactorDisplayFormat(FactorDisplayMode.UnitsPerBreadUnit, breadUnits = 12.0)
-    private val pump = FactorDisplayFormat(FactorDisplayMode.GramsPerUnit, breadUnits = 12.0)
+    private val perBreadUnit = FactorDisplayFormat(TherapyMode.Pen, breadUnits = 12.0)
+    private val pump = FactorDisplayFormat(TherapyMode.Pump, breadUnits = 12.0)
 
     @Test
     fun `per bread unit mode passes factor text through unchanged`() {

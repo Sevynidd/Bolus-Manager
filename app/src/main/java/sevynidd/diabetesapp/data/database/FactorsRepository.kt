@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import sevynidd.diabetesapp.data.model.FactorSlot
 import sevynidd.diabetesapp.data.model.FactorsData
+import sevynidd.diabetesapp.data.model.PUMP_BASAL_HOURS
 import java.util.Locale
 
 private const val DEFAULT_MORNING_MINUTES = 5 * 60
@@ -25,26 +26,39 @@ private val DEFAULT_TIMES_MINUTES = listOf(
     DEFAULT_NIGHT_MINUTES
 )
 
-/** Bridges the persisted [FactorProfileEntity]/[FactorSlotEntity] rows and the UI-friendly [FactorsData] model. */
+/**
+ * Bridges the persisted [FactorProfileEntity]/[FactorSlotEntity]/[PumpBasalRateEntity] rows and
+ * the UI-friendly [FactorsData] model.
+ */
 class FactorsRepository(
     private val dao: FactorProfileDao,
-    private val slotDao: FactorSlotDao
+    private val slotDao: FactorSlotDao,
+    private val pumpBasalRateDao: PumpBasalRateDao
 ) {
     /** The current factor profile as a [FactorsData], falling back to defaults if unset. */
-    val factorsFlow: Flow<FactorsData> = combine(dao.observeProfile(), slotDao.observeAll()) { entity, slots ->
+    val factorsFlow: Flow<FactorsData> = combine(
+        dao.observeProfile(),
+        slotDao.observeAll(),
+        pumpBasalRateDao.observeAll()
+    ) { entity, slots, pumpBasalRates ->
         FactorsData(
             isPeriodEnabled = entity?.isPeriodEnabled ?: false,
             factorSlots = slots.map { it.toFactorSlot() },
             basalRate = entity?.basalRate?.toString().orEmpty(),
             basalTimeMinutes = entity?.basalTimeMinutes ?: DEFAULT_BASAL_TIME_MINUTES,
-            basalReminderEnabled = entity?.basalReminderEnabled ?: false
+            basalReminderEnabled = entity?.basalReminderEnabled ?: false,
+            pumpBasalRates = pumpBasalRates.toHourlyRateTexts()
         )
     }
 
-    /** Persists [data] as the (single) factor profile, replacing the entire factor slot list. */
+    /**
+     * Persists [data] as the (single) factor profile, replacing the entire factor slot list and
+     * hourly pump basal profile.
+     */
     suspend fun saveFactors(data: FactorsData) {
         dao.upsertProfile(data.toEntity())
         slotDao.replaceAll(data.factorSlots.map { it.toEntity() })
+        pumpBasalRateDao.replaceAll(data.pumpBasalRates.toPumpBasalRateEntities())
     }
 
     /**
@@ -93,6 +107,16 @@ private fun FactorsData.toEntity(): FactorProfileEntity {
         basalReminderEnabled = basalReminderEnabled
     )
 }
+
+private fun List<PumpBasalRateEntity>.toHourlyRateTexts(): List<String> {
+    val ratesByHour = associate { it.hour to it.unitsPerHour }
+    return List(PUMP_BASAL_HOURS) { hour -> ratesByHour[hour].toUiString() }
+}
+
+private fun List<String>.toPumpBasalRateEntities(): List<PumpBasalRateEntity> =
+    mapIndexedNotNull { hour, rate ->
+        rate.toDbDoubleOrNull()?.let { PumpBasalRateEntity(hour = hour, unitsPerHour = it) }
+    }
 
 private fun String.toDbDoubleOrNull(): Double? {
     return replace(',', '.').toDoubleOrNull()

@@ -179,7 +179,7 @@ private fun OnboardingFactorsStep(modifier: Modifier, values: OnboardingValues, 
         state = FactorScreenState(
             factors = values.factors,
             isEditMode = true,
-            displayFormat = FactorDisplayFormat(values.factorDisplayMode, values.breadUnits),
+            displayFormat = FactorDisplayFormat(values.therapyMode, values.breadUnits),
             onFactorsChange = callbacks.onFactorsChange
         )
     )
@@ -194,13 +194,13 @@ private fun OnboardingFactorSettingsStep(modifier: Modifier, values: OnboardingV
             breadUnits = values.breadUnits,
             periodFactorPercent = values.periodFactorPercent,
             gender = values.gender,
-            factorDisplayMode = values.factorDisplayMode,
+            therapyMode = values.therapyMode,
             glucoseUnit = values.correctionSettings.glucoseUnit
         ),
         callbacks = FactorSettingsCallbacks(
             onBreadUnitsChange = callbacks.onBreadUnitsChange,
             onPeriodFactorPercentChange = callbacks.onPeriodFactorPercentChange,
-            onFactorDisplayModeChange = callbacks.onFactorDisplayModeChange,
+            onTherapyModeChange = callbacks.onTherapyModeChange,
             onGlucoseUnitChange = callbacks.onGlucoseUnitChange
         )
     )

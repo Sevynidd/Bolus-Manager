@@ -35,7 +35,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import sevynidd.diabetesapp.data.settings.correction.GlucoseUnit
-import sevynidd.diabetesapp.data.settings.factor.FactorDisplayMode
+import sevynidd.diabetesapp.data.settings.therapy.TherapyMode
 import sevynidd.diabetesapp.data.settings.profile.Gender
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
@@ -65,10 +65,10 @@ fun FactorSettingsScreen(
             onBreadUnitsChange = callbacks.onBreadUnitsChange
         )
 
-        FactorDisplayModeCard(
+        TherapyModeCard(
             currentLanguage = currentLanguage,
-            currentMode = values.factorDisplayMode,
-            onModeChange = callbacks.onFactorDisplayModeChange
+            currentMode = values.therapyMode,
+            onModeChange = callbacks.onTherapyModeChange
         )
 
         GlucoseUnitCard(
@@ -89,10 +89,10 @@ fun FactorSettingsScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun FactorDisplayModeCard(
+private fun TherapyModeCard(
     currentLanguage: AppLanguage,
-    currentMode: FactorDisplayMode,
-    onModeChange: (FactorDisplayMode) -> Unit
+    currentMode: TherapyMode,
+    onModeChange: (TherapyMode) -> Unit
 ) {
     FactorSettingCard {
         Row(
@@ -106,20 +106,20 @@ private fun FactorDisplayModeCard(
                 tint = MaterialTheme.colorScheme.primary
             )
             Text(
-                text = translate(TranslationKey.FactorDisplayModeTitle, currentLanguage),
+                text = translate(TranslationKey.TherapyModeTitle, currentLanguage),
                 style = MaterialTheme.typography.titleSmall,
                 modifier = Modifier.weight(1f)
             )
-            HelpIconButton(helpTextKey = TranslationKey.FactorDisplayModeHelp, currentLanguage = currentLanguage)
+            HelpIconButton(helpTextKey = TranslationKey.TherapyModeHelp, currentLanguage = currentLanguage)
         }
 
         SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-            FactorDisplayMode.entries.forEachIndexed { index, mode ->
+            TherapyMode.entries.forEachIndexed { index, mode ->
                 SegmentedButton(
-                    shape = SegmentedButtonDefaults.itemShape(index, FactorDisplayMode.entries.size),
+                    shape = SegmentedButtonDefaults.itemShape(index, TherapyMode.entries.size),
                     selected = currentMode == mode,
                     onClick = { onModeChange(mode) },
-                    label = { Text(translate(factorDisplayModeLabelKey(mode), currentLanguage)) }
+                    label = { Text(translate(therapyModeLabelKey(mode), currentLanguage)) }
                 )
             }
         }
@@ -165,9 +165,9 @@ private fun GlucoseUnitCard(
     }
 }
 
-private fun factorDisplayModeLabelKey(mode: FactorDisplayMode): TranslationKey = when (mode) {
-    FactorDisplayMode.UnitsPerBreadUnit -> TranslationKey.FactorDisplayUnitsPerBreadUnit
-    FactorDisplayMode.GramsPerUnit -> TranslationKey.FactorDisplayGramsPerUnit
+private fun therapyModeLabelKey(mode: TherapyMode): TranslationKey = when (mode) {
+    TherapyMode.Pen -> TranslationKey.TherapyModePen
+    TherapyMode.Pump -> TranslationKey.TherapyModePump
 }
 
 @Composable

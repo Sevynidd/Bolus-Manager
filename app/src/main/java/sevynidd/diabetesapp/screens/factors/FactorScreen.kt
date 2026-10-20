@@ -34,7 +34,7 @@ import sevynidd.diabetesapp.calculation.suggestedNewSlotTimeMinutes
 import sevynidd.diabetesapp.calculation.withUpdatedTime
 import sevynidd.diabetesapp.data.model.FactorSlot
 import sevynidd.diabetesapp.data.model.FactorsData
-import sevynidd.diabetesapp.data.settings.factor.FactorDisplayMode
+import sevynidd.diabetesapp.data.settings.therapy.TherapyMode
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
@@ -116,16 +116,20 @@ fun FactorScreen(
             )
         )
 
-        BasalRateCard(
-            currentLanguage = currentLanguage,
-            factors = factors,
-            basalRate = basalRate,
-            isEditMode = isEditMode,
-            onBasalRateChange = {
-                basalRate = it
-                emitFactorsChanged()
-            }
-        )
+        if (state.displayFormat.mode == TherapyMode.Pump) {
+            PumpBasalRatesCard(currentLanguage = currentLanguage, state = state, nowHour = now.hour)
+        } else {
+            BasalRateCard(
+                currentLanguage = currentLanguage,
+                factors = factors,
+                basalRate = basalRate,
+                isEditMode = isEditMode,
+                onBasalRateChange = {
+                    basalRate = it
+                    emitFactorsChanged()
+                }
+            )
+        }
     }
 
     if (isAddDialogVisible) {
@@ -387,7 +391,7 @@ private fun FactorScreenPreview() {
 @Composable
 private fun FactorScreenPumpRatioPreview() {
     FactorScreen(
-        state = FactorScreenState(displayFormat = FactorDisplayFormat(mode = FactorDisplayMode.GramsPerUnit)),
+        state = FactorScreenState(displayFormat = FactorDisplayFormat(mode = TherapyMode.Pump)),
         now = LocalTime.of(PREVIEW_HOUR, PREVIEW_MINUTE)
     )
 }

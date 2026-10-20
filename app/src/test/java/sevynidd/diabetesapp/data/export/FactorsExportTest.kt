@@ -8,6 +8,7 @@ import sevynidd.diabetesapp.data.model.FactorsData
 import sevynidd.diabetesapp.data.settings.correction.CorrectionSettings
 import sevynidd.diabetesapp.data.settings.correction.GlucoseUnit
 import sevynidd.diabetesapp.data.settings.profile.Gender
+import sevynidd.diabetesapp.data.settings.therapy.TherapyMode
 import java.time.LocalDate
 
 class FactorsExportTest {
@@ -140,7 +141,7 @@ class FactorsExportTest {
             gender = Gender.PreferNotToSay
         )
         val futureVersionJson = defaultBundle.toExportJson().replace(
-            "\"schemaVersion\": 4",
+            "\"schemaVersion\": 5",
             "\"schemaVersion\": 99"
         )
 
@@ -169,5 +170,54 @@ class FactorsExportTest {
         val fileName = factorsExportFileName(LocalDate.of(2026, 1, 5))
 
         assertEquals("bolus-manager-factors-2026-01-05.json", fileName)
+    }
+
+    @Test
+    fun `round trip preserves pump therapy and all hourly basal rates`() {
+        val original = FactorsExportBundle(
+            factors = FactorsData(pumpBasalRates = List(24) { hour -> if (hour % 2 == 0) "0,85" else "" }),
+            breadUnits = 12.0,
+            periodFactorPercent = 0.0,
+            correctionSettings = CorrectionSettings(),
+            gender = Gender.PreferNotToSay,
+            therapyMode = TherapyMode.Pump
+        )
+
+        val roundTripped = parseFactorsExportJson(original.toExportJson())
+
+        assertEquals(original, roundTripped)
+    }
+
+    @Test
+    fun `boundary of a v4 export is still imported as pen therapy with no pump rates`() {
+        val current = FactorsExportBundle(
+            factors = FactorsData(basalRate = "18"),
+            breadUnits = 12.0,
+            periodFactorPercent = 0.0,
+            correctionSettings = CorrectionSettings(),
+            gender = Gender.PreferNotToSay
+        )
+        val v4Json = current.toExportJson()
+            .replace("\"schemaVersion\": 5", "\"schemaVersion\": 4")
+            .lines()
+            .filterNot { it.contains("pumpBasalRate") || it.contains("therapyMode") }
+            .joinToString("\n")
+
+        val imported = parseFactorsExportJson(v4Json)
+
+        assertEquals(current, imported)
+    }
+
+    @Test
+    fun `parse rejects a v5 export missing an hourly basal rate`() {
+        val json = FactorsExportBundle(
+            factors = FactorsData(),
+            breadUnits = 12.0,
+            periodFactorPercent = 0.0,
+            correctionSettings = CorrectionSettings(),
+            gender = Gender.PreferNotToSay
+        ).toExportJson().lines().filterNot { it.contains("pumpBasalRate23") }.joinToString("\n")
+
+        assertNull(parseFactorsExportJson(json))
     }
 }

@@ -11,6 +11,7 @@ private const val SCHEMA_VERSION_5 = 5
 private const val SCHEMA_VERSION_6 = 6
 private const val SCHEMA_VERSION_7 = 7
 private const val SCHEMA_VERSION_8 = 8
+private const val SCHEMA_VERSION_9 = 9
 private const val DEFAULT_FACTOR_COLUMN_COUNT = 7
 
 // The 7 default time-of-day boundaries (minutes since midnight) MIGRATION_1_2 originally
@@ -27,17 +28,18 @@ private const val DEFAULT_LATE_MINUTES = 1200
 private const val DEFAULT_NIGHT_MINUTES = 1380
 
 /**
- * The app's Room database: the factor profile, its factor slots, saved bolus templates, and the
- * factor/basal-rate change audit log.
+ * The app's Room database: the factor profile, its factor slots, the insulin pump's hourly basal
+ * rates, saved bolus templates, and the factor/basal-rate change audit log.
  */
 @Database(
     entities = [
         FactorProfileEntity::class,
         FactorSlotEntity::class,
         BolusTemplateEntity::class,
-        FactorAuditLogEntity::class
+        FactorAuditLogEntity::class,
+        PumpBasalRateEntity::class
     ],
-    version = 8,
+    version = SCHEMA_VERSION_9,
     exportSchema = false
 )
 abstract class DiabetesDatabase : RoomDatabase() {
@@ -45,6 +47,7 @@ abstract class DiabetesDatabase : RoomDatabase() {
     abstract fun factorSlotDao(): FactorSlotDao
     abstract fun bolusTemplateDao(): BolusTemplateDao
     abstract fun factorAuditLogDao(): FactorAuditLogDao
+    abstract fun pumpBasalRateDao(): PumpBasalRateDao
 
     companion object {
         @Volatile
@@ -65,7 +68,8 @@ abstract class DiabetesDatabase : RoomDatabase() {
                         MIGRATION_4_5,
                         MIGRATION_5_6,
                         MIGRATION_6_7,
-                        MIGRATION_7_8
+                        MIGRATION_7_8,
+                        MIGRATION_8_9
                     )
                     .build().also { created ->
                     instance = created
@@ -231,6 +235,22 @@ abstract class DiabetesDatabase : RoomDatabase() {
                 db.execSQL(
                     "CREATE INDEX IF NOT EXISTS index_factor_audit_log_timestampMillis " +
                         "ON factor_audit_log(timestampMillis)"
+                )
+            }
+        }
+
+        // Adds the insulin pump's hourly basal profile as its own table: 24 rates keyed by hour
+        // don't belong as columns on the single-row factor_profile (a repeating group). Starts
+        // empty — existing installs only had the pen's single daily dose, which stays as is.
+        private val MIGRATION_8_9 = object : Migration(SCHEMA_VERSION_8, SCHEMA_VERSION_9) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS pump_basal_rate (
+                        hour INTEGER PRIMARY KEY NOT NULL,
+                        unitsPerHour REAL NOT NULL
+                    )
+                    """.trimIndent()
                 )
             }
         }

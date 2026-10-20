@@ -4,7 +4,7 @@ import sevynidd.diabetesapp.calculation.factorTextToGramsPerUnitText
 import sevynidd.diabetesapp.calculation.gramsPerUnitTextToFactorText
 import sevynidd.diabetesapp.calculation.normalizeGramsPerUnitValue
 import sevynidd.diabetesapp.calculation.normalizeQuarterStepValue
-import sevynidd.diabetesapp.data.settings.factor.FactorDisplayMode
+import sevynidd.diabetesapp.data.settings.therapy.TherapyMode
 import sevynidd.diabetesapp.localization.TranslationKey
 
 /**
@@ -12,43 +12,43 @@ import sevynidd.diabetesapp.localization.TranslationKey
  * in [mode]. [breadUnits] is the grams-per-bread-unit value the pump ratio is derived from.
  */
 data class FactorDisplayFormat(
-    val mode: FactorDisplayMode = FactorDisplayMode.UnitsPerBreadUnit,
+    val mode: TherapyMode = TherapyMode.Pen,
     val breadUnits: Double = DEFAULT_BREAD_UNITS
 ) {
     val labelKey: TranslationKey
         get() = when (mode) {
-            FactorDisplayMode.UnitsPerBreadUnit -> TranslationKey.LabelFactor
-            FactorDisplayMode.GramsPerUnit -> TranslationKey.LabelPumpRatio
+            TherapyMode.Pen -> TranslationKey.LabelFactor
+            TherapyMode.Pump -> TranslationKey.LabelPumpRatio
         }
 
     val valueHelpKey: TranslationKey
         get() = when (mode) {
-            FactorDisplayMode.UnitsPerBreadUnit -> TranslationKey.FactorValueHelp
-            FactorDisplayMode.GramsPerUnit -> TranslationKey.PumpRatioValueHelp
+            TherapyMode.Pen -> TranslationKey.FactorValueHelp
+            TherapyMode.Pump -> TranslationKey.PumpRatioValueHelp
         }
 
     val listHelpKey: TranslationKey
         get() = when (mode) {
-            FactorDisplayMode.UnitsPerBreadUnit -> TranslationKey.FactorsListHelp
-            FactorDisplayMode.GramsPerUnit -> TranslationKey.FactorsListPumpHelp
+            TherapyMode.Pen -> TranslationKey.FactorsListHelp
+            TherapyMode.Pump -> TranslationKey.FactorsListPumpHelp
         }
 
     /** The stored [factorText] as it's shown in the current [mode]. */
     fun toDisplayText(factorText: String): String = when (mode) {
-        FactorDisplayMode.UnitsPerBreadUnit -> factorText
-        FactorDisplayMode.GramsPerUnit -> factorTextToGramsPerUnitText(factorText, breadUnits)
+        TherapyMode.Pen -> factorText
+        TherapyMode.Pump -> factorTextToGramsPerUnitText(factorText, breadUnits)
     }
 
     /** The factor text to store for [displayText] typed in the current [mode]. */
     fun toFactorText(displayText: String): String = when (mode) {
-        FactorDisplayMode.UnitsPerBreadUnit -> displayText
-        FactorDisplayMode.GramsPerUnit -> gramsPerUnitTextToFactorText(displayText, breadUnits)
+        TherapyMode.Pen -> displayText
+        TherapyMode.Pump -> gramsPerUnitTextToFactorText(displayText, breadUnits)
     }
 
     /** Rounds freshly typed [displayText] to the current [mode]'s step once editing ends. */
     fun normalizeInput(displayText: String): String = when (mode) {
-        FactorDisplayMode.UnitsPerBreadUnit -> normalizeQuarterStepValue(displayText)
-        FactorDisplayMode.GramsPerUnit -> normalizeGramsPerUnitValue(displayText)
+        TherapyMode.Pen -> normalizeQuarterStepValue(displayText)
+        TherapyMode.Pump -> normalizeGramsPerUnitValue(displayText)
     }
 }
 

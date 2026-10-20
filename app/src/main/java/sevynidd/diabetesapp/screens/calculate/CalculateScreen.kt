@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.dp
 import sevynidd.diabetesapp.data.model.FactorsData
 import sevynidd.diabetesapp.data.settings.correction.CorrectionSettings
 import sevynidd.diabetesapp.data.settings.correction.GlucoseUnit
-import sevynidd.diabetesapp.data.settings.factor.FactorDisplayMode
+import sevynidd.diabetesapp.data.settings.therapy.TherapyMode
 import sevynidd.diabetesapp.data.settings.profile.Gender
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
@@ -74,7 +74,7 @@ data class CalculateScreenValues(
     val periodFactorPercent: Double = 0.0,
     val correctionSettings: CorrectionSettings = CorrectionSettings(),
     val gender: Gender = Gender.PreferNotToSay,
-    val factorDisplayMode: FactorDisplayMode = FactorDisplayMode.UnitsPerBreadUnit,
+    val therapyMode: TherapyMode = TherapyMode.Pen,
     val templatePrefillCarbohydrates: Double? = null,
     val templatePrefillToken: Int = 0,
     val selectedMode: BolusMode = BolusMode.Normal

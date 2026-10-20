@@ -117,7 +117,8 @@ private fun SavedStateHandle.restoreUiState(): FactorEditSessionUiState {
             factorSlots = factorSlots,
             basalRate = get<String>(BASAL_RATE_KEY).orEmpty(),
             basalTimeMinutes = get<Int>(BASAL_TIME_KEY) ?: (19 * 60),
-            basalReminderEnabled = get<Boolean>(BASAL_REMINDER_ENABLED_KEY) ?: false
+            basalReminderEnabled = get<Boolean>(BASAL_REMINDER_ENABLED_KEY) ?: false,
+            pumpBasalRates = get<ArrayList<String>>(PUMP_BASAL_RATES_KEY) ?: FactorsData().pumpBasalRates
         ),
         isEditMode = get<Boolean>(IS_EDIT_MODE_KEY) ?: false,
         pendingSave = get<Boolean>(PENDING_SAVE_KEY) ?: false
@@ -132,6 +133,7 @@ private fun SavedStateHandle.persistUiState(state: FactorEditSessionUiState) {
     set(BASAL_RATE_KEY, state.factors.basalRate)
     set(BASAL_TIME_KEY, state.factors.basalTimeMinutes)
     set(BASAL_REMINDER_ENABLED_KEY, state.factors.basalReminderEnabled)
+    set(PUMP_BASAL_RATES_KEY, ArrayList(state.factors.pumpBasalRates))
     set(IS_EDIT_MODE_KEY, state.isEditMode)
     set(PENDING_SAVE_KEY, state.pendingSave)
 }
@@ -143,5 +145,6 @@ private const val FACTOR_TIMES_KEY = "factor_editor_times"
 private const val BASAL_RATE_KEY = "factor_editor_basal_rate"
 private const val BASAL_TIME_KEY = "factor_editor_basal_time"
 private const val BASAL_REMINDER_ENABLED_KEY = "factor_editor_basal_reminder_enabled"
+private const val PUMP_BASAL_RATES_KEY = "factor_editor_pump_basal_rates"
 private const val IS_EDIT_MODE_KEY = "factor_editor_is_edit_mode"
 private const val PENDING_SAVE_KEY = "factor_editor_pending_save"

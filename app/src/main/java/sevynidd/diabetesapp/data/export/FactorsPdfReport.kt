@@ -3,9 +3,13 @@ package sevynidd.diabetesapp.data.export
 import sevynidd.diabetesapp.calculation.MINUTES_PER_DAY
 import sevynidd.diabetesapp.calculation.describe
 import sevynidd.diabetesapp.calculation.formatTimeOfDay
+import sevynidd.diabetesapp.calculation.formatUnits
+import sevynidd.diabetesapp.calculation.pumpBasalDailyTotal
+import sevynidd.diabetesapp.calculation.pumpBasalHourRangeLabel
 import sevynidd.diabetesapp.data.model.FactorAuditLogEntry
 import sevynidd.diabetesapp.data.model.FactorSlot
 import sevynidd.diabetesapp.data.model.FactorsData
+import sevynidd.diabetesapp.data.settings.therapy.TherapyMode
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
@@ -29,6 +33,32 @@ data class FactorReportRow(val name: String, val value: String, val timeRange: S
 /** One row of the change-log section in [FactorsPdfReportContent]: a formatted timestamp and its description. */
 data class PdfLogEntry(val timestampLabel: String, val description: String)
 
+/** One row of the hourly pump basal table: the hour's time range and its rate in U/h (`""` = not set). */
+data class PumpBasalReportRow(val timeRange: String, val rate: String)
+
+/**
+ * The insulin-pump basal section of [FactorsPdfReportContent]: all 24 hourly rates and the daily
+ * total line, already localized.
+ */
+data class PumpBasalReportSection(
+    val title: String,
+    val timeHeader: String,
+    val rateHeader: String,
+    val rows: List<PumpBasalReportRow>,
+    val dailyTotalLabel: String
+)
+
+/**
+ * What the PDF report is built from: the current [factors], the full [auditLog], and the
+ * [therapyMode], which decides whether the basal rate is reported as the pen's daily dose or as
+ * the pump's hourly rates.
+ */
+data class FactorsPdfReportData(
+    val factors: FactorsData,
+    val auditLog: List<FactorAuditLogEntry>,
+    val therapyMode: TherapyMode = TherapyMode.Pen
+)
+
 /**
  * Everything a PDF renderer needs to lay out the "current factors" report, already localized and
  * formatted so the renderer itself does no locale- or domain-specific decision-making — only
@@ -44,6 +74,7 @@ data class FactorsPdfReportContent(
     val factorRows: List<FactorReportRow>,
     val basalRateLabel: String,
     val basalRateSummary: String,
+    val pumpBasal: PumpBasalReportSection?,
     val logSectionTitle: String,
     val logEmptyLabel: String,
     val logEntries: List<PdfLogEntry>
@@ -52,17 +83,19 @@ data class FactorsPdfReportContent(
 /**
  * Assembles the localized content of the "current factors" PDF report: a table of every factor's
  * name, value, and active time window (see [FactorSlot]'s implicit-end-time convention), the
- * basal rate, and the full chronological change log — everything needed to hand a printable
- * snapshot to an endocrinologist. [zone] resolves each audit-log entry's stored UTC timestamp and
- * [generatedAt] to local date/time; both default to the device's current zone/time.
+ * basal rate (for pump therapy: all 24 hourly rates plus their daily total, see
+ * [pumpBasalDailyTotal]), and the full chronological change log — everything needed to hand a
+ * printable snapshot to an endocrinologist. [zone] resolves each audit-log entry's stored UTC
+ * timestamp and [generatedAt] to local date/time; both default to the device's current zone/time.
  */
 fun buildFactorsPdfReportContent(
-    factors: FactorsData,
-    auditLog: List<FactorAuditLogEntry>,
+    report: FactorsPdfReportData,
     language: AppLanguage,
     zone: ZoneId = ZoneId.systemDefault(),
     generatedAt: LocalDateTime = LocalDateTime.now(zone)
 ): FactorsPdfReportContent {
+    val factors = report.factors
+    val auditLog = report.auditLog
     val slots = factors.factorSlots
     val factorRows = slots.indices.map { index ->
         FactorReportRow(
@@ -94,6 +127,9 @@ fun buildFactorsPdfReportContent(
         factorRows = factorRows,
         basalRateLabel = translate(TranslationKey.BasalRate, language),
         basalRateSummary = basalRateSummary,
+        pumpBasal = factors.pumpBasalRates
+            .takeIf { report.therapyMode == TherapyMode.Pump }
+            ?.let { buildPumpBasalReportSection(it, language) },
         logSectionTitle = translate(TranslationKey.DocumentationSectionTitle, language),
         logEmptyLabel = translate(TranslationKey.DocumentationEmptyState, language),
         logEntries = logEntries
@@ -102,6 +138,21 @@ fun buildFactorsPdfReportContent(
 
 private const val FIRST_PLACEHOLDER = $$"%1$s"
 private const val SECOND_PLACEHOLDER = $$"%2$s"
+private const val NOT_SET_LABEL = "-"
+
+private fun buildPumpBasalReportSection(hourlyRates: List<String>, language: AppLanguage): PumpBasalReportSection {
+    val total = pumpBasalDailyTotal(hourlyRates)?.let(::formatUnits) ?: NOT_SET_LABEL
+    return PumpBasalReportSection(
+        title = translate(TranslationKey.PumpBasalRatesTitle, language),
+        timeHeader = translate(TranslationKey.PdfFactorTimeWindowHeader, language),
+        rateHeader = translate(TranslationKey.PumpBasalRateUnit, language),
+        rows = hourlyRates.mapIndexed { hour, rate ->
+            PumpBasalReportRow(timeRange = pumpBasalHourRangeLabel(hour), rate = rate.ifEmpty { NOT_SET_LABEL })
+        },
+        dailyTotalLabel = translate(TranslationKey.PumpBasalDailyTotal, language)
+            .replacePlaceholder(FIRST_PLACEHOLDER, total)
+    )
+}
 
 private fun Long.toReportTimestampLabel(zone: ZoneId): String =
     Instant.ofEpochMilli(this).atZone(zone).format(REPORT_LOG_TIMESTAMP_FORMATTER)

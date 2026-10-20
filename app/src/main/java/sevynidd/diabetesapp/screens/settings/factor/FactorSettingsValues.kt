@@ -1,7 +1,7 @@
 package sevynidd.diabetesapp.screens.settings.factor
 
 import sevynidd.diabetesapp.data.settings.correction.GlucoseUnit
-import sevynidd.diabetesapp.data.settings.factor.FactorDisplayMode
+import sevynidd.diabetesapp.data.settings.therapy.TherapyMode
 import sevynidd.diabetesapp.data.settings.profile.Gender
 
 /**
@@ -13,7 +13,7 @@ data class FactorSettingsValues(
     val breadUnits: Double = 12.0,
     val periodFactorPercent: Double = 0.0,
     val gender: Gender = Gender.PreferNotToSay,
-    val factorDisplayMode: FactorDisplayMode = FactorDisplayMode.UnitsPerBreadUnit,
+    val therapyMode: TherapyMode = TherapyMode.Pen,
     val glucoseUnit: GlucoseUnit = GlucoseUnit.MgDl
 )
 
@@ -21,6 +21,6 @@ data class FactorSettingsValues(
 data class FactorSettingsCallbacks(
     val onBreadUnitsChange: (Double) -> Unit = {},
     val onPeriodFactorPercentChange: (Double) -> Unit = {},
-    val onFactorDisplayModeChange: (FactorDisplayMode) -> Unit = {},
+    val onTherapyModeChange: (TherapyMode) -> Unit = {},
     val onGlucoseUnitChange: (GlucoseUnit) -> Unit = {}
 )

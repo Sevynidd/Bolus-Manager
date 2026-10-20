@@ -72,10 +72,14 @@ enum class TranslationKey {
     LabelPumpRatio,
     PumpRatioValueHelp,
     PumpRatioUnit,
-    FactorDisplayModeTitle,
-    FactorDisplayModeHelp,
-    FactorDisplayUnitsPerBreadUnit,
-    FactorDisplayGramsPerUnit,
+    TherapyModeTitle,
+    TherapyModeHelp,
+    TherapyModePen,
+    TherapyModePump,
+    PumpBasalRatesTitle,
+    PumpBasalRatesHelp,
+    PumpBasalRateUnit,
+    PumpBasalDailyTotal,
     FactorNameLabel,
     FactorNameHelp,
     FactorStartTime,
@@ -214,6 +218,7 @@ enum class TranslationKey {
     AuditFactorDeleted,
     AuditBasalRateChanged,
     AuditBasalTimeChanged,
+    AuditPumpBasalRateChanged,
     AuditUnknownChange,
     AuditValueNotSet
 }
@@ -299,14 +304,23 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                     "value (grams ÷ factor) and rounded to 0.1 g. A lower number means more insulin " +
                     "for the same amount of carbohydrates."
             TranslationKey.PumpRatioUnit -> "g/U"
-            TranslationKey.FactorDisplayModeTitle -> "Factor display"
-            TranslationKey.FactorDisplayModeHelp ->
-                "Choose how factors are shown and entered. \"Per bread unit\" shows units of insulin " +
-                    "per bread unit (e.g. 1.5). \"Pump\" shows the ratio insulin pumps such as the " +
-                    "YpsoPump use: one unit per x grams of carbohydrates (e.g. 8 g/U with 12 g per " +
-                    "bread unit). Both describe the same factor, so calculations don't change."
-            TranslationKey.FactorDisplayUnitsPerBreadUnit -> "Per bread unit"
-            TranslationKey.FactorDisplayGramsPerUnit -> "Pump (g/U)"
+            TranslationKey.TherapyModeTitle -> "Therapy"
+            TranslationKey.TherapyModeHelp ->
+                "Choose how you take insulin. \"Pen\" shows factors as units of insulin per bread " +
+                    "unit (e.g. 1.5) and the basal rate as one daily dose at a set time. \"Insulin pump\" " +
+                    "shows factors the way pumps such as the YpsoPump do — one unit per x grams of " +
+                    "carbohydrates (e.g. 8 g/U with 12 g per bread unit) — and the basal rate as 24 " +
+                    "hourly rates in units per hour. Factors mean the same in both, so bolus " +
+                    "calculations don't change. Your pen dose and pump rates are kept separately."
+            TranslationKey.TherapyModePen -> "Pen"
+            TranslationKey.TherapyModePump -> "Insulin pump"
+            TranslationKey.PumpBasalRatesTitle -> "Basal rate (pump)"
+            TranslationKey.PumpBasalRatesHelp ->
+                "The basal rate programmed in your pump, one value per hour of the day in units " +
+                    "per hour, rounded to 0.01 U/h. The daily total is the sum of all 24 hours. It's a " +
+                    "record for you and your diabetes team — it doesn't change any bolus calculation."
+            TranslationKey.PumpBasalRateUnit -> "U/h"
+            TranslationKey.PumpBasalDailyTotal -> $$"Daily total: %1$s U"
             TranslationKey.FactorNameLabel -> "Name"
             TranslationKey.FactorNameHelp ->
                 "The name for this time window, e.g. \"Breakfast\" or \"Lunch\" — shown " +
@@ -491,6 +505,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.AuditFactorDeleted -> $$"Factor \"%1$s\" (value %2$s) was deleted."
             TranslationKey.AuditBasalRateChanged -> $$"Basal rate changed from %1$s to %2$s units/day."
             TranslationKey.AuditBasalTimeChanged -> $$"Basal rate time changed from %1$s to %2$s."
+            TranslationKey.AuditPumpBasalRateChanged ->
+                $$"Pump basal rate %1$s changed from %2$s to %3$s U/h."
             TranslationKey.AuditUnknownChange -> "Unknown change."
             TranslationKey.AuditValueNotSet -> "not set"
         }
@@ -574,15 +590,25 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                     "aus deinem Faktor umgerechnet (Gramm ÷ Faktor) und auf 0,1 g gerundet. Eine " +
                     "kleinere Zahl bedeutet mehr Insulin für dieselbe Menge Kohlenhydrate."
             TranslationKey.PumpRatioUnit -> "g/IE"
-            TranslationKey.FactorDisplayModeTitle -> "Faktor-Anzeige"
-            TranslationKey.FactorDisplayModeHelp ->
-                "Wähle, wie Faktoren angezeigt und eingegeben werden. \"Pro BE\" zeigt Einheiten " +
-                    "Insulin pro Broteinheit (z. B. 1,5). \"Pumpe\" zeigt das Verhältnis, das " +
-                    "Insulinpumpen wie die YpsoPump verwenden: eine Einheit pro x Gramm Kohlenhydrate " +
-                    "(z. B. 8 g/IE bei 12 g pro Broteinheit). Beide beschreiben denselben Faktor, " +
-                    "die Berechnungen ändern sich also nicht."
-            TranslationKey.FactorDisplayUnitsPerBreadUnit -> "Pro BE"
-            TranslationKey.FactorDisplayGramsPerUnit -> "Pumpe (g/IE)"
+            TranslationKey.TherapyModeTitle -> "Therapie"
+            TranslationKey.TherapyModeHelp ->
+                "Wähle, wie du Insulin verabreichst. \"Pen\" zeigt Faktoren als Einheiten Insulin pro " +
+                    "Broteinheit (z. B. 1,5) und die Basalrate als eine tägliche Dosis zu einer festen " +
+                    "Uhrzeit. \"Insulinpumpe\" zeigt Faktoren so, wie Pumpen wie die YpsoPump es tun — " +
+                    "eine Einheit pro x Gramm Kohlenhydrate (z. B. 8 g/IE bei 12 g pro Broteinheit) — und " +
+                    "die Basalrate als 24 stündliche Raten in Einheiten pro Stunde. Faktoren bedeuten in " +
+                    "beiden dasselbe, die Bolusberechnung ändert sich also nicht. Pen-Dosis und " +
+                    "Pumpenraten werden getrennt gespeichert."
+            TranslationKey.TherapyModePen -> "Pen"
+            TranslationKey.TherapyModePump -> "Insulinpumpe"
+            TranslationKey.PumpBasalRatesTitle -> "Basalrate (Pumpe)"
+            TranslationKey.PumpBasalRatesHelp ->
+                "Die in deiner Pumpe programmierte Basalrate, ein Wert pro Stunde des Tages in " +
+                    "Einheiten pro Stunde, gerundet auf 0,01 IE/h. Die Tagessumme ist die Summe aller 24 " +
+                    "Stunden. Sie dient als Eintrag für dich und dein Diabetesteam — sie ändert keine " +
+                    "Bolusberechnung."
+            TranslationKey.PumpBasalRateUnit -> "IE/h"
+            TranslationKey.PumpBasalDailyTotal -> $$"Tagessumme: %1$s IE"
             TranslationKey.FactorNameLabel -> "Name"
             TranslationKey.FactorNameHelp ->
                 "Der Name für dieses Zeitfenster, z. B. \"Frühstück\" oder \"Mittagessen\" — wird " +
@@ -777,6 +803,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.AuditFactorDeleted -> $$"Faktor \"%1$s\" (Wert %2$s) wurde gelöscht."
             TranslationKey.AuditBasalRateChanged -> $$"Basalrate wurde von %1$s auf %2$s Einheiten/Tag geändert."
             TranslationKey.AuditBasalTimeChanged -> $$"Basalrate-Uhrzeit wurde von %1$s auf %2$s geändert."
+            TranslationKey.AuditPumpBasalRateChanged ->
+                $$"Pumpen-Basalrate %1$s wurde von %2$s auf %3$s IE/h geändert."
             TranslationKey.AuditUnknownChange -> "Unbekannte Änderung."
             TranslationKey.AuditValueNotSet -> "nicht festgelegt"
         }
@@ -861,15 +889,25 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                     "l'aide de votre valeur d'unité de pain (grammes ÷ facteur) et arrondi à 0,1 g. " +
                     "Un nombre plus petit signifie plus d'insuline pour la même quantité de glucides."
             TranslationKey.PumpRatioUnit -> "g/U"
-            TranslationKey.FactorDisplayModeTitle -> "Affichage des facteurs"
-            TranslationKey.FactorDisplayModeHelp ->
-                "Choisissez comment les facteurs sont affichés et saisis. \"Par unité de pain\" " +
-                    "affiche les unités d'insuline par unité de pain (par ex. 1,5). \"Pompe\" affiche " +
-                    "le ratio utilisé par les pompes à insuline comme la YpsoPump : une unité pour " +
-                    "x grammes de glucides (par ex. 8 g/U avec 12 g par unité de pain). Les deux " +
-                    "décrivent le même facteur, les calculs ne changent donc pas."
-            TranslationKey.FactorDisplayUnitsPerBreadUnit -> "Par unité de pain"
-            TranslationKey.FactorDisplayGramsPerUnit -> "Pompe (g/U)"
+            TranslationKey.TherapyModeTitle -> "Traitement"
+            TranslationKey.TherapyModeHelp ->
+                "Choisissez comment vous administrez l'insuline. \"Stylo\" affiche les facteurs en " +
+                    "unités d'insuline par unité de pain (par ex. 1,5) et le débit basal comme une dose " +
+                    "quotidienne à une heure fixe. \"Pompe à insuline\" affiche les facteurs comme les " +
+                    "pompes telles que la YpsoPump — une unité pour x grammes de glucides (par ex. 8 g/U " +
+                    "avec 12 g par unité de pain) — et le débit basal comme 24 débits horaires en unités " +
+                    "par heure. Les facteurs ont le même sens dans les deux cas, le calcul du bolus ne " +
+                    "change donc pas. La dose au stylo et les débits de la pompe sont conservés séparément."
+            TranslationKey.TherapyModePen -> "Stylo"
+            TranslationKey.TherapyModePump -> "Pompe à insuline"
+            TranslationKey.PumpBasalRatesTitle -> "Débit basal (pompe)"
+            TranslationKey.PumpBasalRatesHelp ->
+                "Le débit basal programmé dans votre pompe, une valeur par heure de la journée en " +
+                    "unités par heure, arrondie à 0,01 U/h. Le total journalier est la somme des 24 " +
+                    "heures. C'est un relevé pour vous et votre équipe soignante — il ne modifie aucun " +
+                    "calcul de bolus."
+            TranslationKey.PumpBasalRateUnit -> "U/h"
+            TranslationKey.PumpBasalDailyTotal -> $$"Total journalier : %1$s U"
             TranslationKey.FactorNameLabel -> "Nom"
             TranslationKey.FactorNameHelp ->
                 "Le nom de cette plage horaire, par ex. \"Petit-déjeuner\" ou \"Déjeuner\" — " +
@@ -1067,6 +1105,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.AuditFactorDeleted -> $$"Le facteur « %1$s » (valeur %2$s) a été supprimé."
             TranslationKey.AuditBasalRateChanged -> $$"Le débit basal est passé de %1$s à %2$s unités/jour."
             TranslationKey.AuditBasalTimeChanged -> $$"L'heure du débit basal est passée de %1$s à %2$s."
+            TranslationKey.AuditPumpBasalRateChanged ->
+                $$"Le débit basal de la pompe %1$s est passé de %2$s à %3$s U/h."
             TranslationKey.AuditUnknownChange -> "Modification inconnue."
             TranslationKey.AuditValueNotSet -> "non défini"
         }
@@ -1150,15 +1190,25 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                     "użyciu wartości wymiennika chlebowego (gramy ÷ czynnik) i zaokrąglany do 0,1 g. " +
                     "Mniejsza liczba oznacza więcej insuliny na tę samą ilość węglowodanów."
             TranslationKey.PumpRatioUnit -> "g/j."
-            TranslationKey.FactorDisplayModeTitle -> "Wyświetlanie czynników"
-            TranslationKey.FactorDisplayModeHelp ->
-                "Wybierz, jak czynniki są wyświetlane i wprowadzane. \"Na wymiennik\" pokazuje jednostki " +
-                    "insuliny na wymiennik chlebowy (np. 1,5). \"Pompa\" pokazuje przelicznik używany " +
-                    "przez pompy insulinowe, takie jak YpsoPump: jedna jednostka na x gramów " +
-                    "węglowodanów (np. 8 g/j. przy 12 g na wymiennik). Oba opisują ten sam czynnik, " +
-                    "więc obliczenia się nie zmieniają."
-            TranslationKey.FactorDisplayUnitsPerBreadUnit -> "Na wymiennik"
-            TranslationKey.FactorDisplayGramsPerUnit -> "Pompa (g/j.)"
+            TranslationKey.TherapyModeTitle -> "Terapia"
+            TranslationKey.TherapyModeHelp ->
+                "Wybierz, jak podajesz insulinę. \"Pen\" pokazuje czynniki jako jednostki insuliny " +
+                    "na wymiennik chlebowy (np. 1,5), a dawkę podstawową jako jedną dawkę dzienną o " +
+                    "stałej godzinie. \"Pompa insulinowa\" pokazuje czynniki tak jak pompy, np. " +
+                    "YpsoPump — jedna jednostka na x gramów węglowodanów (np. 8 g/j. przy 12 g na " +
+                    "wymiennik) — a dawkę podstawową jako 24 godzinowe przepływy w jednostkach na " +
+                    "godzinę. Czynniki znaczą w obu trybach to samo, więc obliczenia bolusa się nie " +
+                    "zmieniają. Dawka z pena i przepływy pompy są zapisywane osobno."
+            TranslationKey.TherapyModePen -> "Pen"
+            TranslationKey.TherapyModePump -> "Pompa insulinowa"
+            TranslationKey.PumpBasalRatesTitle -> "Dawka podstawowa (pompa)"
+            TranslationKey.PumpBasalRatesHelp ->
+                "Dawka podstawowa zaprogramowana w pompie, jedna wartość na każdą godzinę doby w " +
+                    "jednostkach na godzinę, zaokrąglona do 0,01 j./h. Suma dobowa to suma wszystkich 24 " +
+                    "godzin. To zapis dla Ciebie i Twojego zespołu diabetologicznego — nie zmienia " +
+                    "żadnych obliczeń bolusa."
+            TranslationKey.PumpBasalRateUnit -> "j./h"
+            TranslationKey.PumpBasalDailyTotal -> $$"Suma dobowa: %1$s j."
             TranslationKey.FactorNameLabel -> "Nazwa"
             TranslationKey.FactorNameHelp ->
                 "Nazwa tego przedziału czasowego, np. \"Śniadanie\" lub \"Obiad\" — wyświetlana " +
@@ -1356,6 +1406,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.AuditFactorDeleted -> $$"Współczynnik „%1$s” (wartość %2$s) został usunięty."
             TranslationKey.AuditBasalRateChanged -> $$"Dawka podstawowa zmieniła się z %1$s na %2$s jednostek/dzień."
             TranslationKey.AuditBasalTimeChanged -> $$"Godzina dawki podstawowej zmieniła się z %1$s na %2$s."
+            TranslationKey.AuditPumpBasalRateChanged ->
+                $$"Dawka podstawowa pompy %1$s zmieniła się z %2$s na %3$s j./h."
             TranslationKey.AuditUnknownChange -> "Nieznana zmiana."
             TranslationKey.AuditValueNotSet -> "nie ustawiono"
         }

@@ -1,11 +1,13 @@
 package sevynidd.diabetesapp.data.export
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import sevynidd.diabetesapp.data.model.FactorAuditLogEntry
 import sevynidd.diabetesapp.data.model.FactorSlot
 import sevynidd.diabetesapp.data.model.FactorsData
+import sevynidd.diabetesapp.data.settings.therapy.TherapyMode
 import sevynidd.diabetesapp.localization.AppLanguage
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -26,8 +28,7 @@ class FactorsPdfReportTest {
         )
 
         val content = buildFactorsPdfReportContent(
-            factors = factors,
-            auditLog = emptyList(),
+            report = FactorsPdfReportData(factors = factors, auditLog = emptyList()),
             language = AppLanguage.English,
             zone = ZoneOffset.UTC,
             generatedAt = fixedGeneratedAt
@@ -45,8 +46,7 @@ class FactorsPdfReportTest {
         val factors = FactorsData(factorSlots = listOf(FactorSlot(name = "AllDay", startTimeMinutes = 0)))
 
         val content = buildFactorsPdfReportContent(
-            factors = factors,
-            auditLog = emptyList(),
+            report = FactorsPdfReportData(factors = factors, auditLog = emptyList()),
             language = AppLanguage.English,
             zone = ZoneOffset.UTC,
             generatedAt = fixedGeneratedAt
@@ -58,8 +58,7 @@ class FactorsPdfReportTest {
     @Test
     fun `invalid case of no factors and no log entries produces empty sections without crashing`() {
         val content = buildFactorsPdfReportContent(
-            factors = FactorsData(factorSlots = emptyList()),
-            auditLog = emptyList(),
+            report = FactorsPdfReportData(factors = FactorsData(factorSlots = emptyList()), auditLog = emptyList()),
             language = AppLanguage.English,
             zone = ZoneOffset.UTC,
             generatedAt = fixedGeneratedAt
@@ -83,8 +82,10 @@ class FactorsPdfReportTest {
         val earlier = later.copy(timestampMillis = 1_000L, factorName = "Earlier")
 
         val content = buildFactorsPdfReportContent(
-            factors = FactorsData(factorSlots = emptyList()),
-            auditLog = listOf(later, earlier),
+            report = FactorsPdfReportData(
+                factors = FactorsData(factorSlots = emptyList()),
+                auditLog = listOf(later, earlier)
+            ),
             language = AppLanguage.English,
             zone = ZoneOffset.UTC,
             generatedAt = fixedGeneratedAt
@@ -93,5 +94,35 @@ class FactorsPdfReportTest {
         assertEquals(2, content.logEntries.size)
         assertTrue(content.logEntries[0].description.contains("Earlier"))
         assertTrue(content.logEntries[1].description.contains("Later"))
+    }
+
+    @Test
+    fun `pump therapy reports all 24 hourly rates and their daily total`() {
+        val factors = FactorsData(pumpBasalRates = List(24) { hour -> if (hour < 12) "0,5" else "" })
+
+        val pumpBasal = buildFactorsPdfReportContent(
+            report = FactorsPdfReportData(factors = factors, auditLog = emptyList(), therapyMode = TherapyMode.Pump),
+            language = AppLanguage.English,
+            zone = ZoneOffset.UTC,
+            generatedAt = fixedGeneratedAt
+        ).pumpBasal
+
+        requireNotNull(pumpBasal)
+        assertEquals(24, pumpBasal.rows.size)
+        assertEquals(PumpBasalReportRow(timeRange = "00:00 - 01:00", rate = "0,5"), pumpBasal.rows.first())
+        assertEquals(PumpBasalReportRow(timeRange = "23:00 - 00:00", rate = "-"), pumpBasal.rows.last())
+        assertEquals("Daily total: 6 U", pumpBasal.dailyTotalLabel)
+    }
+
+    @Test
+    fun `pen therapy has no pump basal section`() {
+        val content = buildFactorsPdfReportContent(
+            report = FactorsPdfReportData(factors = FactorsData(), auditLog = emptyList()),
+            language = AppLanguage.English,
+            zone = ZoneOffset.UTC,
+            generatedAt = fixedGeneratedAt
+        )
+
+        assertNull(content.pumpBasal)
     }
 }
