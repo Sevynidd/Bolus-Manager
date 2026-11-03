@@ -65,7 +65,10 @@ class MainActivity : ComponentActivity() {
                 thresholdMgDl = settings.correctionThresholdMgDl,
                 lowThresholdMgDl = settings.correctionLowThresholdMgDl,
                 stepMgDl = settings.correctionStepMgDl,
-                glucoseUnit = settings.glucoseUnit
+                glucoseUnit = settings.glucoseUnit,
+                doseStepUnits = settings.doseStepUnits,
+                maxDoseUnits = settings.maxDoseUnits,
+                fastCarbsGrams = settings.fastCarbsGrams
             )
             val factors by factorsRepository.factorsFlow.collectAsState(initial = FactorsData())
             val auditLog by factorAuditLogRepository.auditLogFlow.collectAsState(initial = emptyList())
@@ -235,7 +238,13 @@ class MainActivity : ComponentActivity() {
                                 factorAuditLogRepository.logChanges(changes)
                                 appSettingsStore.setBreadUnits(imported.breadUnits)
                                 appSettingsStore.setPeriodFactorPercent(imported.periodFactorPercent)
-                                appSettingsStore.setCorrectionSettings(imported.correctionSettings)
+                                appSettingsStore.setCorrectionSettings(
+                                    imported.correctionSettings.copy(
+                                        doseStepUnits = correctionSettings.doseStepUnits,
+                                        maxDoseUnits = correctionSettings.maxDoseUnits,
+                                        fastCarbsGrams = correctionSettings.fastCarbsGrams
+                                    )
+                                )
                                 appSettingsStore.setGender(imported.gender)
                                 appSettingsStore.setTherapyMode(imported.therapyMode)
                             }
@@ -286,6 +295,21 @@ private fun correctionSettingsCallbacks(
         onCorrectionStepMgDlChange = { stepMgDl ->
             coroutineScope.launch {
                 appSettingsStore.setCorrectionSettings(correctionSettings.copy(stepMgDl = stepMgDl))
+            }
+        },
+        onDoseStepUnitsChange = { doseStepUnits ->
+            coroutineScope.launch {
+                appSettingsStore.setCorrectionSettings(correctionSettings.copy(doseStepUnits = doseStepUnits))
+            }
+        },
+        onMaxDoseUnitsChange = { maxDoseUnits ->
+            coroutineScope.launch {
+                appSettingsStore.setCorrectionSettings(correctionSettings.copy(maxDoseUnits = maxDoseUnits))
+            }
+        },
+        onFastCarbsGramsChange = { fastCarbsGrams ->
+            coroutineScope.launch {
+                appSettingsStore.setCorrectionSettings(correctionSettings.copy(fastCarbsGrams = fastCarbsGrams))
             }
         }
     )

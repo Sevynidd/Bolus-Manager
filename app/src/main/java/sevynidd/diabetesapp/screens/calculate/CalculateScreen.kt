@@ -10,13 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -54,7 +49,6 @@ enum class BolusMode {
 /** The active/calculated values shown for the normal-bolus tab, bundled to keep parameter lists short. */
 private data class NormalModeResult(
     val activeFactorText: String,
-    val calculatedUnitsText: String,
     val correctionUnitsText: String
 )
 
@@ -174,6 +168,32 @@ private fun CalculateScreenBody(
     state: CalculateScreenRenderState,
     focusManager: FocusManager
 ) {
+    val isSplit = state.values.selectedMode == BolusMode.Split
+
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        DoseResultArea(
+            dose = if (isSplit) state.computed.splitDose else state.computed.normalDose,
+            rawBloodSugar = if (isSplit) state.splitInputs.bloodSugar else state.normalInputs.bloodSugar,
+            correctionSettings = state.values.correctionSettings,
+            currentLanguage = currentLanguage
+        )
+
+        CalculateScreenInputs(
+            modifier = Modifier.weight(1f),
+            currentLanguage = currentLanguage,
+            state = state,
+            focusManager = focusManager
+        )
+    }
+}
+
+@Composable
+private fun CalculateScreenInputs(
+    modifier: Modifier,
+    currentLanguage: AppLanguage,
+    state: CalculateScreenRenderState,
+    focusManager: FocusManager
+) {
     Column(
         modifier = modifier.verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -202,8 +222,7 @@ private fun CalculateScreenBody(
                 inputs = state.normalInputs,
                 result = NormalModeResult(
                     state.computed.activeFactorText,
-                    state.computed.calculatedUnitsText,
-                    state.computed.correctionUnitsText
+                    state.computed.normalDose.correctionUnitsText
                 ),
                 currentLanguage = currentLanguage,
                 focusManager = focusManager
@@ -232,63 +251,10 @@ private fun SplitModeSection(
             activeFactorText = computed.activeFactorText,
             futureFactorText = computed.futureFactorText,
             splitBolus = computed.splitBolus,
-            totalUnitsText = computed.splitUnits.totalUnitsText,
-            correctionUnitsText = computed.splitUnits.correctionUnitsText
+            correctionUnitsText = computed.splitDose.correctionUnitsText
         ),
         currentLanguage = currentLanguage
     )
-}
-
-@Composable
-private fun PeriodToggleRow(
-    isPeriodEnabled: Boolean,
-    onPeriodEnabledChange: (Boolean) -> Unit,
-    currentLanguage: AppLanguage
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.End,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = translate(TranslationKey.PeriodLabel, currentLanguage),
-            style = MaterialTheme.typography.labelLarge,
-            modifier = Modifier.padding(end = 8.dp)
-        )
-        Switch(checked = isPeriodEnabled, onCheckedChange = onPeriodEnabledChange)
-        HelpIconButton(helpTextKey = TranslationKey.PeriodHelp, currentLanguage = currentLanguage)
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun BolusModeSelector(
-    selectedMode: BolusMode,
-    onSelectedModeChange: (BolusMode) -> Unit,
-    currentLanguage: AppLanguage,
-    modifier: Modifier = Modifier
-) {
-    val bolusModes = listOf(BolusMode.Normal, BolusMode.Split)
-    Row(modifier = modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        SingleChoiceSegmentedButtonRow(modifier = Modifier.weight(1f)) {
-            bolusModes.forEachIndexed { index, mode ->
-                SegmentedButton(
-                    shape = SegmentedButtonDefaults.itemShape(index = index, count = bolusModes.size),
-                    selected = mode == selectedMode,
-                    onClick = { onSelectedModeChange(mode) },
-                    label = {
-                        Text(
-                            text = when (mode) {
-                                BolusMode.Normal -> translate(TranslationKey.BolusNormal, currentLanguage)
-                                BolusMode.Split -> translate(TranslationKey.BolusSplit, currentLanguage)
-                            }
-                        )
-                    }
-                )
-            }
-        }
-        HelpIconButton(helpTextKey = TranslationKey.BolusTypeHelp, currentLanguage = currentLanguage)
-    }
 }
 
 @Composable
@@ -321,13 +287,6 @@ private fun NormalModeContent(
             ResultStat(
                 label = translate(TranslationKey.CorrectionUnits, currentLanguage),
                 value = result.correctionUnitsText
-            )
-
-            ResultStat(
-                label = translate(TranslationKey.CalculatedUnits, currentLanguage),
-                value = result.calculatedUnitsText,
-                modifier = Modifier.fillMaxWidth(),
-                emphasize = true
             )
         }
     }

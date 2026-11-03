@@ -47,6 +47,9 @@ and consult your doctor or diabetes care team before acting on them.
 - **Normal** and **Split Bolus** modes, calculated automatically as you type
 - Split bolus splits your carbs into an immediate and a delayed share, using the right factor for each
 - An optional blood-sugar field adds a correction dose to the total automatically
+- The dose to inject is pinned at the top with its breakdown (meal + correction) and is rounded to the dose
+  step of your pen or pump; a low blood sugar shows a warning with a suggested fast-carb amount, and an
+  optional maximum dose warns about doses that are higher than expected
 - A **Period** toggle temporarily scales up all factors by a percentage you set —
   only shown and applied when your gender is set to Female
 - Uses your configured bread-unit value
@@ -121,7 +124,10 @@ to the nearest whole unit. Between the two thresholds, no correction is
 applied. With the defaults (`160` mg/dl high threshold, `80` mg/dl low
 threshold, `30` mg/dl step), a blood sugar of `170` mg/dl adds `0` units,
 `180` mg/dl adds `1` unit, `220` mg/dl adds `2` units, and `50` mg/dl
-subtracts `1` unit. The total dose is never suggested below `0` units.
+subtracts `1` unit. The total dose is never suggested below `0` units, and it is
+rounded to the dose step you set for your pen or pump (default `0.5` units; exact halves round up). The
+exact sum before rounding is shown under the dose. A blood sugar below the low threshold shows a warning
+instead of just a smaller number, and an optional maximum dose (`0` = off) warns about larger doses.
 
 ## Tech Stack
 

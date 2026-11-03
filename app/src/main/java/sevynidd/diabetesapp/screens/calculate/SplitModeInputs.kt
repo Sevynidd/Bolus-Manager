@@ -27,6 +27,7 @@ import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
 import sevynidd.diabetesapp.ui.HelpIconButton
+import sevynidd.diabetesapp.ui.glucoseUnitLabel
 
 /** The user-editable fields of the split-bolus form, bundled to keep composable parameter lists short. */
 internal data class SplitModeInputs(
@@ -203,7 +204,6 @@ internal data class SplitModeResults(
     val activeFactorText: String,
     val futureFactorText: String,
     val splitBolus: SplitBolusResult?,
-    val totalUnitsText: String,
     val correctionUnitsText: String
 )
 
@@ -245,13 +245,6 @@ internal fun SplitResultsCard(
                 )
             }
 
-            ResultStat(
-                label = translate(TranslationKey.CalculatedUnits, currentLanguage),
-                value = results.totalUnitsText,
-                modifier = Modifier.fillMaxWidth(),
-                emphasize = true
-            )
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -278,10 +271,7 @@ internal fun SplitResultsCard(
 }
 
 private fun splitBloodSugarLabel(currentLanguage: AppLanguage, glucoseUnit: GlucoseUnit): String {
-    val unitSuffix = when (glucoseUnit) {
-        GlucoseUnit.MgDl -> "mg/dl"
-        GlucoseUnit.MmolL -> "mmol/l"
-    }
+    val unitSuffix = glucoseUnitLabel(glucoseUnit)
     return "${translate(TranslationKey.BloodSugar, currentLanguage)} ($unitSuffix)"
 }
 

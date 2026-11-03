@@ -29,11 +29,10 @@ internal data class RawBolusInputs(
 /** The values derived from [RawBolusInputs], ready to render in either bolus mode's card. */
 internal data class CalculateScreenComputed(
     val activeFactorText: String,
-    val calculatedUnitsText: String,
-    val correctionUnitsText: String,
+    val normalDose: DoseResult,
     val futureFactorText: String,
     val splitBolus: SplitBolusResult?,
-    val splitUnits: SplitUnitsResult
+    val splitDose: DoseResult
 )
 
 internal fun computeCalculateScreenState(
@@ -49,7 +48,7 @@ internal fun computeCalculateScreenState(
     val activeFactor = applyPeriodMultiplier(activeFactorInfo.factor, isPeriodApplicable, values.periodFactorPercent)
     val effectiveBreadUnits = values.breadUnits.takeIf { it > 0.0 } ?: DEFAULT_BREAD_UNITS
 
-    val normalUnits = resolveNormalUnits(
+    val normalDose = resolveNormalDose(
         carbohydratesValue = inputs.carbohydrates.replace(',', '.').toDoubleOrNull(),
         activeFactor = activeFactor,
         effectiveBreadUnits = effectiveBreadUnits,
@@ -74,7 +73,7 @@ internal fun computeCalculateScreenState(
         restFactor = futureFactor
     )
 
-    val splitUnits = resolveSplitUnits(
+    val splitDose = resolveSplitDose(
         splitBolus = splitBolus,
         splitBloodSugar = inputs.splitBloodSugar,
         correctionSettings = values.correctionSettings
@@ -83,11 +82,10 @@ internal fun computeCalculateScreenState(
     val factorValueDisplay = FactorValueDisplay(values.therapyMode, effectiveBreadUnits, pumpRatioUnit)
     return CalculateScreenComputed(
         activeFactorText = activeFactorInfo.toDisplayText(factorValueDisplay.format(activeFactor)),
-        calculatedUnitsText = normalUnits.calculatedUnitsText,
-        correctionUnitsText = normalUnits.correctionUnitsText,
         futureFactorText = futureFactorInfo.toDisplayText(factorValueDisplay.format(futureFactor)),
+        normalDose = normalDose,
         splitBolus = splitBolus,
-        splitUnits = splitUnits
+        splitDose = splitDose
     )
 }
 

@@ -41,6 +41,9 @@ data class AppSettings(
     val correctionLowThresholdMgDl: Double = DEFAULT_CORRECTION_LOW_THRESHOLD_MGDL,
     val correctionStepMgDl: Double = DEFAULT_CORRECTION_STEP_MGDL,
     val glucoseUnit: GlucoseUnit = GlucoseUnit.MgDl,
+    val doseStepUnits: Double = CorrectionSettings().doseStepUnits,
+    val maxDoseUnits: Double = CorrectionSettings().maxDoseUnits,
+    val fastCarbsGrams: Double = CorrectionSettings().fastCarbsGrams,
     val gender: Gender = Gender.PreferNotToSay,
     val therapyMode: TherapyMode = TherapyMode.Pen,
     val hasCompletedOnboarding: Boolean = false
@@ -61,6 +64,9 @@ class AppSettingsStore(private val context: Context) {
         val CORRECTION_LOW_THRESHOLD_MGDL = stringPreferencesKey("correction_low_threshold_mgdl")
         val CORRECTION_STEP_MGDL = stringPreferencesKey("correction_step_mgdl")
         val GLUCOSE_UNIT = stringPreferencesKey("glucose_unit")
+        val DOSE_STEP_UNITS = stringPreferencesKey("dose_step_units")
+        val MAX_DOSE_UNITS = stringPreferencesKey("max_dose_units")
+        val FAST_CARBS_GRAMS = stringPreferencesKey("fast_carbs_grams")
         val GENDER = stringPreferencesKey("gender")
         val THERAPY_MODE = stringPreferencesKey("therapy_mode")
         val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
@@ -82,6 +88,9 @@ class AppSettingsStore(private val context: Context) {
             correctionStepMgDl = preferences[Keys.CORRECTION_STEP_MGDL]
                 .toDoubleOrDefault(DEFAULT_CORRECTION_STEP_MGDL),
             glucoseUnit = preferences[Keys.GLUCOSE_UNIT].toEnumOrDefault(GlucoseUnit.MgDl),
+            doseStepUnits = preferences[Keys.DOSE_STEP_UNITS].toDoubleOrDefault(CorrectionSettings().doseStepUnits),
+            maxDoseUnits = preferences[Keys.MAX_DOSE_UNITS].toDoubleOrDefault(CorrectionSettings().maxDoseUnits),
+            fastCarbsGrams = preferences[Keys.FAST_CARBS_GRAMS].toDoubleOrDefault(CorrectionSettings().fastCarbsGrams),
             gender = preferences[Keys.GENDER].toEnumOrDefault(Gender.PreferNotToSay),
             therapyMode = preferences[Keys.THERAPY_MODE]
                 .toEnumOrDefault(TherapyMode.Pen),
@@ -125,7 +134,7 @@ class AppSettingsStore(private val context: Context) {
     }
 
     /**
-     * Persists the correction threshold, low threshold, step, and glucose unit together, in one
+     * Persists the correction thresholds, step, glucose unit, dose step, max dose and fast-carb amount together, in one
      * atomic write.
      */
     suspend fun setCorrectionSettings(correctionSettings: CorrectionSettings) {
@@ -134,6 +143,9 @@ class AppSettingsStore(private val context: Context) {
             preferences[Keys.CORRECTION_LOW_THRESHOLD_MGDL] = correctionSettings.lowThresholdMgDl.toString()
             preferences[Keys.CORRECTION_STEP_MGDL] = correctionSettings.stepMgDl.toString()
             preferences[Keys.GLUCOSE_UNIT] = correctionSettings.glucoseUnit.name
+            preferences[Keys.DOSE_STEP_UNITS] = correctionSettings.doseStepUnits.toString()
+            preferences[Keys.MAX_DOSE_UNITS] = correctionSettings.maxDoseUnits.toString()
+            preferences[Keys.FAST_CARBS_GRAMS] = correctionSettings.fastCarbsGrams.toString()
         }
     }
 

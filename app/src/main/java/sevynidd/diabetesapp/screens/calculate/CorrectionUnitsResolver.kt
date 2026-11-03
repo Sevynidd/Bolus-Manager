@@ -1,76 +1,82 @@
 package sevynidd.diabetesapp.screens.calculate
 
+import sevynidd.diabetesapp.calculation.DoseBreakdown
 import sevynidd.diabetesapp.calculation.SplitBolusResult
+import sevynidd.diabetesapp.calculation.buildDoseBreakdown
 import sevynidd.diabetesapp.calculation.calculateBolusUnits
 import sevynidd.diabetesapp.calculation.calculateCorrectionUnits
+import sevynidd.diabetesapp.calculation.isAboveMaxDose
+import sevynidd.diabetesapp.calculation.isBelowLowThreshold
 import sevynidd.diabetesapp.calculation.mmolLToMgDl
 import sevynidd.diabetesapp.data.settings.correction.CorrectionSettings
 import sevynidd.diabetesapp.data.settings.correction.GlucoseUnit
 
-internal fun correctionUnitsFor(rawBloodSugar: String, correctionSettings: CorrectionSettings): Int {
-    val enteredValue = rawBloodSugar.replace(',', '.').toDoubleOrNull() ?: return 0
-    val bloodSugarMgDl = if (correctionSettings.glucoseUnit == GlucoseUnit.MmolL) {
-        mmolLToMgDl(enteredValue)
+internal fun bloodSugarMgDlOrNull(rawBloodSugar: String, correctionSettings: CorrectionSettings): Double? {
+    val enteredValue = rawBloodSugar.replace(',', '.').toDoubleOrNull() ?: return null
+    return if (correctionSettings.glucoseUnit == GlucoseUnit.MmolL) mmolLToMgDl(enteredValue) else enteredValue
+}
+
+/**
+ * What the result card shows for one bolus mode: the dose [breakdown] (`null` until carbs or
+ * blood sugar are entered), the signed [correctionUnitsText] (blank without blood sugar), and the
+ * two safety flags that drive the warning banners.
+ */
+internal data class DoseResult(
+    val breakdown: DoseBreakdown?,
+    val correctionUnitsText: String,
+    val isLowBloodSugar: Boolean,
+    val isOverMaxDose: Boolean
+)
+
+/**
+ * Combines [mealUnits] (`null` when no carbs are entered) with the blood-sugar correction for
+ * [rawBloodSugar]. The result is blank until either input exists; the total is never below zero
+ * units and is rounded to the configured dose step.
+ */
+internal fun resolveDose(
+    mealUnits: Double?,
+    rawBloodSugar: String,
+    correctionSettings: CorrectionSettings
+): DoseResult {
+    val bloodSugarMgDl = bloodSugarMgDlOrNull(rawBloodSugar, correctionSettings)
+    val correctionUnits = bloodSugarMgDl?.let { mgDl ->
+        calculateCorrectionUnits(
+            bloodSugarMgDl = mgDl,
+            thresholdMgDl = correctionSettings.thresholdMgDl,
+            lowThresholdMgDl = correctionSettings.lowThresholdMgDl,
+            stepMgDl = correctionSettings.stepMgDl
+        )
+    } ?: 0
+    val breakdown = if (mealUnits != null || bloodSugarMgDl != null) {
+        buildDoseBreakdown(mealUnits ?: 0.0, correctionUnits, correctionSettings.doseStepUnits)
     } else {
-        enteredValue
+        null
     }
-    return calculateCorrectionUnits(
-        bloodSugarMgDl = bloodSugarMgDl,
-        thresholdMgDl = correctionSettings.thresholdMgDl,
-        lowThresholdMgDl = correctionSettings.lowThresholdMgDl,
-        stepMgDl = correctionSettings.stepMgDl
+    return DoseResult(
+        breakdown = breakdown,
+        correctionUnitsText = if (bloodSugarMgDl != null) correctionUnits.toString() else "",
+        isLowBloodSugar = bloodSugarMgDl?.let { isBelowLowThreshold(it, correctionSettings.lowThresholdMgDl) } == true,
+        isOverMaxDose = breakdown?.let { isAboveMaxDose(it.roundedTotalUnits, correctionSettings.maxDoseUnits) } == true
     )
 }
 
-internal fun hasNumericInput(raw: String): Boolean = raw.replace(',', '.').toDoubleOrNull() != null
-
-/** The normal-mode total/correction unit texts, blank whenever neither carbs nor blood sugar is entered. */
-internal data class NormalUnitsResult(val calculatedUnitsText: String, val correctionUnitsText: String)
-
-/** Combines the carb-based dose with the blood-sugar correction; the total is never below zero units. */
-internal fun resolveNormalUnits(
+/** The normal-mode [DoseResult]: carbs at the active factor plus the blood-sugar correction. */
+internal fun resolveNormalDose(
     carbohydratesValue: Double?,
     activeFactor: Double?,
     effectiveBreadUnits: Double,
     bloodSugar: String,
     correctionSettings: CorrectionSettings
-): NormalUnitsResult {
-    val hasBloodSugarInput = hasNumericInput(bloodSugar)
-    val correctionUnits = correctionUnitsFor(bloodSugar, correctionSettings)
-    val baseUnits = if (carbohydratesValue != null && activeFactor != null) {
-        calculateBolusUnits(carbohydratesValue, effectiveBreadUnits, activeFactor)
-    } else {
-        0.0
+): DoseResult {
+    val mealUnits = carbohydratesValue?.let { carbs ->
+        activeFactor?.let { factor -> calculateBolusUnits(carbs, effectiveBreadUnits, factor) } ?: 0.0
     }
-    val calculatedUnits = if (carbohydratesValue != null || hasBloodSugarInput) {
-        (baseUnits + correctionUnits).coerceAtLeast(0.0)
-    } else {
-        null
-    }
-    return NormalUnitsResult(
-        calculatedUnitsText = calculatedUnits.toUiDecimalOrEmpty(),
-        correctionUnitsText = if (hasBloodSugarInput) correctionUnits.toString() else ""
-    )
+    return resolveDose(mealUnits, bloodSugar, correctionSettings)
 }
 
-/** The split-mode total/correction unit texts, blank whenever neither carbs nor blood sugar is entered. */
-internal data class SplitUnitsResult(val totalUnitsText: String, val correctionUnitsText: String)
-
-/** Combines the split-bolus dose with the blood-sugar correction; the total is never below zero units. */
-internal fun resolveSplitUnits(
+/** The split-mode [DoseResult]: the split bolus total plus the blood-sugar correction. */
+internal fun resolveSplitDose(
     splitBolus: SplitBolusResult?,
     splitBloodSugar: String,
     correctionSettings: CorrectionSettings
-): SplitUnitsResult {
-    val hasBloodSugarInput = hasNumericInput(splitBloodSugar)
-    val correctionUnits = correctionUnitsFor(splitBloodSugar, correctionSettings)
-    val totalUnits = if (splitBolus != null || hasBloodSugarInput) {
-        ((splitBolus?.totalUnits ?: 0.0) + correctionUnits).coerceAtLeast(0.0)
-    } else {
-        null
-    }
-    return SplitUnitsResult(
-        totalUnitsText = totalUnits.toUiDecimalOrEmpty(),
-        correctionUnitsText = if (hasBloodSugarInput) correctionUnits.toString() else ""
-    )
-}
+): DoseResult = resolveDose(splitBolus?.totalUnits, splitBloodSugar, correctionSettings)

@@ -5,5 +5,8 @@ package sevynidd.diabetesapp.screens.settings.correction
 data class CorrectionSettingsCallbacks(
     val onCorrectionThresholdMgDlChange: (Double) -> Unit = {},
     val onCorrectionLowThresholdMgDlChange: (Double) -> Unit = {},
-    val onCorrectionStepMgDlChange: (Double) -> Unit = {}
+    val onCorrectionStepMgDlChange: (Double) -> Unit = {},
+    val onDoseStepUnitsChange: (Double) -> Unit = {},
+    val onMaxDoseUnitsChange: (Double) -> Unit = {},
+    val onFastCarbsGramsChange: (Double) -> Unit = {}
 )

@@ -106,7 +106,6 @@ enum class TranslationKey {
     CarbohydratesHelp,
     ActiveFactor,
     Calculated,
-    CalculatedUnits,
     BolusImmediateUnits,
     BolusExtendedUnits,
     FutureFactor,
@@ -127,6 +126,22 @@ enum class TranslationKey {
     CorrectionLowThresholdHelp,
     CorrectionStep,
     CorrectionStepHelp,
+    DoseStep,
+    DoseStepHelp,
+    MaxDose,
+    MaxDoseHelp,
+    FastCarbs,
+    FastCarbsHelp,
+    DoseUnitSymbol,
+    GramsUnit,
+    DoseResultTitle,
+    DoseResultHelp,
+    DoseBreakdown,
+    DoseRoundedTo,
+    LowBloodSugarTitle,
+    LowBloodSugarBody,
+    FastCarbsSuggestion,
+    MaxDoseExceeded,
     GlucoseUnitLabel,
     GlucoseUnitHelp,
     GenderSettingsTitle,
@@ -296,6 +311,32 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                     "value (grams ÷ factor) and rounded to 0.1 g. A lower number means more insulin " +
                     "for the same amount of carbohydrates."
             TranslationKey.PumpRatioUnit -> "g/U"
+            TranslationKey.DoseStep -> "Dose step"
+            TranslationKey.DoseStepHelp ->
+                "The smallest amount your pen or pump can deliver. The calculated dose is rounded to the " +
+                    "nearest multiple of this step, so the result is something you can actually inject."
+            TranslationKey.MaxDose -> "Maximum dose"
+            TranslationKey.MaxDoseHelp ->
+                "A safety limit for a single dose. If a result is higher, a warning is shown so a typing " +
+                    "mistake can't go unnoticed. Set 0 to switch the limit off."
+            TranslationKey.FastCarbs -> "Fast carbs for a low"
+            TranslationKey.FastCarbsHelp ->
+                "How many grams of fast-acting carbohydrates are suggested when your blood sugar is below " +
+                    "the low threshold. Agree on this amount with your diabetes care team."
+            TranslationKey.DoseUnitSymbol -> "U"
+            TranslationKey.GramsUnit -> "g"
+            TranslationKey.DoseResultTitle -> "Dose to inject"
+            TranslationKey.DoseResultHelp ->
+                "The total dose is the meal dose plus the correction for your blood sugar, never below zero, " +
+                    "rounded to your dose step. The line below shows the exact sum before rounding."
+            TranslationKey.DoseBreakdown -> $$"Meal %1$s + correction %2$s = %3$s %4$s"
+            TranslationKey.DoseRoundedTo -> $$"Rounded to %1$s %2$s steps"
+            TranslationKey.LowBloodSugarTitle -> "Below your low threshold"
+            TranslationKey.LowBloodSugarBody ->
+                $$"%1$s is under %2$s. Treat the low first, then recalculate."
+            TranslationKey.FastCarbsSuggestion -> "Suggested fast carbs"
+            TranslationKey.MaxDoseExceeded ->
+                $$"Above your maximum dose of %1$s %2$s. Check the amounts before injecting."
             TranslationKey.TherapyModeTitle -> "Therapy"
             TranslationKey.TherapyModeHelp ->
                 "Choose how you take insulin. \"Pen\" shows factors as units of insulin per bread " +
@@ -354,7 +395,6 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                     "bread-unit setting, this determines the carb-based part of your dose."
             TranslationKey.ActiveFactor -> "Active factor"
             TranslationKey.Calculated -> "Calculated"
-            TranslationKey.CalculatedUnits -> "Calculated units"
             TranslationKey.BolusImmediateUnits -> "Immediate units"
             TranslationKey.BolusExtendedUnits -> "Extended units"
             TranslationKey.FutureFactor -> "Future factor"
@@ -579,6 +619,32 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                     "aus deinem Faktor umgerechnet (Gramm ÷ Faktor) und auf 0,1 g gerundet. Eine " +
                     "kleinere Zahl bedeutet mehr Insulin für dieselbe Menge Kohlenhydrate."
             TranslationKey.PumpRatioUnit -> "g/IE"
+            TranslationKey.DoseStep -> "Dosisschritt"
+            TranslationKey.DoseStepHelp ->
+                "Die kleinste Menge, die dein Pen oder deine Pumpe abgeben kann. Die berechnete Dosis wird " +
+                    "auf das nächste Vielfache dieses Schritts gerundet, sodass du sie tatsächlich spritzen kannst."
+            TranslationKey.MaxDose -> "Maximaldosis"
+            TranslationKey.MaxDoseHelp ->
+                "Eine Sicherheitsgrenze für eine einzelne Dosis. Ist ein Ergebnis höher, erscheint eine " +
+                    "Warnung, damit ein Tippfehler nicht unbemerkt bleibt. Mit 0 schaltest du die Grenze aus."
+            TranslationKey.FastCarbs -> "Schnelle KH bei Unterzucker"
+            TranslationKey.FastCarbsHelp ->
+                "Wie viele Gramm schnell wirkende Kohlenhydrate vorgeschlagen werden, wenn dein Blutzucker " +
+                    "unter der unteren Schwelle liegt. Stimme diese Menge mit deinem Diabetes-Team ab."
+            TranslationKey.DoseUnitSymbol -> "IE"
+            TranslationKey.GramsUnit -> "g"
+            TranslationKey.DoseResultTitle -> "Zu spritzende Dosis"
+            TranslationKey.DoseResultHelp ->
+                "Die Gesamtdosis ist die Mahlzeitendosis plus die Korrektur für deinen Blutzucker, nie unter " +
+                    "null, gerundet auf deinen Dosisschritt. Die Zeile darunter zeigt die genaue Summe vor dem Runden."
+            TranslationKey.DoseBreakdown -> $$"Mahlzeit %1$s + Korrektur %2$s = %3$s %4$s"
+            TranslationKey.DoseRoundedTo -> $$"Gerundet auf %1$s-%2$s-Schritte"
+            TranslationKey.LowBloodSugarTitle -> "Unter deiner unteren Schwelle"
+            TranslationKey.LowBloodSugarBody ->
+                $$"%1$s liegt unter %2$s. Behandle zuerst den Unterzucker und rechne dann neu."
+            TranslationKey.FastCarbsSuggestion -> "Empfohlene schnelle KH"
+            TranslationKey.MaxDoseExceeded ->
+                $$"Über deiner Maximaldosis von %1$s %2$s. Prüfe die Eingaben vor dem Spritzen."
             TranslationKey.TherapyModeTitle -> "Therapie"
             TranslationKey.TherapyModeHelp ->
                 "Wähle, wie du Insulin verabreichst. \"Pen\" zeigt Faktoren als Einheiten Insulin pro " +
@@ -640,7 +706,6 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                     "und der Broteinheiten-Einstellung ergibt sich daraus der kohlenhydratbasierte Teil deiner Dosis."
             TranslationKey.ActiveFactor -> "Aktiver Faktor"
             TranslationKey.Calculated -> "Berechnet"
-            TranslationKey.CalculatedUnits -> "Berechnete Einheiten"
             TranslationKey.BolusImmediateUnits -> "Sofort-Einheiten"
             TranslationKey.BolusExtendedUnits -> "Verzögerte Einheiten"
             TranslationKey.FutureFactor -> "Zukünftiger Faktor"
@@ -876,6 +941,32 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                     "l'aide de votre valeur d'unité de pain (grammes ÷ facteur) et arrondi à 0,1 g. " +
                     "Un nombre plus petit signifie plus d'insuline pour la même quantité de glucides."
             TranslationKey.PumpRatioUnit -> "g/U"
+            TranslationKey.DoseStep -> "Pas de dose"
+            TranslationKey.DoseStepHelp ->
+                "La plus petite quantité que votre stylo ou pompe peut délivrer. La dose calculée est " +
+                    "arrondie au multiple le plus proche de ce pas, pour obtenir une dose réellement injectable."
+            TranslationKey.MaxDose -> "Dose maximale"
+            TranslationKey.MaxDoseHelp ->
+                "Une limite de sécurité pour une dose unique. Si un résultat la dépasse, un avertissement " +
+                    "s'affiche pour qu'une erreur de saisie ne passe pas inaperçue. Mettez 0 pour la désactiver."
+            TranslationKey.FastCarbs -> "Sucres rapides en cas d'hypo"
+            TranslationKey.FastCarbsHelp ->
+                "Le nombre de grammes de glucides rapides suggéré quand votre glycémie est sous le seuil " +
+                    "bas. Convenez de cette quantité avec votre équipe soignante."
+            TranslationKey.DoseUnitSymbol -> "U"
+            TranslationKey.GramsUnit -> "g"
+            TranslationKey.DoseResultTitle -> "Dose à injecter"
+            TranslationKey.DoseResultHelp ->
+                "La dose totale est la dose du repas plus la correction de votre glycémie, jamais sous " +
+                    "zéro, arrondie à votre pas de dose. La ligne dessous montre la somme exacte avant arrondi."
+            TranslationKey.DoseBreakdown -> $$"Repas %1$s + correction %2$s = %3$s %4$s"
+            TranslationKey.DoseRoundedTo -> $$"Arrondi par pas de %1$s %2$s"
+            TranslationKey.LowBloodSugarTitle -> "Sous votre seuil bas"
+            TranslationKey.LowBloodSugarBody ->
+                $$"%1$s est sous %2$s. Traitez d'abord l'hypo, puis recalculez."
+            TranslationKey.FastCarbsSuggestion -> "Sucres rapides conseillés"
+            TranslationKey.MaxDoseExceeded ->
+                $$"Au-dessus de votre dose maximale de %1$s %2$s. Vérifiez les valeurs avant d'injecter."
             TranslationKey.TherapyModeTitle -> "Traitement"
             TranslationKey.TherapyModeHelp ->
                 "Choisissez comment vous administrez l'insuline. \"Stylo\" affiche les facteurs en " +
@@ -939,7 +1030,6 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                     "des unités de pain, cela détermine la part glucidique de votre dose."
             TranslationKey.ActiveFactor -> "Facteur actif"
             TranslationKey.Calculated -> "Calcule"
-            TranslationKey.CalculatedUnits -> "Unités calculées"
             TranslationKey.BolusImmediateUnits -> "Unités immédiates"
             TranslationKey.BolusExtendedUnits -> "Unités prolongées"
             TranslationKey.FutureFactor -> "Facteur futur"
@@ -1177,6 +1267,32 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                     "użyciu wartości wymiennika chlebowego (gramy ÷ czynnik) i zaokrąglany do 0,1 g. " +
                     "Mniejsza liczba oznacza więcej insuliny na tę samą ilość węglowodanów."
             TranslationKey.PumpRatioUnit -> "g/j."
+            TranslationKey.DoseStep -> "Krok dawki"
+            TranslationKey.DoseStepHelp ->
+                "Najmniejsza ilość, jaką może podać Twój pen lub pompa. Obliczona dawka jest zaokrąglana " +
+                    "do najbliższej wielokrotności tego kroku, aby wynik dało się faktycznie wstrzyknąć."
+            TranslationKey.MaxDose -> "Dawka maksymalna"
+            TranslationKey.MaxDoseHelp ->
+                "Limit bezpieczeństwa dla pojedynczej dawki. Jeśli wynik jest wyższy, pojawi się " +
+                    "ostrzeżenie, by literówka nie przeszła niezauważona. Ustaw 0, aby wyłączyć limit."
+            TranslationKey.FastCarbs -> "Szybkie węglowodany przy niskim cukrze"
+            TranslationKey.FastCarbsHelp ->
+                "Ile gramów szybkich węglowodanów jest sugerowane, gdy glukoza jest poniżej dolnego progu. " +
+                    "Ustal tę ilość z zespołem diabetologicznym."
+            TranslationKey.DoseUnitSymbol -> "j."
+            TranslationKey.GramsUnit -> "g"
+            TranslationKey.DoseResultTitle -> "Dawka do wstrzyknięcia"
+            TranslationKey.DoseResultHelp ->
+                "Dawka całkowita to dawka na posiłek plus korekta glukozy, nigdy poniżej zera, " +
+                    "zaokrąglona do kroku dawki. Wiersz poniżej pokazuje dokładną sumę przed zaokrągleniem."
+            TranslationKey.DoseBreakdown -> $$"Posiłek %1$s + korekta %2$s = %3$s %4$s"
+            TranslationKey.DoseRoundedTo -> $$"Zaokrąglone do kroków %1$s %2$s"
+            TranslationKey.LowBloodSugarTitle -> "Poniżej dolnego progu"
+            TranslationKey.LowBloodSugarBody ->
+                $$"%1$s jest poniżej %2$s. Najpierw lecz niski cukier, potem policz ponownie."
+            TranslationKey.FastCarbsSuggestion -> "Sugerowane szybkie węglowodany"
+            TranslationKey.MaxDoseExceeded ->
+                $$"Powyżej Twojej dawki maksymalnej %1$s %2$s. Sprawdź wartości przed wstrzyknięciem."
             TranslationKey.TherapyModeTitle -> "Terapia"
             TranslationKey.TherapyModeHelp ->
                 "Wybierz, jak podajesz insulinę. \"Pen\" pokazuje czynniki jako jednostki insuliny " +
@@ -1239,7 +1355,6 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                     "ustawieniem wymiennika chlebowego określa to węglowodanową część dawki."
             TranslationKey.ActiveFactor -> "Aktywny współczynnik"
             TranslationKey.Calculated -> "Obliczone"
-            TranslationKey.CalculatedUnits -> "Obliczone jednostki"
             TranslationKey.BolusImmediateUnits -> "Jednostki natychmiastowe"
             TranslationKey.BolusExtendedUnits -> "Jednostki przedłużone"
             TranslationKey.FutureFactor -> "Przyszły współczynnik"

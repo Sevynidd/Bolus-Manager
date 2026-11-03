@@ -78,6 +78,24 @@ fun CorrectionSettingsScreen(
             glucoseUnit = values.glucoseUnit,
             onValueMgDlChange = callbacks.onCorrectionStepMgDlChange
         )
+
+        DoseStepCard(values.doseStepUnits, currentLanguage, callbacks.onDoseStepUnitsChange)
+
+        UnitsValueCard(
+            labels = CorrectionValueLabels(TranslationKey.MaxDose, TranslationKey.MaxDoseHelp),
+            unitSymbolKey = TranslationKey.DoseUnitSymbol,
+            currentLanguage = currentLanguage,
+            currentValue = values.maxDoseUnits,
+            onValueChange = callbacks.onMaxDoseUnitsChange
+        )
+
+        UnitsValueCard(
+            labels = CorrectionValueLabels(TranslationKey.FastCarbs, TranslationKey.FastCarbsHelp),
+            unitSymbolKey = TranslationKey.GramsUnit,
+            currentLanguage = currentLanguage,
+            currentValue = values.fastCarbsGrams,
+            onValueChange = callbacks.onFastCarbsGramsChange
+        )
     }
 }
 
@@ -97,7 +115,7 @@ private fun CorrectionSettingCard(content: @Composable ColumnScope.() -> Unit) {
 }
 
 /** The translated title and in-app help text a [CorrectionValueCard] displays. */
-private data class CorrectionValueLabels(val titleKey: TranslationKey, val helpTextKey: TranslationKey)
+internal data class CorrectionValueLabels(val titleKey: TranslationKey, val helpTextKey: TranslationKey)
 
 @Composable
 private fun CorrectionValueCard(
@@ -159,7 +177,7 @@ private fun Double.toDecimalInput(): String {
         .trimEnd(',')
 }
 
-private val DecimalInputRegex = Regex("^\\d*[.,]?\\d*$")
+internal val DecimalInputRegex = Regex("^\\d*[.,]?\\d*$")
 
 @Preview(showBackground = true)
 @Composable
