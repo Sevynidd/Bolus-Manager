@@ -1,62 +1,53 @@
 package sevynidd.diabetesapp.screens.settings.update
 
+import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.Code
-import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
-import sevynidd.diabetesapp.data.update.GitHubRelease
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
-import kotlin.math.roundToInt
 
-private const val RELEASE_NOTES_MAX_LINES = 6
-private const val PERCENT_MULTIPLIER = 100
-private val CheckingIndicatorSize = 20.dp
+private const val GITHUB_REPO_URL = "https://github.com/Sevynidd/Bolus-Manager"
+private const val OBTAINIUM_ADD_APP_URL = "obtainium://add/$GITHUB_REPO_URL"
+private const val OBTAINIUM_REPO_URL = "https://github.com/ImranR98/Obtainium"
 
+/**
+ * Explains that app updates are delivered by Obtainium: offers a one-tap hand-off that adds this
+ * app's GitHub releases to Obtainium, and a link to get Obtainium if it isn't installed yet.
+ */
 @Composable
 fun UpdateSettingsScreen(
     modifier: Modifier = Modifier,
     currentLanguage: AppLanguage = AppLanguage.System,
-    uiState: UpdateCheckUiState = UpdateCheckUiState(),
-    canRequestPackageInstalls: Boolean = true,
-    onCheckForUpdateRequested: () -> Unit = {},
-    onDownloadAndInstallRequested: () -> Unit = {},
-    onRequestInstallPermission: () -> Unit = {}
+    currentVersion: String = ""
 ) {
     val context = LocalContext.current
 
@@ -67,26 +58,52 @@ fun UpdateSettingsScreen(
         UpdateInfoRow(
             icon = Icons.Filled.Info,
             title = translate(TranslationKey.AppUpdateCurrentVersion, currentLanguage),
-            supportingText = uiState.currentVersion
+            supportingText = currentVersion
         )
 
-        SettingsInfoCard {
-            UpdateStatusContent(
-                currentLanguage = currentLanguage,
-                uiState = uiState,
-                canRequestPackageInstalls = canRequestPackageInstalls,
-                onCheckForUpdateRequested = onCheckForUpdateRequested,
-                onDownloadAndInstallRequested = onDownloadAndInstallRequested,
-                onRequestInstallPermission = onRequestInstallPermission
-            )
-        }
+        ObtainiumCard(
+            currentLanguage = currentLanguage,
+            onAddToObtainium = { context.openAddToObtainium() },
+            onGetObtainium = { context.openUrl(OBTAINIUM_REPO_URL) }
+        )
 
         UpdateInfoRow(
             icon = Icons.Filled.Code,
             title = translate(TranslationKey.AppUpdateViewOnGitHub, currentLanguage),
             trailingIcon = Icons.AutoMirrored.Filled.OpenInNew,
-            onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, GITHUB_REPO_URL.toUri())) }
+            onClick = { context.openUrl(GITHUB_REPO_URL) }
         )
+    }
+}
+
+@Composable
+private fun ObtainiumCard(
+    currentLanguage: AppLanguage,
+    onAddToObtainium: () -> Unit,
+    onGetObtainium: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = translate(TranslationKey.AppUpdateObtainiumDescription, currentLanguage),
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Button(onClick = onAddToObtainium) {
+                Text(translate(TranslationKey.AppUpdateObtainiumAddButton, currentLanguage))
+            }
+            OutlinedButton(onClick = onGetObtainium) {
+                Text(translate(TranslationKey.AppUpdateObtainiumGetButton, currentLanguage))
+            }
+        }
     }
 }
 
@@ -132,206 +149,21 @@ private fun UpdateInfoRow(
     )
 }
 
-@Composable
-private fun SettingsInfoCard(content: @Composable ColumnScope.() -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-        )
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            content = content
-        )
+/** Hands this app's repository to Obtainium; without Obtainium installed, shows how to get it instead. */
+private fun Context.openAddToObtainium() {
+    try {
+        startActivity(Intent(Intent.ACTION_VIEW, OBTAINIUM_ADD_APP_URL.toUri()))
+    } catch (ignored: ActivityNotFoundException) {
+        openUrl(OBTAINIUM_REPO_URL)
     }
 }
 
-@Composable
-private fun StatusRow(icon: ImageVector, text: String, tint: Color) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Icon(imageVector = icon, contentDescription = null, tint = tint)
-        Text(text = text, style = MaterialTheme.typography.bodyMedium)
-    }
-}
-
-@Composable
-private fun UpdateStatusContent(
-    currentLanguage: AppLanguage,
-    uiState: UpdateCheckUiState,
-    canRequestPackageInstalls: Boolean,
-    onCheckForUpdateRequested: () -> Unit,
-    onDownloadAndInstallRequested: () -> Unit,
-    onRequestInstallPermission: () -> Unit
-) {
-    when (uiState.phase) {
-        UpdateCheckPhase.Idle -> {
-            Button(onClick = onCheckForUpdateRequested) {
-                Text(translate(TranslationKey.AppUpdateCheckButton, currentLanguage))
-            }
-        }
-
-        UpdateCheckPhase.Checking -> {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                CircularProgressIndicator(modifier = Modifier.size(CheckingIndicatorSize))
-                Text(
-                    text = translate(TranslationKey.AppUpdateChecking, currentLanguage),
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-        }
-
-        UpdateCheckPhase.UpToDate -> {
-            StatusRow(
-                icon = Icons.Filled.CheckCircle,
-                text = translate(TranslationKey.AppUpdateUpToDate, currentLanguage),
-                tint = MaterialTheme.colorScheme.primary
-            )
-            Button(onClick = onCheckForUpdateRequested) {
-                Text(translate(TranslationKey.AppUpdateCheckButton, currentLanguage))
-            }
-        }
-
-        UpdateCheckPhase.UpdateAvailable -> {
-            UpdateAvailableContent(
-                currentLanguage = currentLanguage,
-                release = uiState.latestRelease,
-                onDownloadAndInstallRequested = onDownloadAndInstallRequested
-            )
-        }
-
-        UpdateCheckPhase.Downloading -> {
-            DownloadingContent(currentLanguage = currentLanguage, progress = uiState.downloadProgress)
-        }
-
-        UpdateCheckPhase.ReadyToInstall -> {
-            ReadyToInstallContent(
-                currentLanguage = currentLanguage,
-                canRequestPackageInstalls = canRequestPackageInstalls,
-                onRequestInstallPermission = onRequestInstallPermission
-            )
-        }
-
-        UpdateCheckPhase.Error -> {
-            StatusRow(
-                icon = Icons.Filled.ErrorOutline,
-                text = translate(TranslationKey.AppUpdateError, currentLanguage),
-                tint = MaterialTheme.colorScheme.error
-            )
-            Button(onClick = onCheckForUpdateRequested) {
-                Text(translate(TranslationKey.AppUpdateRetryButton, currentLanguage))
-            }
-        }
-    }
-}
-
-@Composable
-private fun DownloadingContent(currentLanguage: AppLanguage, progress: Float?) {
-    if (progress != null) {
-        LinearProgressIndicator(
-            progress = { progress },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Text(
-            text = "${translate(TranslationKey.AppUpdateDownloading, currentLanguage)} " +
-                "${(progress * PERCENT_MULTIPLIER).roundToInt()}%",
-            style = MaterialTheme.typography.bodyMedium
-        )
-    } else {
-        LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-        Text(
-            text = translate(TranslationKey.AppUpdateDownloading, currentLanguage),
-            style = MaterialTheme.typography.bodyMedium
-        )
-    }
-}
-
-@Composable
-private fun UpdateAvailableContent(
-    currentLanguage: AppLanguage,
-    release: GitHubRelease?,
-    onDownloadAndInstallRequested: () -> Unit
-) {
-    StatusRow(
-        icon = Icons.Filled.CloudDownload,
-        text = translate(TranslationKey.AppUpdateAvailable, currentLanguage),
-        tint = MaterialTheme.colorScheme.primary
-    )
-
-    if (release != null) {
-        Text(
-            text = release.tagName,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.primary
-        )
-
-        if (release.releaseNotes.isNotBlank()) {
-            Text(
-                text = release.releaseNotes,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = RELEASE_NOTES_MAX_LINES
-            )
-        }
-    }
-
-    Button(onClick = onDownloadAndInstallRequested) {
-        Text(translate(TranslationKey.AppUpdateDownloadButton, currentLanguage))
-    }
-}
-
-@Composable
-private fun ReadyToInstallContent(
-    currentLanguage: AppLanguage,
-    canRequestPackageInstalls: Boolean,
-    onRequestInstallPermission: () -> Unit
-) {
-    if (canRequestPackageInstalls) {
-        StatusRow(
-            icon = Icons.Filled.CheckCircle,
-            text = translate(TranslationKey.AppUpdateReadyToInstall, currentLanguage),
-            tint = MaterialTheme.colorScheme.primary
-        )
-    } else {
-        Text(
-            text = translate(TranslationKey.AppUpdatePermissionNeeded, currentLanguage),
-            style = MaterialTheme.typography.bodyMedium
-        )
-        Button(onClick = onRequestInstallPermission) {
-            Text(translate(TranslationKey.AppUpdateOpenSettingsButton, currentLanguage))
-        }
-    }
+private fun Context.openUrl(url: String) {
+    startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
 }
 
 @Preview(showBackground = true)
 @Composable
-private fun UpdateSettingsScreenIdlePreview() {
-    UpdateSettingsScreen(
-        uiState = UpdateCheckUiState(currentVersion = "1.0")
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun UpdateSettingsScreenAvailablePreview() {
-    UpdateSettingsScreen(
-        uiState = UpdateCheckUiState(
-            phase = UpdateCheckPhase.UpdateAvailable,
-            currentVersion = "1.0",
-            latestRelease = GitHubRelease(
-                tagName = "v1.1.0",
-                releaseNotes = "- Redesigned Templates screen\n- Faster factor calculations",
-                apkDownloadUrl = "https://example.com/app.apk",
-                apkFileName = "app.apk"
-            )
-        )
-    )
+private fun UpdateSettingsScreenPreview() {
+    UpdateSettingsScreen(currentVersion = "1.83")
 }

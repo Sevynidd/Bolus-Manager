@@ -96,8 +96,8 @@ import sevynidd.diabetesapp.screens.settings.language.LanguageSettingsScreen
 import sevynidd.diabetesapp.screens.settings.notifications.NotificationSettingsScreen
 import sevynidd.diabetesapp.screens.settings.profile.GenderSettingsScreen
 import sevynidd.diabetesapp.screens.settings.statistics.StatisticsSettingsScreen
-import sevynidd.diabetesapp.screens.settings.update.UpdateCheckViewModel
 import sevynidd.diabetesapp.screens.settings.update.UpdateSettingsScreen
+import sevynidd.diabetesapp.screens.settings.update.appVersionName
 import sevynidd.diabetesapp.ui.theme.ContrastLevel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -128,7 +128,6 @@ fun BolusManagerMainWindow(
     auditLog: List<FactorAuditLogEntry> = emptyList(),
     lastDestination: AppDestinations? = null,
     onLastDestinationChange: (AppDestinations) -> Unit = {},
-    openAppUpdateOnLaunch: Boolean = false,
     templates: List<BolusTemplateEntity> = emptyList(),
     onTemplateAddRequested: suspend (name: String, emoji: String?, carbohydrates: Double) -> Boolean = { _, _, _ -> false },
     onTemplateUpdateRequested: suspend (BolusTemplateEntity) -> Boolean = { false },
@@ -142,7 +141,6 @@ fun BolusManagerMainWindow(
     var calculateBolusMode by rememberSaveable { mutableStateOf(BolusMode.Normal) }
     val factorEditorViewModel: FactorEditSessionViewModel = viewModel()
     val factorEditorState = factorEditorViewModel.uiState
-    val updateCheckViewModel: UpdateCheckViewModel = viewModel()
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
     val activity = remember(context) { context.findActivity() }
@@ -205,12 +203,6 @@ fun BolusManagerMainWindow(
         lastDestination?.let { currentDestination = it }
     }
 
-    LaunchedEffect(openAppUpdateOnLaunch) {
-        if (openAppUpdateOnLaunch) {
-            currentDestination = AppDestinations.SETTINGS
-            settingsDestination = SettingsDestination.Updates
-        }
-    }
 
     val requestBackgroundSave by rememberUpdatedState {
         if (activity?.isChangingConfigurations == true) {
@@ -584,11 +576,7 @@ fun BolusManagerMainWindow(
                             SettingsDestination.Updates -> UpdateSettingsScreen(
                                 modifier = contentModifier,
                                 currentLanguage = currentLanguage,
-                                uiState = updateCheckViewModel.uiState,
-                                canRequestPackageInstalls = updateCheckViewModel.canRequestPackageInstalls(),
-                                onCheckForUpdateRequested = updateCheckViewModel::checkForUpdate,
-                                onDownloadAndInstallRequested = updateCheckViewModel::downloadAndInstall,
-                                onRequestInstallPermission = updateCheckViewModel::requestInstallPermission
+                                currentVersion = remember(context) { context.appVersionName() }
                             )
                         }
                     }

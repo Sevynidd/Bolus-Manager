@@ -158,20 +158,10 @@ enum class TranslationKey {
     // App update
     AppUpdateTitle,
     AppUpdateCurrentVersion,
-    AppUpdateCheckButton,
-    AppUpdateChecking,
-    AppUpdateUpToDate,
-    AppUpdateAvailable,
-    AppUpdateDownloadButton,
-    AppUpdateDownloading,
-    AppUpdateReadyToInstall,
-    AppUpdatePermissionNeeded,
-    AppUpdateOpenSettingsButton,
-    AppUpdateError,
-    AppUpdateRetryButton,
     AppUpdateViewOnGitHub,
-    AppUpdateChannelName,
-    AppUpdateNotificationBody,
+    AppUpdateObtainiumDescription,
+    AppUpdateObtainiumAddButton,
+    AppUpdateObtainiumGetButton,
 
     // Notifications
     BasalReminderEnabled,
@@ -441,20 +431,12 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             // App update
             TranslationKey.AppUpdateTitle -> "App update"
             TranslationKey.AppUpdateCurrentVersion -> "Current version"
-            TranslationKey.AppUpdateCheckButton -> "Check for updates"
-            TranslationKey.AppUpdateChecking -> "Checking for updates…"
-            TranslationKey.AppUpdateUpToDate -> "You're up to date"
-            TranslationKey.AppUpdateAvailable -> "Update available"
-            TranslationKey.AppUpdateDownloadButton -> "Download & install"
-            TranslationKey.AppUpdateDownloading -> "Downloading update…"
-            TranslationKey.AppUpdateReadyToInstall -> "Follow the prompts to finish installing"
-            TranslationKey.AppUpdatePermissionNeeded -> "Allow installing apps from this source to continue"
-            TranslationKey.AppUpdateOpenSettingsButton -> "Open settings"
-            TranslationKey.AppUpdateError -> "Couldn't check for updates. Please try again."
-            TranslationKey.AppUpdateRetryButton -> "Retry"
             TranslationKey.AppUpdateViewOnGitHub -> "View source on GitHub"
-            TranslationKey.AppUpdateChannelName -> "App updates"
-            TranslationKey.AppUpdateNotificationBody -> "A new version is ready to install:"
+            TranslationKey.AppUpdateObtainiumDescription ->
+                "Updates are delivered through Obtainium, which watches this app's GitHub releases and " +
+                    "installs new versions for you. Add the app to Obtainium once and it takes care of the rest."
+            TranslationKey.AppUpdateObtainiumAddButton -> "Add to Obtainium"
+            TranslationKey.AppUpdateObtainiumGetButton -> "Get Obtainium"
 
             // Notifications
             TranslationKey.BasalReminderEnabled -> "Basal rate reminder"
@@ -739,20 +721,13 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             // App update
             TranslationKey.AppUpdateTitle -> "App-Update"
             TranslationKey.AppUpdateCurrentVersion -> "Aktuelle Version"
-            TranslationKey.AppUpdateCheckButton -> "Nach Updates suchen"
-            TranslationKey.AppUpdateChecking -> "Suche nach Updates…"
-            TranslationKey.AppUpdateUpToDate -> "Du bist auf dem neuesten Stand"
-            TranslationKey.AppUpdateAvailable -> "Update verfügbar"
-            TranslationKey.AppUpdateDownloadButton -> "Herunterladen & installieren"
-            TranslationKey.AppUpdateDownloading -> "Update wird heruntergeladen…"
-            TranslationKey.AppUpdateReadyToInstall -> "Folge den Anweisungen, um die Installation abzuschließen"
-            TranslationKey.AppUpdatePermissionNeeded -> "Erlaube die Installation von Apps aus dieser Quelle, um fortzufahren"
-            TranslationKey.AppUpdateOpenSettingsButton -> "Einstellungen öffnen"
-            TranslationKey.AppUpdateError -> "Update-Suche fehlgeschlagen. Bitte versuche es erneut."
-            TranslationKey.AppUpdateRetryButton -> "Erneut versuchen"
             TranslationKey.AppUpdateViewOnGitHub -> "Quellcode auf GitHub ansehen"
-            TranslationKey.AppUpdateChannelName -> "App-Updates"
-            TranslationKey.AppUpdateNotificationBody -> "Eine neue Version ist bereit zur Installation:"
+            TranslationKey.AppUpdateObtainiumDescription ->
+                "Updates werden über Obtainium bereitgestellt. Obtainium beobachtet die GitHub-Releases dieser App " +
+                    "und installiert neue Versionen für dich. " +
+                    "Füge die App einmal zu Obtainium hinzu, den Rest erledigt es selbst."
+            TranslationKey.AppUpdateObtainiumAddButton -> "Zu Obtainium hinzufügen"
+            TranslationKey.AppUpdateObtainiumGetButton -> "Obtainium herunterladen"
 
             // Notifications
             TranslationKey.BasalReminderEnabled -> "Basisraten-Erinnerung"
@@ -1047,20 +1022,14 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             // App update
             TranslationKey.AppUpdateTitle -> "Mise à jour de l'application"
             TranslationKey.AppUpdateCurrentVersion -> "Version actuelle"
-            TranslationKey.AppUpdateCheckButton -> "Rechercher des mises à jour"
-            TranslationKey.AppUpdateChecking -> "Recherche de mises à jour…"
-            TranslationKey.AppUpdateUpToDate -> "Vous êtes à jour"
-            TranslationKey.AppUpdateAvailable -> "Mise à jour disponible"
-            TranslationKey.AppUpdateDownloadButton -> "Télécharger et installer"
-            TranslationKey.AppUpdateDownloading -> "Téléchargement de la mise à jour…"
-            TranslationKey.AppUpdateReadyToInstall -> "Suivez les instructions pour terminer l'installation"
-            TranslationKey.AppUpdatePermissionNeeded -> "Autorisez l'installation d'applications depuis cette source pour continuer"
-            TranslationKey.AppUpdateOpenSettingsButton -> "Ouvrir les paramètres"
-            TranslationKey.AppUpdateError -> "Impossible de rechercher des mises à jour. Veuillez réessayer."
-            TranslationKey.AppUpdateRetryButton -> "Réessayer"
             TranslationKey.AppUpdateViewOnGitHub -> "Voir le code source sur GitHub"
-            TranslationKey.AppUpdateChannelName -> "Mises à jour de l'application"
-            TranslationKey.AppUpdateNotificationBody -> "Une nouvelle version est prête à être installée :"
+            TranslationKey.AppUpdateObtainiumDescription ->
+                "Les mises à jour sont fournies par Obtainium, qui surveille les versions GitHub de " +
+                    "cette application " +
+                    "et installe les nouvelles versions pour vous. " +
+                    "Ajoutez l'application une seule fois à Obtainium, le reste est automatique."
+            TranslationKey.AppUpdateObtainiumAddButton -> "Ajouter à Obtainium"
+            TranslationKey.AppUpdateObtainiumGetButton -> "Obtenir Obtainium"
 
             // Notifications
             TranslationKey.BasalReminderEnabled -> "Rappel du débit de base"
@@ -1353,20 +1322,12 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             // App update
             TranslationKey.AppUpdateTitle -> "Aktualizacja aplikacji"
             TranslationKey.AppUpdateCurrentVersion -> "Bieżąca wersja"
-            TranslationKey.AppUpdateCheckButton -> "Sprawdź aktualizacje"
-            TranslationKey.AppUpdateChecking -> "Sprawdzanie aktualizacji…"
-            TranslationKey.AppUpdateUpToDate -> "Masz najnowszą wersję"
-            TranslationKey.AppUpdateAvailable -> "Dostępna aktualizacja"
-            TranslationKey.AppUpdateDownloadButton -> "Pobierz i zainstaluj"
-            TranslationKey.AppUpdateDownloading -> "Pobieranie aktualizacji…"
-            TranslationKey.AppUpdateReadyToInstall -> "Postępuj zgodnie z instrukcjami, aby zakończyć instalację"
-            TranslationKey.AppUpdatePermissionNeeded -> "Zezwól na instalowanie aplikacji z tego źródła, aby kontynuować"
-            TranslationKey.AppUpdateOpenSettingsButton -> "Otwórz ustawienia"
-            TranslationKey.AppUpdateError -> "Nie udało się sprawdzić aktualizacji. Spróbuj ponownie."
-            TranslationKey.AppUpdateRetryButton -> "Spróbuj ponownie"
             TranslationKey.AppUpdateViewOnGitHub -> "Zobacz kod źródłowy na GitHub"
-            TranslationKey.AppUpdateChannelName -> "Aktualizacje aplikacji"
-            TranslationKey.AppUpdateNotificationBody -> "Nowa wersja jest gotowa do zainstalowania:"
+            TranslationKey.AppUpdateObtainiumDescription ->
+                "Aktualizacje są dostarczane przez Obtainium, które śledzi wydania tej aplikacji na GitHub " +
+                    "i instaluje nowe wersje za Ciebie. Dodaj aplikację do Obtainium raz, a resztą zajmie się samo."
+            TranslationKey.AppUpdateObtainiumAddButton -> "Dodaj do Obtainium"
+            TranslationKey.AppUpdateObtainiumGetButton -> "Pobierz Obtainium"
 
             // Notifications
             TranslationKey.BasalReminderEnabled -> "Przypomnienie o wartości podstawowej"

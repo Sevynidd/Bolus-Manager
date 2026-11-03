@@ -60,7 +60,7 @@ and consult your doctor or diabetes care team before acting on them.
 - Tune the bread-unit value, Period surcharge, and blood-sugar correction thresholds to your needs, in either mg/dl or mmol/l
 - Choose between pen and insulin-pump therapy
 - Optional daily reminder notification for your basal injection (pen therapy only)
-- Check for and install app updates directly from within the app
+- Updates are delivered through [Obtainium](https://github.com/ImranR98/Obtainium): the app has a one-tap shortcut that adds it to Obtainium, which then installs new releases for you
 - Export your factor profile and calculation settings (bread units, Period surcharge, correction
   settings, gender) to a file and import them again later, e.g. to move to a new device
 - A **Statistics & Documentation** section keeps a written log of every time a factor or your
@@ -145,7 +145,7 @@ subtracts `1` unit. The total dose is never suggested below `0` units.
 
 ## Installation & Getting Started
 
-Install the App via .apk or
+Install the App via the .apk from the latest GitHub release (or add the repository to [Obtainium](https://github.com/ImranR98/Obtainium) to receive updates automatically) or
 
 1. Clone the repository
 2. Open the project in Android Studio
