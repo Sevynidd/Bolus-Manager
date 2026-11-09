@@ -10,19 +10,21 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.platform.LocalFocusManager
@@ -45,12 +47,6 @@ enum class BolusMode {
     Normal,
     Split
 }
-
-/** The active/calculated values shown for the normal-bolus tab, bundled to keep parameter lists short. */
-private data class NormalModeResult(
-    val activeFactorText: String,
-    val correctionUnitsText: String
-)
 
 /** The user-editable fields of the normal-bolus form, bundled to keep composable parameter lists short. */
 private data class NormalModeInputs(
@@ -102,7 +98,7 @@ fun CalculateScreen(
     var splitCarbohydrates by rememberSaveable { mutableStateOf("") }
     var splitBloodSugar by rememberSaveable { mutableStateOf("") }
     var splitImmediatePercent by rememberSaveable { mutableStateOf("") }
-    var splitDurationMinutes by rememberSaveable { mutableStateOf("120") }
+    var splitDurationMinutes by rememberSaveable { mutableStateOf(DEFAULT_SPLIT_DURATION_TEXT) }
     val focusManager = LocalFocusManager.current
 
     LaunchedEffect(values.templatePrefillToken) {
@@ -174,6 +170,7 @@ private fun CalculateScreenBody(
         DoseResultArea(
             dose = if (isSplit) state.computed.splitDose else state.computed.normalDose,
             rawBloodSugar = if (isSplit) state.splitInputs.bloodSugar else state.normalInputs.bloodSugar,
+            activeFactorText = if (isSplit) "" else state.computed.activeFactorText,
             correctionSettings = state.values.correctionSettings,
             currentLanguage = currentLanguage
         )
@@ -198,11 +195,6 @@ private fun CalculateScreenInputs(
         modifier = modifier.verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text(
-            text = translate(TranslationKey.BolusType, currentLanguage),
-            style = MaterialTheme.typography.titleLarge
-        )
-
         BolusModeSelector(
             selectedMode = state.values.selectedMode,
             onSelectedModeChange = state.callbacks.onSelectedModeChange,
@@ -220,10 +212,6 @@ private fun CalculateScreenInputs(
         when (state.values.selectedMode) {
             BolusMode.Normal -> NormalModeContent(
                 inputs = state.normalInputs,
-                result = NormalModeResult(
-                    state.computed.activeFactorText,
-                    state.computed.normalDose.correctionUnitsText
-                ),
                 currentLanguage = currentLanguage,
                 focusManager = focusManager
             )
@@ -234,6 +222,27 @@ private fun CalculateScreenInputs(
                 currentLanguage = currentLanguage,
                 focusManager = focusManager
             )
+        }
+
+        ResetInputsRow(onReset = state.resetInputs(), currentLanguage = currentLanguage)
+    }
+}
+
+/** Clears the amounts of the active bolus mode, restoring the default split duration. */
+private fun CalculateScreenRenderState.resetInputs(): () -> Unit = when (values.selectedMode) {
+    BolusMode.Normal -> {
+        {
+            normalInputs.onCarbohydratesChange("")
+            normalInputs.onBloodSugarChange("")
+        }
+    }
+
+    BolusMode.Split -> {
+        {
+            splitInputs.onCarbohydratesChange("")
+            splitInputs.onBloodSugarChange("")
+            splitInputs.onImmediatePercentChange("")
+            splitInputs.onDurationMinutesChange(DEFAULT_SPLIT_DURATION_TEXT)
         }
     }
 }
@@ -250,8 +259,7 @@ private fun SplitModeSection(
         results = SplitModeResults(
             activeFactorText = computed.activeFactorText,
             futureFactorText = computed.futureFactorText,
-            splitBolus = computed.splitBolus,
-            correctionUnitsText = computed.splitDose.correctionUnitsText
+            splitBolus = computed.splitBolus
         ),
         currentLanguage = currentLanguage
     )
@@ -260,7 +268,6 @@ private fun SplitModeSection(
 @Composable
 private fun NormalModeContent(
     inputs: NormalModeInputs,
-    result: NormalModeResult,
     currentLanguage: AppLanguage,
     focusManager: FocusManager
 ) {
@@ -276,18 +283,6 @@ private fun NormalModeContent(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             NormalModeInputFields(inputs = inputs, currentLanguage = currentLanguage, focusManager = focusManager)
-
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-
-            ResultStat(
-                label = translate(TranslationKey.ActiveFactor, currentLanguage),
-                value = result.activeFactorText
-            )
-
-            ResultStat(
-                label = translate(TranslationKey.CorrectionUnits, currentLanguage),
-                value = result.correctionUnitsText
-            )
         }
     }
 }
@@ -298,6 +293,9 @@ private fun NormalModeInputFields(
     currentLanguage: AppLanguage,
     focusManager: FocusManager
 ) {
+    val carbohydratesRequester = remember { FocusRequester() }
+    LaunchedEffect(Unit) { carbohydratesRequester.requestFocus() }
+
     Row(verticalAlignment = Alignment.CenterVertically) {
         EditableNumberField(
             value = inputs.carbohydrates,
@@ -310,7 +308,7 @@ private fun NormalModeInputFields(
                 val sanitized = rawInput.replace('.', ',')
                 if (sanitized.isEmpty() || sanitized.matches(DecimalInputRegex)) sanitized else null
             },
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f).focusRequester(carbohydratesRequester)
         )
         HelpIconButton(helpTextKey = TranslationKey.CarbohydratesHelp, currentLanguage = currentLanguage)
     }
@@ -349,6 +347,7 @@ internal fun Double?.toUiDecimalOrEmpty(): String {
 
 internal val DecimalInputRegex = Regex("^\\d*[.,]?\\d*$")
 
+private const val DEFAULT_SPLIT_DURATION_TEXT = "120"
 private const val PREVIEW_HOUR = 12
 private const val PREVIEW_MINUTE = 30
 

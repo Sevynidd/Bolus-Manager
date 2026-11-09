@@ -92,7 +92,6 @@ enum class TranslationKey {
     ScheduleAutoOrderHint,
 
     // Bolus calculation
-    BolusType,
     BolusTypeHelp,
     BolusNormal,
     BolusSplit,
@@ -118,7 +117,6 @@ enum class TranslationKey {
     FactorSettingsTitle,
     BloodSugar,
     BloodSugarHelp,
-    CorrectionUnits,
     CorrectionSettingsTitle,
     CorrectionThreshold,
     CorrectionThresholdHelp,
@@ -142,6 +140,15 @@ enum class TranslationKey {
     LowBloodSugarBody,
     FastCarbsSuggestion,
     MaxDoseExceeded,
+    MaxBloodSugar,
+    MaxBloodSugarHelp,
+    MaxCarbohydrates,
+    MaxCarbohydratesHelp,
+    DoseBlockedBloodSugar,
+    DoseBlockedCarbohydrates,
+    DoseBlockedNoFactor,
+    ResetInputs,
+    ResetInputsHelp,
     GlucoseUnitLabel,
     GlucoseUnitHelp,
     GenderSettingsTitle,
@@ -264,7 +271,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             // Navigation
             TranslationKey.DestinationFactors -> "Factors"
             TranslationKey.DestinationCalculate -> "Calculate"
-            TranslationKey.DestinationSettings -> "Settings"
+            TranslationKey.DestinationSettings -> "More"
 
             // Common actions
             TranslationKey.ActionEdit -> "Edit"
@@ -328,7 +335,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.DoseResultTitle -> "Dose to inject"
             TranslationKey.DoseResultHelp ->
                 "The total dose is the meal dose plus the correction for your blood sugar, never below zero, " +
-                    "rounded to your dose step. The line below shows the exact sum before rounding."
+                    "rounded to your dose step. The line below shows the exact sum before rounding. " +
+                    "If a value looks like a typing mistake, no dose is shown until you correct it."
             TranslationKey.DoseBreakdown -> $$"Meal %1$s + correction %2$s = %3$s %4$s"
             TranslationKey.DoseRoundedTo -> $$"Rounded to %1$s %2$s steps"
             TranslationKey.LowBloodSugarTitle -> "Below your low threshold"
@@ -337,6 +345,23 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.FastCarbsSuggestion -> "Suggested fast carbs"
             TranslationKey.MaxDoseExceeded ->
                 $$"Above your maximum dose of %1$s %2$s. Check the amounts before injecting."
+            TranslationKey.MaxBloodSugar -> "Highest plausible blood sugar"
+            TranslationKey.MaxBloodSugarHelp ->
+                "Blood sugar entries above this value are treated as a typing mistake: no dose is shown until " +
+                    "you correct them. Set 0 to switch the check off."
+            TranslationKey.MaxCarbohydrates -> "Highest plausible carbs"
+            TranslationKey.MaxCarbohydratesHelp ->
+                "Carbohydrate entries above this amount are treated as a typing mistake: no dose is shown " +
+                    "until you correct them. Set 0 to switch the check off."
+            TranslationKey.DoseBlockedBloodSugar ->
+                $$"Blood sugar is above %1$s %2$s. Check the value."
+            TranslationKey.DoseBlockedCarbohydrates ->
+                $$"Carbohydrates are above %1$s %2$s. Check the value."
+            TranslationKey.DoseBlockedNoFactor -> "No factor is set for this time of day. Add one under Factors."
+            TranslationKey.ResetInputs -> "Reset"
+            TranslationKey.ResetInputsHelp ->
+                "Clears the amounts entered for this bolus type, so no old value is left behind before the " +
+                    "next calculation."
             TranslationKey.TherapyModeTitle -> "Therapy"
             TranslationKey.TherapyModeHelp ->
                 "Choose how you take insulin. \"Pen\" shows factors as units of insulin per bread " +
@@ -373,7 +398,6 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ScheduleAutoOrderHint -> "Times are auto-corrected to keep the daily order."
 
             // Bolus calculation
-            TranslationKey.BolusType -> "Bolus type"
             TranslationKey.BolusTypeHelp ->
                 "Normal calculates one combined dose right away. Split divides the dose into an " +
                     "immediate part now and an extended part later, useful for meals that digest slowly."
@@ -418,7 +442,6 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                     "added if it's above the high correction threshold and subtracted if it's " +
                     "below the low threshold (configured in Correction settings). Your total " +
                     "dose is never suggested below zero."
-            TranslationKey.CorrectionUnits -> "Correction units"
             TranslationKey.CorrectionSettingsTitle -> "Correction"
             TranslationKey.CorrectionThreshold -> "Correction threshold"
             TranslationKey.CorrectionThresholdHelp ->
@@ -570,7 +593,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             // Navigation
             TranslationKey.DestinationFactors -> "Faktoren"
             TranslationKey.DestinationCalculate -> "Berechnen"
-            TranslationKey.DestinationSettings -> "Einstellungen"
+            TranslationKey.DestinationSettings -> "Mehr"
 
             // Common actions
             TranslationKey.ActionEdit -> "Bearbeiten"
@@ -636,7 +659,9 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.DoseResultTitle -> "Zu spritzende Dosis"
             TranslationKey.DoseResultHelp ->
                 "Die Gesamtdosis ist die Mahlzeitendosis plus die Korrektur für deinen Blutzucker, nie unter " +
-                    "null, gerundet auf deinen Dosisschritt. Die Zeile darunter zeigt die genaue Summe vor dem Runden."
+                    "null, gerundet auf deinen Dosisschritt. Die Zeile darunter zeigt die genaue Summe " +
+                    "vor dem Runden. Sieht ein Wert nach einem Tippfehler aus, wird keine Dosis angezeigt, " +
+                    "bis du ihn korrigierst."
             TranslationKey.DoseBreakdown -> $$"Mahlzeit %1$s + Korrektur %2$s = %3$s %4$s"
             TranslationKey.DoseRoundedTo -> $$"Gerundet auf %1$s-%2$s-Schritte"
             TranslationKey.LowBloodSugarTitle -> "Unter deiner unteren Schwelle"
@@ -645,6 +670,25 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.FastCarbsSuggestion -> "Empfohlene schnelle KH"
             TranslationKey.MaxDoseExceeded ->
                 $$"Über deiner Maximaldosis von %1$s %2$s. Prüfe die Eingaben vor dem Spritzen."
+            TranslationKey.MaxBloodSugar -> "Höchster plausibler Blutzucker"
+            TranslationKey.MaxBloodSugarHelp ->
+                "Blutzuckerwerte über dieser Grenze gelten als Tippfehler: Es wird keine Dosis angezeigt, " +
+                    "bis du sie korrigierst. Mit 0 schaltest du die Prüfung aus."
+            TranslationKey.MaxCarbohydrates -> "Höchste plausible Kohlenhydrate"
+            TranslationKey.MaxCarbohydratesHelp ->
+                "Kohlenhydratmengen über dieser Grenze gelten als Tippfehler: Es wird keine Dosis angezeigt, " +
+                    "bis du sie korrigierst. Mit 0 schaltest du die Prüfung aus."
+            TranslationKey.DoseBlockedBloodSugar ->
+                $$"Der Blutzucker liegt über %1$s %2$s. Prüfe den Wert."
+            TranslationKey.DoseBlockedCarbohydrates ->
+                $$"Die Kohlenhydrate liegen über %1$s %2$s. Prüfe den Wert."
+            TranslationKey.DoseBlockedNoFactor ->
+                "Für diese Tageszeit ist kein Faktor eingetragen. " +
+                    "Trage unter Faktoren einen ein."
+            TranslationKey.ResetInputs -> "Zurücksetzen"
+            TranslationKey.ResetInputsHelp ->
+                "Leert die Eingaben dieses Bolus-Typs, damit vor der nächsten Berechnung kein alter Wert " +
+                    "stehen bleibt."
             TranslationKey.TherapyModeTitle -> "Therapie"
             TranslationKey.TherapyModeHelp ->
                 "Wähle, wie du Insulin verabreichst. \"Pen\" zeigt Faktoren als Einheiten Insulin pro " +
@@ -683,7 +727,6 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ScheduleAutoOrderHint -> "Zeiten werden automatisch angepasst, damit die Tagesreihenfolge erhalten bleibt."
 
             // Bolus calculation
-            TranslationKey.BolusType -> "Bolus-Typ"
             TranslationKey.BolusTypeHelp ->
                 "Normal berechnet sofort eine kombinierte Dosis. Aufgeteilt teilt die Dosis in " +
                     "einen sofortigen Teil und einen späteren, erweiterten Teil auf — nützlich bei " +
@@ -729,7 +772,6 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                     "anzuwenden: Über der oberen Korrekturschwelle werden Einheiten addiert, " +
                     "unter der unteren Schwelle werden Einheiten abgezogen (einstellbar unter " +
                     "Korrektur). Die Gesamtdosis wird nie unter null vorgeschlagen."
-            TranslationKey.CorrectionUnits -> "Korrektureinheiten"
             TranslationKey.CorrectionSettingsTitle -> "Korrektur"
             TranslationKey.CorrectionThreshold -> "Korrekturschwelle"
             TranslationKey.CorrectionThresholdHelp ->
@@ -892,7 +934,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             // Navigation
             TranslationKey.DestinationFactors -> "Facteurs"
             TranslationKey.DestinationCalculate -> "Calculer"
-            TranslationKey.DestinationSettings -> "Paramètres"
+            TranslationKey.DestinationSettings -> "Plus"
 
             // Common actions
             TranslationKey.ActionEdit -> "Modifier"
@@ -958,7 +1000,9 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.DoseResultTitle -> "Dose à injecter"
             TranslationKey.DoseResultHelp ->
                 "La dose totale est la dose du repas plus la correction de votre glycémie, jamais sous " +
-                    "zéro, arrondie à votre pas de dose. La ligne dessous montre la somme exacte avant arrondi."
+                    "zéro, arrondie à votre pas de dose. La ligne dessous montre la somme exacte avant arrondi. " +
+                    "Si une valeur ressemble à une erreur de saisie, aucune dose n'est affichée tant que " +
+                    "vous ne la corrigez pas."
             TranslationKey.DoseBreakdown -> $$"Repas %1$s + correction %2$s = %3$s %4$s"
             TranslationKey.DoseRoundedTo -> $$"Arrondi par pas de %1$s %2$s"
             TranslationKey.LowBloodSugarTitle -> "Sous votre seuil bas"
@@ -967,6 +1011,27 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.FastCarbsSuggestion -> "Sucres rapides conseillés"
             TranslationKey.MaxDoseExceeded ->
                 $$"Au-dessus de votre dose maximale de %1$s %2$s. Vérifiez les valeurs avant d'injecter."
+            TranslationKey.MaxBloodSugar -> "Glycémie plausible maximale"
+            TranslationKey.MaxBloodSugarHelp ->
+                "Les glycémies au-dessus de cette limite sont considérées comme une erreur de saisie : " +
+                    "aucune dose n'est affichée tant que vous ne les corrigez pas. " +
+                    "Mettez 0 pour désactiver la vérification."
+            TranslationKey.MaxCarbohydrates -> "Glucides plausibles maximum"
+            TranslationKey.MaxCarbohydratesHelp ->
+                "Les quantités de glucides au-dessus de cette limite sont considérées comme une erreur de saisie : " +
+                    "aucune dose n'est affichée tant que vous ne les corrigez pas. " +
+                    "Mettez 0 pour désactiver la vérification."
+            TranslationKey.DoseBlockedBloodSugar ->
+                $$"La glycémie dépasse %1$s %2$s. Vérifiez la valeur."
+            TranslationKey.DoseBlockedCarbohydrates ->
+                $$"Les glucides dépassent %1$s %2$s. Vérifiez la valeur."
+            TranslationKey.DoseBlockedNoFactor ->
+                "Aucun facteur n'est défini pour cette heure. " +
+                    "Ajoutez-en un sous Facteurs."
+            TranslationKey.ResetInputs -> "Réinitialiser"
+            TranslationKey.ResetInputsHelp ->
+                "Efface les valeurs saisies pour ce type de bolus afin qu'aucune ancienne valeur ne reste " +
+                    "avant le prochain calcul."
             TranslationKey.TherapyModeTitle -> "Traitement"
             TranslationKey.TherapyModeHelp ->
                 "Choisissez comment vous administrez l'insuline. \"Stylo\" affiche les facteurs en " +
@@ -1007,7 +1072,6 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ScheduleAutoOrderHint -> "Les heures sont corrigées automatiquement pour conserver l'ordre de la journée."
 
             // Bolus calculation
-            TranslationKey.BolusType -> "Type de bolus"
             TranslationKey.BolusTypeHelp ->
                 "Normal calcule immédiatement une dose combinée unique. Fractionné divise la " +
                     "dose en une part immédiate et une part différée, utile pour les repas à " +
@@ -1055,7 +1119,6 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                     "et soustraites si elle est inférieure au seuil bas (réglables dans les " +
                     "paramètres de correction). La dose totale n'est jamais suggérée en dessous " +
                     "de zéro."
-            TranslationKey.CorrectionUnits -> "Unités de correction"
             TranslationKey.CorrectionSettingsTitle -> "Correction"
             TranslationKey.CorrectionThreshold -> "Seuil de correction"
             TranslationKey.CorrectionThresholdHelp ->
@@ -1218,7 +1281,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             // Navigation
             TranslationKey.DestinationFactors -> "Czynniki"
             TranslationKey.DestinationCalculate -> "Oblicz"
-            TranslationKey.DestinationSettings -> "Ustawienia"
+            TranslationKey.DestinationSettings -> "Więcej"
 
             // Common actions
             TranslationKey.ActionEdit -> "Edytuj"
@@ -1284,7 +1347,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.DoseResultTitle -> "Dawka do wstrzyknięcia"
             TranslationKey.DoseResultHelp ->
                 "Dawka całkowita to dawka na posiłek plus korekta glukozy, nigdy poniżej zera, " +
-                    "zaokrąglona do kroku dawki. Wiersz poniżej pokazuje dokładną sumę przed zaokrągleniem."
+                    "zaokrąglona do kroku dawki. Wiersz poniżej pokazuje dokładną sumę przed zaokrągleniem. " +
+                    "Jeśli wartość wygląda na literówkę, dawka nie jest pokazywana, dopóki jej nie poprawisz."
             TranslationKey.DoseBreakdown -> $$"Posiłek %1$s + korekta %2$s = %3$s %4$s"
             TranslationKey.DoseRoundedTo -> $$"Zaokrąglone do kroków %1$s %2$s"
             TranslationKey.LowBloodSugarTitle -> "Poniżej dolnego progu"
@@ -1293,6 +1357,25 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.FastCarbsSuggestion -> "Sugerowane szybkie węglowodany"
             TranslationKey.MaxDoseExceeded ->
                 $$"Powyżej Twojej dawki maksymalnej %1$s %2$s. Sprawdź wartości przed wstrzyknięciem."
+            TranslationKey.MaxBloodSugar -> "Maksymalna wiarygodna glikemia"
+            TranslationKey.MaxBloodSugarHelp ->
+                "Wartości glikemii powyżej tej granicy uznawane są za literówkę: dawka nie jest pokazywana, " +
+                    "dopóki ich nie poprawisz. Ustaw 0, aby wyłączyć kontrolę."
+            TranslationKey.MaxCarbohydrates -> "Maksymalna wiarygodna ilość węglowodanów"
+            TranslationKey.MaxCarbohydratesHelp ->
+                "Ilości węglowodanów powyżej tej granicy uznawane są za literówkę: dawka nie jest pokazywana, " +
+                    "dopóki ich nie poprawisz. Ustaw 0, aby wyłączyć kontrolę."
+            TranslationKey.DoseBlockedBloodSugar ->
+                $$"Glikemia przekracza %1$s %2$s. Sprawdź wartość."
+            TranslationKey.DoseBlockedCarbohydrates ->
+                $$"Węglowodany przekraczają %1$s %2$s. Sprawdź wartość."
+            TranslationKey.DoseBlockedNoFactor ->
+                "Brak współczynnika dla tej pory dnia. " +
+                    "Dodaj go w zakładce Współczynniki."
+            TranslationKey.ResetInputs -> "Wyczyść"
+            TranslationKey.ResetInputsHelp ->
+                "Czyści wartości wpisane dla tego typu bolusa, aby przed kolejnym obliczeniem nie została " +
+                    "żadna stara wartość."
             TranslationKey.TherapyModeTitle -> "Terapia"
             TranslationKey.TherapyModeHelp ->
                 "Wybierz, jak podajesz insulinę. \"Pen\" pokazuje czynniki jako jednostki insuliny " +
@@ -1332,7 +1415,6 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ScheduleAutoOrderHint -> "Godziny są automatycznie korygowane, aby zachować kolejność w ciągu dnia."
 
             // Bolus calculation
-            TranslationKey.BolusType -> "Typ bolusa"
             TranslationKey.BolusTypeHelp ->
                 "Normalny od razu oblicza jedną łączną dawkę. Podzielony dzieli dawkę na część " +
                     "natychmiastową i przedłużoną podawaną później, przydatne przy posiłkach " +
@@ -1379,7 +1461,6 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                     "są dodawane, gdy poziom jest powyżej górnego progu korekty, i odejmowane, " +
                     "gdy jest poniżej dolnego progu (ustawianych w Korekcie). Dawka całkowita " +
                     "nigdy nie jest sugerowana poniżej zera."
-            TranslationKey.CorrectionUnits -> "Jednostki korekcyjne"
             TranslationKey.CorrectionSettingsTitle -> "Korekta"
             TranslationKey.CorrectionThreshold -> "Próg korekty"
             TranslationKey.CorrectionThresholdHelp ->

@@ -33,12 +33,14 @@ import sevynidd.diabetesapp.ui.glucoseUnitLabel
 /**
  * The pinned result of the current bolus mode: warning banners (low blood sugar, dose above the
  * maximum) followed by the dose to inject with its breakdown. [rawBloodSugar] is the text as the
- * user typed it, so the low-sugar banner can quote it back unchanged.
+ * user typed it, so the low-sugar banner can quote it back unchanged; a non-blank
+ * [activeFactorText] is shown under the dose.
  */
 @Composable
 internal fun DoseResultArea(
     dose: DoseResult,
     rawBloodSugar: String,
+    activeFactorText: String,
     correctionSettings: CorrectionSettings,
     currentLanguage: AppLanguage
 ) {
@@ -56,7 +58,7 @@ internal fun DoseResultArea(
                 body = null
             )
         }
-        DoseResultCard(dose, correctionSettings, currentLanguage)
+        DoseResultCard(dose, activeFactorText, correctionSettings, currentLanguage)
     }
 }
 
@@ -119,22 +121,32 @@ private fun WarningBanner(title: String, body: String?) {
 }
 
 @Composable
-private fun DoseResultCard(dose: DoseResult, correctionSettings: CorrectionSettings, currentLanguage: AppLanguage) {
+private fun DoseResultCard(
+    dose: DoseResult,
+    activeFactorText: String,
+    correctionSettings: CorrectionSettings,
+    currentLanguage: AppLanguage
+) {
     val unitSymbol = translate(TranslationKey.DoseUnitSymbol, currentLanguage)
     val breakdown = dose.breakdown
     val totalText = breakdown?.let { it.roundedTotalUnits.toDoseText() + " " + unitSymbol } ?: "–"
+    val isBlocked = dose.blocker != null
+    val containerColor =
+        if (isBlocked) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.primaryContainer
+    val contentColor =
+        if (isBlocked) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onPrimaryContainer
 
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+        colors = CardDefaults.cardColors(containerColor = containerColor)
     ) {
         Column(modifier = Modifier.padding(start = 16.dp, top = 8.dp, end = 4.dp, bottom = 12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = translate(TranslationKey.DoseResultTitle, currentLanguage),
                     style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    color = contentColor,
                     modifier = Modifier.weight(1f)
                 )
                 HelpIconButton(helpTextKey = TranslationKey.DoseResultHelp, currentLanguage = currentLanguage)
@@ -143,9 +155,25 @@ private fun DoseResultCard(dose: DoseResult, correctionSettings: CorrectionSetti
                 Text(
                     text = totalText,
                     style = MaterialTheme.typography.displaySmall,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                    color = contentColor
                 )
-                breakdown?.let { BreakdownLines(it, correctionSettings.doseStepUnits, unitSymbol, currentLanguage) }
+                dose.blocker?.let { blocker ->
+                    Text(
+                        text = blockerMessage(blocker, correctionSettings, currentLanguage),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = contentColor
+                    )
+                }
+                breakdown?.let {
+                    BreakdownLines(it, correctionSettings.doseStepUnits, unitSymbol, currentLanguage)
+                }
+                if (activeFactorText.isNotBlank()) {
+                    Text(
+                        text = translate(TranslationKey.ActiveFactor, currentLanguage) + ": " + activeFactorText,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = contentColor
+                    )
+                }
             }
         }
     }
@@ -183,6 +211,24 @@ private fun BreakdownLines(
     }
 }
 
+private fun blockerMessage(
+    blocker: DoseBlocker,
+    correctionSettings: CorrectionSettings,
+    currentLanguage: AppLanguage
+): String = when (blocker) {
+    DoseBlocker.BloodSugarTooHigh -> String.format(
+        translate(TranslationKey.DoseBlockedBloodSugar, currentLanguage),
+        correctionSettings.maxBloodSugarMgDl.toDisplayGlucose(correctionSettings.glucoseUnit),
+        glucoseUnitLabel(correctionSettings.glucoseUnit)
+    )
+    DoseBlocker.CarbohydratesTooHigh -> String.format(
+        translate(TranslationKey.DoseBlockedCarbohydrates, currentLanguage),
+        correctionSettings.maxCarbohydratesGrams.toUiDecimalOrEmpty(),
+        translate(TranslationKey.GramsUnit, currentLanguage)
+    )
+    DoseBlocker.NoFactor -> translate(TranslationKey.DoseBlockedNoFactor, currentLanguage)
+}
+
 private fun Double.toDoseText(): String = toUiDecimalOrEmpty().ifBlank { "0" }
 
 private fun Double.toDisplayGlucose(unit: GlucoseUnit): String =
@@ -195,6 +241,7 @@ private fun DoseResultAreaPreview() {
     DoseResultArea(
         dose = resolveDose(mealUnits = 1.2, rawBloodSugar = "62", correctionSettings = settings),
         rawBloodSugar = "62",
+        activeFactorText = "Breakfast · 1,5",
         correctionSettings = settings,
         currentLanguage = AppLanguage.System
     )

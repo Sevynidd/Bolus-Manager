@@ -68,12 +68,13 @@ class MainActivity : ComponentActivity() {
                 glucoseUnit = settings.glucoseUnit,
                 doseStepUnits = settings.doseStepUnits,
                 maxDoseUnits = settings.maxDoseUnits,
-                fastCarbsGrams = settings.fastCarbsGrams
+                fastCarbsGrams = settings.fastCarbsGrams,
+                maxBloodSugarMgDl = settings.maxBloodSugarMgDl,
+                maxCarbohydratesGrams = settings.maxCarbohydratesGrams
             )
             val factors by factorsRepository.factorsFlow.collectAsState(initial = FactorsData())
             val auditLog by factorAuditLogRepository.auditLogFlow.collectAsState(initial = emptyList())
             val templates by templatesRepository.templatesFlow.collectAsState(initial = emptyList())
-            val lastDestination by appSettingsStore.lastDestinationFlow.collectAsState(initial = null)
             val coroutineScope = rememberCoroutineScope()
 
             LaunchedEffect(Unit) {
@@ -218,10 +219,6 @@ class MainActivity : ComponentActivity() {
                         onReplayTutorialRequested = {
                             coroutineScope.launch { appSettingsStore.setOnboardingCompleted(false) }
                         },
-                        lastDestination = lastDestination,
-                        onLastDestinationChange = { destination ->
-                            coroutineScope.launch { appSettingsStore.setLastDestination(destination) }
-                        },
                         factorData = factors,
                         onFactorSaveRequested = { updatedFactors ->
                             val previousFactors = factors
@@ -242,7 +239,9 @@ class MainActivity : ComponentActivity() {
                                     imported.correctionSettings.copy(
                                         doseStepUnits = correctionSettings.doseStepUnits,
                                         maxDoseUnits = correctionSettings.maxDoseUnits,
-                                        fastCarbsGrams = correctionSettings.fastCarbsGrams
+                                        fastCarbsGrams = correctionSettings.fastCarbsGrams,
+                                        maxBloodSugarMgDl = correctionSettings.maxBloodSugarMgDl,
+                                        maxCarbohydratesGrams = correctionSettings.maxCarbohydratesGrams
                                     )
                                 )
                                 appSettingsStore.setGender(imported.gender)
@@ -310,6 +309,18 @@ private fun correctionSettingsCallbacks(
         onFastCarbsGramsChange = { fastCarbsGrams ->
             coroutineScope.launch {
                 appSettingsStore.setCorrectionSettings(correctionSettings.copy(fastCarbsGrams = fastCarbsGrams))
+            }
+        },
+        onMaxBloodSugarMgDlChange = { maxBloodSugarMgDl ->
+            coroutineScope.launch {
+                appSettingsStore.setCorrectionSettings(correctionSettings.copy(maxBloodSugarMgDl = maxBloodSugarMgDl))
+            }
+        },
+        onMaxCarbohydratesGramsChange = { maxCarbohydratesGrams ->
+            coroutineScope.launch {
+                appSettingsStore.setCorrectionSettings(
+                    correctionSettings.copy(maxCarbohydratesGrams = maxCarbohydratesGrams)
+                )
             }
         }
     )

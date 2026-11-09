@@ -96,7 +96,32 @@ fun CorrectionSettingsScreen(
             currentValue = values.fastCarbsGrams,
             onValueChange = callbacks.onFastCarbsGramsChange
         )
+
+        PlausibilityLimitCards(values, callbacks, currentLanguage)
     }
+}
+
+@Composable
+private fun PlausibilityLimitCards(
+    values: CorrectionSettingsValues,
+    callbacks: CorrectionSettingsCallbacks,
+    currentLanguage: AppLanguage
+) {
+    CorrectionValueCard(
+        labels = CorrectionValueLabels(TranslationKey.MaxBloodSugar, TranslationKey.MaxBloodSugarHelp),
+        currentLanguage = currentLanguage,
+        currentValueMgDl = values.maxBloodSugarMgDl,
+        glucoseUnit = values.glucoseUnit,
+        onValueMgDlChange = callbacks.onMaxBloodSugarMgDlChange
+    )
+
+    UnitsValueCard(
+        labels = CorrectionValueLabels(TranslationKey.MaxCarbohydrates, TranslationKey.MaxCarbohydratesHelp),
+        unitSymbolKey = TranslationKey.GramsUnit,
+        currentLanguage = currentLanguage,
+        currentValue = values.maxCarbohydratesGrams,
+        onValueChange = callbacks.onMaxCarbohydratesGramsChange
+    )
 }
 
 @Composable

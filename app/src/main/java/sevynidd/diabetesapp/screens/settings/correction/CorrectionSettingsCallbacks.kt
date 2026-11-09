@@ -8,5 +8,7 @@ data class CorrectionSettingsCallbacks(
     val onCorrectionStepMgDlChange: (Double) -> Unit = {},
     val onDoseStepUnitsChange: (Double) -> Unit = {},
     val onMaxDoseUnitsChange: (Double) -> Unit = {},
-    val onFastCarbsGramsChange: (Double) -> Unit = {}
+    val onFastCarbsGramsChange: (Double) -> Unit = {},
+    val onMaxBloodSugarMgDlChange: (Double) -> Unit = {},
+    val onMaxCarbohydratesGramsChange: (Double) -> Unit = {}
 )

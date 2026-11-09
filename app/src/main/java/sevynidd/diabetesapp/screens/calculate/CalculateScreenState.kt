@@ -74,8 +74,12 @@ internal fun computeCalculateScreenState(
     )
 
     val splitDose = resolveSplitDose(
-        splitBolus = splitBolus,
-        splitBloodSugar = inputs.splitBloodSugar,
+        inputs = SplitDoseInputs(
+            splitBolus = splitBolus,
+            carbohydratesGrams = splitCarbohydratesValue,
+            bloodSugar = inputs.splitBloodSugar,
+            hasFactors = activeFactor != null && futureFactor != null
+        ),
         correctionSettings = values.correctionSettings
     )
 

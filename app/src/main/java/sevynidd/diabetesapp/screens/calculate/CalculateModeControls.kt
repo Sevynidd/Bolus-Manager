@@ -4,6 +4,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
@@ -38,6 +43,24 @@ internal fun PeriodToggleRow(
         )
         Switch(checked = isPeriodEnabled, onCheckedChange = onPeriodEnabledChange)
         HelpIconButton(helpTextKey = TranslationKey.PeriodHelp, currentLanguage = currentLanguage)
+    }
+}
+
+@Composable
+internal fun ResetInputsRow(onReset: () -> Unit, currentLanguage: AppLanguage) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        OutlinedButton(onClick = onReset) {
+            Icon(imageVector = Icons.Filled.Refresh, contentDescription = null, modifier = Modifier.size(18.dp))
+            Text(
+                text = translate(TranslationKey.ResetInputs, currentLanguage),
+                modifier = Modifier.padding(start = 8.dp)
+            )
+        }
+        HelpIconButton(helpTextKey = TranslationKey.ResetInputsHelp, currentLanguage = currentLanguage)
     }
 }
 

@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,6 +54,7 @@ internal fun SplitInputsCard(
     val splitBloodSugarRequester = remember { FocusRequester() }
     val splitImmediatePercentRequester = remember { FocusRequester() }
     val splitDurationRequester = remember { FocusRequester() }
+    LaunchedEffect(Unit) { splitCarbohydratesRequester.requestFocus() }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -203,8 +205,7 @@ private fun SplitPercentRow(
 internal data class SplitModeResults(
     val activeFactorText: String,
     val futureFactorText: String,
-    val splitBolus: SplitBolusResult?,
-    val correctionUnitsText: String
+    val splitBolus: SplitBolusResult?
 )
 
 @Composable
@@ -261,11 +262,6 @@ internal fun SplitResultsCard(
                     modifier = Modifier.weight(1f)
                 )
             }
-
-            ResultStat(
-                label = translate(TranslationKey.CorrectionUnits, currentLanguage),
-                value = results.correctionUnitsText
-            )
         }
     }
 }

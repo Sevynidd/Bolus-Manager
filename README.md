@@ -52,6 +52,9 @@ and consult your doctor or diabetes care team before acting on them.
   optional maximum dose warns about doses that are higher than expected
 - A **Period** toggle temporarily scales up all factors by a percentage you set —
   only shown and applied when your gender is set to Female
+- The app opens on this screen, the carbs field is ready to type in, and a **Reset** button clears the entries
+- Typing mistakes are caught: a blood sugar or carb amount above limits you can adjust, or carbs without
+  a factor for the time of day, show an explanation instead of a dose
 - Uses your configured bread-unit value
 - Save frequently used carb amounts as named, emoji-tagged **templates** for one-tap reuse
 
@@ -74,7 +77,7 @@ and consult your doctor or diabetes care team before acting on them.
 
 ### UI & Navigation
 
-- Adaptive navigation between Factors, Calculate, and Settings
+- Adaptive navigation between Calculate, Factors, and More (settings)
 - Clean Material 3 design that adapts to phone and tablet layouts
 
 ## Calculation Logic
@@ -128,6 +131,9 @@ subtracts `1` unit. The total dose is never suggested below `0` units, and it is
 rounded to the dose step you set for your pen or pump (default `0.5` units; exact halves round up). The
 exact sum before rounding is shown under the dose. A blood sugar below the low threshold shows a warning
 instead of just a smaller number, and an optional maximum dose (`0` = off) warns about larger doses.
+Entries above the highest plausible blood sugar (default `600` mg/dl) or carb amount (default `300` g)
+are treated as typing mistakes and show no dose until corrected; both limits can be changed or switched
+off with `0`.
 
 ## Tech Stack
 

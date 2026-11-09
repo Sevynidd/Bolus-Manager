@@ -8,8 +8,8 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Calculate
+import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Percent
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.translate
@@ -18,9 +18,9 @@ import sevynidd.diabetesapp.localization.TranslationKey
 enum class AppDestinations(
     val icon: ImageVector,
 ) {
-    FACTORS(Icons.Filled.Percent),
     CALCULATE(Icons.Filled.Calculate),
-    SETTINGS(Icons.Filled.Settings),
+    FACTORS(Icons.Filled.Percent),
+    SETTINGS(Icons.Filled.MoreHoriz),
 }
 
 fun destinationLabel(destination: AppDestinations, language: AppLanguage): String {

@@ -5,7 +5,8 @@ package sevynidd.diabetesapp.data.settings.correction
  * is added, the low [lowThresholdMgDl] below which insulin is subtracted, the shared [stepMgDl]
  * used on both sides, and the display unit. Also the injection [doseStepUnits] the total is
  * rounded to, the [maxDoseUnits] limit (`0` = no limit) and the [fastCarbsGrams] suggested when
- * blood sugar is low.
+ * blood sugar is low. Entries above [maxBloodSugarMgDl] or [maxCarbohydratesGrams] (`0` = no
+ * limit) are treated as typing mistakes and block the dose.
  */
 data class CorrectionSettings(
     val thresholdMgDl: Double = 160.0,
@@ -14,7 +15,9 @@ data class CorrectionSettings(
     val glucoseUnit: GlucoseUnit = GlucoseUnit.MgDl,
     val doseStepUnits: Double = DEFAULT_DOSE_STEP_UNITS,
     val maxDoseUnits: Double = 0.0,
-    val fastCarbsGrams: Double = DEFAULT_FAST_CARBS_GRAMS
+    val fastCarbsGrams: Double = DEFAULT_FAST_CARBS_GRAMS,
+    val maxBloodSugarMgDl: Double = DEFAULT_MAX_BLOOD_SUGAR_MGDL,
+    val maxCarbohydratesGrams: Double = DEFAULT_MAX_CARBOHYDRATES_GRAMS
 )
 
 /** The dose steps offered in the settings: pump-fine steps up to whole units for pens. */
@@ -27,3 +30,5 @@ private const val HALF_UNIT_STEP = 0.5
 private const val WHOLE_UNIT_STEP = 1.0
 private const val DEFAULT_DOSE_STEP_UNITS = HALF_UNIT_STEP
 private const val DEFAULT_FAST_CARBS_GRAMS = 15.0
+private const val DEFAULT_MAX_BLOOD_SUGAR_MGDL = 600.0
+private const val DEFAULT_MAX_CARBOHYDRATES_GRAMS = 300.0

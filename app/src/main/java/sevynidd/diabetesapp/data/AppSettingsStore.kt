@@ -16,7 +16,6 @@ import sevynidd.diabetesapp.data.settings.correction.CorrectionSettings
 import sevynidd.diabetesapp.data.settings.correction.GlucoseUnit
 import sevynidd.diabetesapp.data.settings.therapy.TherapyMode
 import sevynidd.diabetesapp.data.settings.profile.Gender
-import sevynidd.diabetesapp.navigation.AppDestinations
 import sevynidd.diabetesapp.ui.theme.ContrastLevel
 
 private const val DATASTORE_NAME = "app_settings"
@@ -44,6 +43,8 @@ data class AppSettings(
     val doseStepUnits: Double = CorrectionSettings().doseStepUnits,
     val maxDoseUnits: Double = CorrectionSettings().maxDoseUnits,
     val fastCarbsGrams: Double = CorrectionSettings().fastCarbsGrams,
+    val maxBloodSugarMgDl: Double = CorrectionSettings().maxBloodSugarMgDl,
+    val maxCarbohydratesGrams: Double = CorrectionSettings().maxCarbohydratesGrams,
     val gender: Gender = Gender.PreferNotToSay,
     val therapyMode: TherapyMode = TherapyMode.Pen,
     val hasCompletedOnboarding: Boolean = false
@@ -59,7 +60,6 @@ class AppSettingsStore(private val context: Context) {
         val BREAD_UNITS = stringPreferencesKey("bread_units")
         // Keep legacy key name so existing period-factor values migrate seamlessly.
         val PERIOD_FACTOR_PERCENT = stringPreferencesKey("periode_factor_percent")
-        val LAST_DESTINATION = stringPreferencesKey("last_destination")
         val CORRECTION_THRESHOLD_MGDL = stringPreferencesKey("correction_threshold_mgdl")
         val CORRECTION_LOW_THRESHOLD_MGDL = stringPreferencesKey("correction_low_threshold_mgdl")
         val CORRECTION_STEP_MGDL = stringPreferencesKey("correction_step_mgdl")
@@ -67,6 +67,8 @@ class AppSettingsStore(private val context: Context) {
         val DOSE_STEP_UNITS = stringPreferencesKey("dose_step_units")
         val MAX_DOSE_UNITS = stringPreferencesKey("max_dose_units")
         val FAST_CARBS_GRAMS = stringPreferencesKey("fast_carbs_grams")
+        val MAX_BLOOD_SUGAR_MGDL = stringPreferencesKey("max_blood_sugar_mgdl")
+        val MAX_CARBOHYDRATES_GRAMS = stringPreferencesKey("max_carbohydrates_grams")
         val GENDER = stringPreferencesKey("gender")
         val THERAPY_MODE = stringPreferencesKey("therapy_mode")
         val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
@@ -91,6 +93,10 @@ class AppSettingsStore(private val context: Context) {
             doseStepUnits = preferences[Keys.DOSE_STEP_UNITS].toDoubleOrDefault(CorrectionSettings().doseStepUnits),
             maxDoseUnits = preferences[Keys.MAX_DOSE_UNITS].toDoubleOrDefault(CorrectionSettings().maxDoseUnits),
             fastCarbsGrams = preferences[Keys.FAST_CARBS_GRAMS].toDoubleOrDefault(CorrectionSettings().fastCarbsGrams),
+            maxBloodSugarMgDl = preferences[Keys.MAX_BLOOD_SUGAR_MGDL]
+                .toDoubleOrDefault(CorrectionSettings().maxBloodSugarMgDl),
+            maxCarbohydratesGrams = preferences[Keys.MAX_CARBOHYDRATES_GRAMS]
+                .toDoubleOrDefault(CorrectionSettings().maxCarbohydratesGrams),
             gender = preferences[Keys.GENDER].toEnumOrDefault(Gender.PreferNotToSay),
             therapyMode = preferences[Keys.THERAPY_MODE]
                 .toEnumOrDefault(TherapyMode.Pen),
@@ -146,6 +152,8 @@ class AppSettingsStore(private val context: Context) {
             preferences[Keys.DOSE_STEP_UNITS] = correctionSettings.doseStepUnits.toString()
             preferences[Keys.MAX_DOSE_UNITS] = correctionSettings.maxDoseUnits.toString()
             preferences[Keys.FAST_CARBS_GRAMS] = correctionSettings.fastCarbsGrams.toString()
+            preferences[Keys.MAX_BLOOD_SUGAR_MGDL] = correctionSettings.maxBloodSugarMgDl.toString()
+            preferences[Keys.MAX_CARBOHYDRATES_GRAMS] = correctionSettings.maxCarbohydratesGrams.toString()
         }
     }
 
@@ -167,24 +175,6 @@ class AppSettingsStore(private val context: Context) {
     suspend fun setOnboardingCompleted(completed: Boolean) {
         context.appSettingsDataStore.edit { preferences ->
             preferences[Keys.ONBOARDING_COMPLETED] = completed
-        }
-    }
-
-    /**
-     * The top-level screen that was open when the app was last closed. `null` means it hasn't
-     * been read from disk yet (kept separate from [settingsFlow] so callers can tell "not loaded
-     * yet" apart from "loaded, and it's [AppDestinations.FACTORS]" instead of silently defaulting).
-     */
-    val lastDestinationFlow: Flow<AppDestinations?> = context.appSettingsDataStore.data.map { preferences ->
-        preferences[Keys.LAST_DESTINATION]?.let { name ->
-            AppDestinations.entries.firstOrNull { it.name == name }
-        }
-    }
-
-    /** Persists [destination] as the screen to reopen to on the next app start. */
-    suspend fun setLastDestination(destination: AppDestinations) {
-        context.appSettingsDataStore.edit { preferences ->
-            preferences[Keys.LAST_DESTINATION] = destination.name
         }
     }
 }
