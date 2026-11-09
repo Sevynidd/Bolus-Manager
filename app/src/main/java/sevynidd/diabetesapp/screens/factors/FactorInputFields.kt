@@ -1,38 +1,23 @@
 package sevynidd.diabetesapp.screens.factors
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.focus.FocusManager
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import sevynidd.diabetesapp.calculation.normalizeBasalRateValue
 
 internal val DecimalInputRegex = Regex("^\\d*,?\\d*$")
-private val IntegerInputRegex = Regex("^\\d+$")
 
 @Composable
 internal fun Modifier.activeFieldHighlight(isActive: Boolean): Modifier {
@@ -71,156 +56,35 @@ internal fun FieldDescriptionRow(description: String, activeNowLabel: String?) {
     }
 }
 
-@Composable
-private fun NormalizeOnDisable(
-    enabled: Boolean,
-    focusManager: FocusManager,
-    onDisabled: () -> Unit
-) {
-    var wasEnabled by remember { mutableStateOf(enabled) }
-
-    LaunchedEffect(enabled) {
-        if (wasEnabled && !enabled) {
-            focusManager.clearFocus(force = true)
-            onDisabled()
-        }
-        wasEnabled = enabled
-    }
-}
-
-/** The label text of an editable field, bundled to keep composable parameter lists short. */
-internal data class FieldLabels(
-    val label: String,
+/** The text of one [TappableValueRow]: an optional [title], a [description], and the current value. */
+internal data class ValueRowContent(
+    val title: String?,
     val description: String,
+    val valueText: String,
     val activeNowLabel: String? = null
 )
 
+/** A read-only row showing one value that opens its editor when tapped. */
 @Composable
-internal fun DoubleInputField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    labels: FieldLabels,
-    enabled: Boolean,
-    normalize: (String) -> String
-) {
-    var draftValue by rememberSaveable(value, stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(text = value, selection = TextRange(value.length)))
-    }
-    var wasFocused by remember { mutableStateOf(false) }
-    val focusManager = LocalFocusManager.current
-
-    fun applyNormalization() {
-        // Untouched values are left as stored: leaving edit mode normalizes every field at once,
-        // and re-rounding would e.g. snap a factor entered as a pump ratio onto the 0.25 grid.
-        if (draftValue.text == value) return
-        val normalized = normalize(draftValue.text)
-        draftValue = TextFieldValue(text = normalized, selection = TextRange(normalized.length))
-        onValueChange(normalized)
-    }
-
-    Column(modifier = Modifier.activeFieldHighlight(labels.activeNowLabel != null)) {
-        if (labels.description.isNotEmpty() || labels.activeNowLabel != null) {
-            FieldDescriptionRow(description = labels.description, activeNowLabel = labels.activeNowLabel)
+internal fun TappableValueRow(content: ValueRowContent, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(MaterialTheme.shapes.medium)
+            .clickable(onClick = onClick)
+            .activeFieldHighlight(content.activeNowLabel != null)
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            content.title?.let { Text(text = it, style = MaterialTheme.typography.bodyLarge) }
+            FieldDescriptionRow(description = content.description, activeNowLabel = content.activeNowLabel)
         }
-        OutlinedTextField(
-            value = draftValue,
-            onValueChange = { newValue ->
-                val sanitizedValue = newValue.text.replace('.', ',')
-
-                // Allow free editing, normalize only when leaving the field.
-                if (sanitizedValue.isEmpty() || sanitizedValue.matches(DecimalInputRegex)) {
-                    draftValue = newValue.copy(text = sanitizedValue)
-                }
-            },
-            label = { Text(labels.label) },
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Decimal,
-                imeAction = ImeAction.Next
-            ),
-            keyboardActions = KeyboardActions(
-                onNext = { focusManager.moveFocus(FocusDirection.Down) }
-            ),
-            singleLine = true,
-            enabled = enabled,
-            modifier = Modifier
-                .fillMaxWidth()
-                .onFocusChanged { focusState ->
-                    if (!wasFocused && focusState.isFocused) {
-                        draftValue = draftValue.copy(selection = TextRange(draftValue.text.length))
-                    }
-                    if (enabled && wasFocused && !focusState.isFocused) {
-                        applyNormalization()
-                    }
-                    wasFocused = focusState.isFocused
-                }
+        Text(text = content.valueText, style = MaterialTheme.typography.titleMedium)
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
-    }
-
-    NormalizeOnDisable(enabled = enabled, focusManager = focusManager) {
-        applyNormalization()
-    }
-}
-
-@Composable
-internal fun BasalRateInputField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    labels: FieldLabels,
-    enabled: Boolean,
-    modifier: Modifier = Modifier
-) {
-    var draftValue by rememberSaveable(value, stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(text = value, selection = TextRange(value.length)))
-    }
-    var wasFocused by remember { mutableStateOf(false) }
-    val focusManager = LocalFocusManager.current
-
-    fun applyNormalization() {
-        val normalized = normalizeBasalRateValue(draftValue.text)
-        draftValue = TextFieldValue(text = normalized, selection = TextRange(normalized.length))
-        onValueChange(normalized)
-    }
-
-    Column(modifier = modifier) {
-        Text(
-            text = labels.description,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(bottom = 4.dp)
-        )
-        OutlinedTextField(
-            value = draftValue,
-            onValueChange = { newValue ->
-                // Allow free editing, normalize only when leaving the field.
-                if (newValue.text.isEmpty() || newValue.text.matches(IntegerInputRegex)) {
-                    draftValue = newValue
-                }
-            },
-            label = { Text(labels.label) },
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number,
-                imeAction = ImeAction.Done
-            ),
-            keyboardActions = KeyboardActions(
-                onDone = { focusManager.clearFocus(force = true) }
-            ),
-            singleLine = true,
-            enabled = enabled,
-            modifier = Modifier
-                .fillMaxWidth()
-                .onFocusChanged { focusState ->
-                    if (!wasFocused && focusState.isFocused) {
-                        draftValue = draftValue.copy(selection = TextRange(draftValue.text.length))
-                    }
-                    if (enabled && wasFocused && !focusState.isFocused) {
-                        applyNormalization()
-                    }
-                    wasFocused = focusState.isFocused
-                }
-        )
-    }
-
-    NormalizeOnDisable(enabled = enabled, focusManager = focusManager) {
-        applyNormalization()
     }
 }

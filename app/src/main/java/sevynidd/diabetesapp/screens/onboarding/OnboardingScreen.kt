@@ -178,7 +178,6 @@ private fun OnboardingFactorsStep(modifier: Modifier, values: OnboardingValues, 
         currentLanguage = values.currentLanguage,
         state = FactorScreenState(
             factors = values.factors,
-            isEditMode = true,
             displayFormat = FactorDisplayFormat(values.therapyMode, values.breadUnits),
             onFactorsChange = callbacks.onFactorsChange
         )

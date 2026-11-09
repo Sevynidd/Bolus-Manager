@@ -16,18 +16,17 @@ import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import sevynidd.diabetesapp.calculation.isFactorNameValid
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
 import sevynidd.diabetesapp.ui.HelpIconButton
-import java.util.Locale
 
 private const val MINUTES_PER_HOUR = 60
 
@@ -54,11 +53,8 @@ internal fun AddFactorDialog(
         is24Hour = true
     )
 
-    val normalizedExisting = remember(newFactor.existingNames) {
-        newFactor.existingNames.map { it.trim().lowercase(Locale.ROOT) }
-    }
-    val hasDuplicateName = name.trim().isNotEmpty() && normalizedExisting.contains(name.trim().lowercase(Locale.ROOT))
-    val isValid = name.trim().isNotEmpty() && !hasDuplicateName
+    val isValid = isFactorNameValid(name, newFactor.existingNames)
+    val hasDuplicateName = name.isNotBlank() && !isValid
 
     AlertDialog(
         onDismissRequest = onDismissRequest,

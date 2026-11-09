@@ -47,6 +47,8 @@ enum class TranslationKey {
 
     // Common actions
     ActionEdit,
+    ActionUndo,
+    FactorsSaved,
     ActionSave,
     ActionCancel,
     ActionClose,
@@ -288,6 +290,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
 
             // Common actions
             TranslationKey.ActionEdit -> "Edit"
+            TranslationKey.ActionUndo -> "Undo"
+            TranslationKey.FactorsSaved -> "Changes saved"
             TranslationKey.ActionSave -> "Save"
             TranslationKey.ActionCancel -> "Cancel"
             TranslationKey.ActionClose -> "Close"
@@ -311,7 +315,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.FactorsListHelp ->
                 "Each row is a time window: name it (e.g. \"Breakfast\") and set its factor — " +
                     "the units of insulin per bread unit used whenever the current time falls in " +
-                    "that window. Windows are ordered automatically by start time."
+                    "that window. Windows are ordered automatically by start time. " +
+                    "Tap a row to change it. Changes can be undone right after saving."
             TranslationKey.BasalRate -> "Basal rate"
             TranslationKey.BasalRateHelp ->
                 "Your basal insulin dose, shown for reference alongside the time it's " +
@@ -323,7 +328,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.FactorsListPumpHelp ->
                 "Each row is a time window: name it (e.g. \"Breakfast\") and set its pump ratio — " +
                     "how many grams of carbohydrates one unit of insulin covers whenever the current " +
-                    "time falls in that window. Windows are ordered automatically by start time."
+                    "time falls in that window. Windows are ordered automatically by start time. " +
+                    "Tap a row to change it. Changes can be undone right after saving."
             TranslationKey.LabelPumpRatio -> "1 U per … g carbs"
             TranslationKey.PumpRatioValueHelp ->
                 "The insulin-to-carb ratio as your pump shows it: one unit of insulin per this many " +
@@ -389,7 +395,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                 "The basal rate programmed in your pump, one value per hour of the day in units " +
                     "per hour, rounded to 0.01 U/h. The daily total is the sum of all 24 hours. It's a " +
                     "record for you and your diabetes team — it doesn't change any bolus calculation." +
-                    " Tap the header to show or hide the 24 hours; the daily total always stays visible."
+                    " Tap the header to show or hide the 24 hours; the daily total always stays visible. " +
+                    "Tap an hour to change its rate."
             TranslationKey.PumpBasalRateUnit -> "U/h"
             TranslationKey.ActionShowHours -> "Show hours"
             TranslationKey.ActionHideHours -> "Hide hours"
@@ -614,6 +621,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
 
             // Common actions
             TranslationKey.ActionEdit -> "Bearbeiten"
+            TranslationKey.ActionUndo -> "Rückgängig"
+            TranslationKey.FactorsSaved -> "Änderungen gespeichert"
             TranslationKey.ActionSave -> "Speichern"
             TranslationKey.ActionCancel -> "Abbrechen"
             TranslationKey.ActionClose -> "Schließen"
@@ -638,7 +647,9 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                 "Jede Zeile ist ein Zeitfenster: benenne es (z. B. \"Frühstück\") und lege seinen " +
                     "Faktor fest — die Einheiten Insulin pro Broteinheit, die verwendet werden, " +
                     "wenn die aktuelle Zeit in dieses Fenster fällt. Fenster werden automatisch " +
-                    "nach Startzeit sortiert."
+                    "nach Startzeit sortiert. " +
+                    "Tippe auf eine Zeile, um sie zu ändern. " +
+                    "Änderungen lassen sich direkt nach dem Speichern rückgängig machen."
             TranslationKey.BasalRate -> "Basisrate"
             TranslationKey.BasalRateHelp ->
                 "Deine Basalinsulindosis, zur Referenz zusammen mit der Uhrzeit der Verabreichung " +
@@ -651,7 +662,9 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                 "Jede Zeile ist ein Zeitfenster: benenne es (z. B. \"Frühstück\") und lege sein " +
                     "Pumpenverhältnis fest — wie viel Gramm Kohlenhydrate eine Einheit Insulin abdeckt, " +
                     "wenn die aktuelle Zeit in dieses Fenster fällt. Fenster werden automatisch " +
-                    "nach Startzeit sortiert."
+                    "nach Startzeit sortiert. " +
+                    "Tippe auf eine Zeile, um sie zu ändern. " +
+                    "Änderungen lassen sich direkt nach dem Speichern rückgängig machen."
             TranslationKey.LabelPumpRatio -> "1 IE pro … g KH"
             TranslationKey.PumpRatioValueHelp ->
                 "Das Insulin-Kohlenhydrat-Verhältnis, wie es deine Pumpe anzeigt: eine Einheit " +
@@ -722,7 +735,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                     "Stunden. Sie dient als Eintrag für dich und dein Diabetesteam — sie ändert keine " +
                     "Bolusberechnung." +
                     " Tippe auf die Überschrift, um die 24 Stunden ein- oder auszublenden; die Tagessumme " +
-                    "bleibt immer sichtbar."
+                    "bleibt immer sichtbar. " +
+                    "Tippe auf eine Stunde, um ihren Wert zu ändern."
             TranslationKey.PumpBasalRateUnit -> "IE/h"
             TranslationKey.ActionShowHours -> "Stunden anzeigen"
             TranslationKey.ActionHideHours -> "Stunden ausblenden"
@@ -959,6 +973,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
 
             // Common actions
             TranslationKey.ActionEdit -> "Modifier"
+            TranslationKey.ActionUndo -> "Annuler"
+            TranslationKey.FactorsSaved -> "Modifications enregistrées"
             TranslationKey.ActionSave -> "Enregistrer"
             TranslationKey.ActionCancel -> "Annuler"
             TranslationKey.ActionClose -> "Fermer"
@@ -983,7 +999,9 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                 "Chaque ligne est une plage horaire : nommez-la (par ex. \"Petit-déjeuner\") et " +
                     "définissez son facteur — les unités d'insuline par unité de pain utilisées " +
                     "lorsque l'heure actuelle se situe dans cette plage. Les plages sont triées " +
-                    "automatiquement par heure de début."
+                    "automatiquement par heure de début. " +
+                    "Touchez une ligne pour la modifier. " +
+                    "Les modifications peuvent être annulées juste après l’enregistrement."
             TranslationKey.BasalRate -> "Débit de base"
             TranslationKey.BasalRateHelp ->
                 "Votre dose d'insuline basale, affichée à titre de référence avec l'heure " +
@@ -996,7 +1014,9 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                 "Chaque ligne est une plage horaire : nommez-la (par ex. \"Petit-déjeuner\") et " +
                     "définissez son ratio de pompe — combien de grammes de glucides une unité " +
                     "d'insuline couvre lorsque l'heure actuelle se situe dans cette plage. Les plages " +
-                    "sont triées automatiquement par heure de début."
+                    "sont triées automatiquement par heure de début. " +
+                    "Touchez une ligne pour la modifier. " +
+                    "Les modifications peuvent être annulées juste après l’enregistrement."
             TranslationKey.LabelPumpRatio -> "1 U pour … g de glucides"
             TranslationKey.PumpRatioValueHelp ->
                 "Le ratio insuline/glucides tel que votre pompe l'affiche : une unité d'insuline " +
@@ -1070,7 +1090,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                     "heures. C'est un relevé pour vous et votre équipe soignante — il ne modifie aucun " +
                     "calcul de bolus." +
                     " Touchez l'en-tête pour afficher ou masquer les 24 heures ; le total journalier reste " +
-                    "toujours visible."
+                    "toujours visible. " +
+                    "Touchez une heure pour modifier son débit."
             TranslationKey.PumpBasalRateUnit -> "U/h"
             TranslationKey.ActionShowHours -> "Afficher les heures"
             TranslationKey.ActionHideHours -> "Masquer les heures"
@@ -1310,6 +1331,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
 
             // Common actions
             TranslationKey.ActionEdit -> "Edytuj"
+            TranslationKey.ActionUndo -> "Cofnij"
+            TranslationKey.FactorsSaved -> "Zapisano zmiany"
             TranslationKey.ActionSave -> "Zapisz"
             TranslationKey.ActionCancel -> "Anuluj"
             TranslationKey.ActionClose -> "Zamknij"
@@ -1334,7 +1357,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                 "Każdy wiersz to przedział czasowy: nadaj mu nazwę (np. \"Śniadanie\") i ustaw " +
                     "jego czynnik — jednostki insuliny na wymiennik chlebowy używane, gdy " +
                     "aktualny czas mieści się w tym przedziale. Przedziały są automatycznie " +
-                    "porządkowane według godziny rozpoczęcia."
+                    "porządkowane według godziny rozpoczęcia. " +
+                    "Dotknij wiersza, aby go zmienić. Zmiany można cofnąć zaraz po zapisaniu."
             TranslationKey.BasalRate -> "Wartość podstawowa"
             TranslationKey.BasalRateHelp ->
                 "Twoja dawka insuliny podstawowej, pokazana informacyjnie razem z godziną " +
@@ -1347,7 +1371,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                 "Każdy wiersz to przedział czasu: nazwij go (np. \"Śniadanie\") i ustaw jego " +
                     "przelicznik pompy — ile gramów węglowodanów pokrywa jedna jednostka insuliny, " +
                     "gdy bieżąca godzina mieści się w tym przedziale. Przedziały są sortowane " +
-                    "automatycznie według godziny rozpoczęcia."
+                    "automatycznie według godziny rozpoczęcia. " +
+                    "Dotknij wiersza, aby go zmienić. Zmiany można cofnąć zaraz po zapisaniu."
             TranslationKey.LabelPumpRatio -> "1 j. na … g węglowodanów"
             TranslationKey.PumpRatioValueHelp ->
                 "Przelicznik insuliny do węglowodanów tak, jak pokazuje go pompa: jedna jednostka " +
@@ -1417,7 +1442,8 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                     "jednostkach na godzinę, zaokrąglona do 0,01 j./h. Suma dobowa to suma wszystkich 24 " +
                     "godzin. To zapis dla Ciebie i Twojego zespołu diabetologicznego — nie zmienia " +
                     "żadnych obliczeń bolusa." +
-                    " Dotknij nagłówka, aby pokazać lub ukryć 24 godziny; suma dobowa jest zawsze widoczna."
+                    " Dotknij nagłówka, aby pokazać lub ukryć 24 godziny; suma dobowa jest zawsze widoczna. " +
+                    "Dotknij godziny, aby zmienić jej wartość."
             TranslationKey.PumpBasalRateUnit -> "j./h"
             TranslationKey.ActionShowHours -> "Pokaż godziny"
             TranslationKey.ActionHideHours -> "Ukryj godziny"

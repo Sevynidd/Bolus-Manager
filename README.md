@@ -36,6 +36,7 @@ and consult your doctor or diabetes care team before acting on them.
 ### Factors & Schedule
 
 - Keep a personal list of correction factors, each tied to a time of day, plus your basal rate
+- Tap a factor, your basal rate, or a pump hour to change it in a sheet; saving applies it at once and an **Undo** message lets you take it back
 - A pie chart gives you an at-a-glance overview of your daily schedule
 - The factor currently in effect is highlighted with a "Now" badge
 - Pen or insulin-pump therapy: with a pump (e.g. the YpsoPump), factors are shown and edited

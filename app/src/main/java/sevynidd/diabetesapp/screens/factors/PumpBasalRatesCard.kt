@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -23,10 +21,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import sevynidd.diabetesapp.calculation.formatUnits
-import sevynidd.diabetesapp.calculation.normalizeHourlyBasalRateValue
 import sevynidd.diabetesapp.calculation.pumpBasalDailyTotal
 import sevynidd.diabetesapp.calculation.pumpBasalHourRangeLabel
 import sevynidd.diabetesapp.localization.AppLanguage
@@ -36,59 +32,49 @@ import sevynidd.diabetesapp.ui.HelpIconButton
 
 /**
  * The insulin pump's 24 hourly basal rates (U/h) with the daily total. The hour list starts
- * collapsed — the daily total stays visible — and expands from the header.
+ * collapsed — the daily total stays visible — and expands from the header; tapping an hour
+ * calls [onEditHour].
  */
 @Composable
-internal fun PumpBasalRatesCard(currentLanguage: AppLanguage, state: FactorScreenState, nowHour: Int) {
+internal fun PumpBasalRatesCard(
+    currentLanguage: AppLanguage,
+    rates: List<String>,
+    nowHour: Int,
+    onEditHour: (hour: Int) -> Unit
+) {
     var isExpanded by rememberSaveable { mutableStateOf(false) }
-    val focusManager = LocalFocusManager.current
 
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 16.dp),
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
-    ) {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            PumpBasalRatesHeader(currentLanguage, isExpanded) {
-                // Commit an in-progress edit via its focus-loss handler before collapsing removes the field.
-                focusManager.clearFocus(force = true)
-                isExpanded = !isExpanded
-            }
+    FactorCard(modifier = Modifier.padding(bottom = 16.dp)) {
+        PumpBasalRatesHeader(currentLanguage, isExpanded) { isExpanded = !isExpanded }
 
-            AnimatedVisibility(visible = isExpanded) {
-                PumpBasalHourFields(currentLanguage, state, nowHour)
-            }
-
-            PumpBasalDailyTotalText(currentLanguage, state.factors.pumpBasalRates)
+        AnimatedVisibility(visible = isExpanded) {
+            PumpBasalHourRows(currentLanguage, rates, nowHour, onEditHour)
         }
+
+        PumpBasalDailyTotalText(currentLanguage, rates)
     }
 }
 
 @Composable
-private fun PumpBasalHourFields(currentLanguage: AppLanguage, state: FactorScreenState, nowHour: Int) {
+private fun PumpBasalHourRows(
+    currentLanguage: AppLanguage,
+    rates: List<String>,
+    nowHour: Int,
+    onEditHour: (hour: Int) -> Unit
+) {
     val unitLabel = translate(TranslationKey.PumpBasalRateUnit, currentLanguage)
     val activeNowLabel = translate(TranslationKey.ActiveNowBadge, currentLanguage)
 
-    fun updateRate(hour: Int, value: String) {
-        state.onFactorsChange { current ->
-            current.copy(pumpBasalRates = current.pumpBasalRates.toMutableList().apply { this[hour] = value })
-        }
-    }
-
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        state.factors.pumpBasalRates.forEachIndexed { hour, rate ->
-            DoubleInputField(
-                value = rate,
-                onValueChange = { updateRate(hour, it) },
-                labels = FieldLabels(
-                    label = unitLabel,
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        rates.forEachIndexed { hour, rate ->
+            TappableValueRow(
+                content = ValueRowContent(
+                    title = null,
                     description = pumpBasalHourRangeLabel(hour),
+                    valueText = if (rate.isBlank()) NOT_SET else "$rate $unitLabel",
                     activeNowLabel = activeNowLabel.takeIf { hour == nowHour }
                 ),
-                enabled = state.isEditMode,
-                normalize = ::normalizeHourlyBasalRateValue
+                onClick = { onEditHour(hour) }
             )
         }
     }

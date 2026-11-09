@@ -1,8 +1,6 @@
 package sevynidd.diabetesapp.screens
 
-import android.app.Activity
 import android.content.Context
-import android.content.ContextWrapper
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Box
@@ -13,12 +11,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.ChangeCircle
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -28,16 +28,15 @@ import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -46,15 +45,12 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.viewmodel.compose.viewModel
 import sevynidd.diabetesapp.data.database.BolusTemplateEntity
 import sevynidd.diabetesapp.data.export.FactorsExportBundle
 import sevynidd.diabetesapp.data.model.FactorAuditLogEntry
 import sevynidd.diabetesapp.data.model.FactorsData
 import sevynidd.diabetesapp.data.settings.appearance.ThemeMode
+import kotlinx.coroutines.launch
 import sevynidd.diabetesapp.calculation.isBasalReminderApplicable
 import sevynidd.diabetesapp.data.settings.correction.CorrectionSettings
 import sevynidd.diabetesapp.data.settings.correction.GlucoseUnit
@@ -78,7 +74,6 @@ import sevynidd.diabetesapp.screens.calculate.CalculateScreenValues
 import sevynidd.diabetesapp.screens.calculate.TemplateEditorScreen
 import sevynidd.diabetesapp.screens.calculate.TemplateSheet
 import sevynidd.diabetesapp.screens.calculate.TemplateSheetCallbacks
-import sevynidd.diabetesapp.screens.factors.FactorEditSessionViewModel
 import sevynidd.diabetesapp.screens.factors.FactorDisplayFormat
 import sevynidd.diabetesapp.screens.factors.FactorScreen
 import sevynidd.diabetesapp.screens.factors.FactorScreenState
@@ -141,12 +136,11 @@ fun BolusManagerMainWindow(
     var factorsDestination by rememberSaveable { mutableStateOf(FactorsDestination.Main) }
     var calculateDestination by rememberSaveable { mutableStateOf(CalculateDestination.Main) }
     var calculateBolusMode by rememberSaveable { mutableStateOf(BolusMode.Normal) }
-    val factorEditorViewModel: FactorEditSessionViewModel = viewModel()
-    val factorEditorState = factorEditorViewModel.uiState
+    val latestFactors by rememberUpdatedState(factorData)
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
-    val activity = remember(context) { context.findActivity() }
-    val lifecycleOwner = LocalLifecycleOwner.current
     var templatePrefillCarbohydrates by rememberSaveable { mutableStateOf<Double?>(null) }
     var templatePrefillToken by rememberSaveable { mutableIntStateOf(0) }
     var editingTemplateId by rememberSaveable { mutableStateOf<Long?>(null) }
@@ -171,8 +165,33 @@ fun BolusManagerMainWindow(
         isTemplateSheetOpen = true
     }
 
-    fun leaveFactorsEditMode(shouldSave: Boolean) {
-        factorEditorViewModel.leaveEditMode(shouldSave)
+    val savedMessage = translate(TranslationKey.FactorsSaved, currentLanguage)
+    val undoLabel = translate(TranslationKey.ActionUndo, currentLanguage)
+
+    /** Saves the changed factors at once and offers to put the previous ones back. */
+    fun saveFactorsWithUndo(transform: (FactorsData) -> FactorsData) {
+        val before = latestFactors
+        val after = transform(before)
+        if (after == before) return
+
+        onFactorSaveRequested(after)
+        coroutineScope.launch {
+            snackbarHostState.currentSnackbarData?.dismiss()
+            val result = snackbarHostState.showSnackbar(
+                message = savedMessage,
+                actionLabel = undoLabel,
+                duration = SnackbarDuration.Long
+            )
+            if (result == SnackbarResult.ActionPerformed) onFactorSaveRequested(before)
+        }
+    }
+
+    fun setPeriodEnabled(enabled: Boolean) {
+        onFactorSaveRequested(latestFactors.copy(isPeriodEnabled = enabled))
+    }
+
+    fun setBasalReminderEnabled(enabled: Boolean) {
+        onFactorSaveRequested(latestFactors.copy(basalReminderEnabled = enabled))
     }
 
     val canNavigateUpWithinDestination = (
@@ -199,10 +218,6 @@ fun BolusManagerMainWindow(
         // from composition, which would otherwise silently drop the edit.
         focusManager.clearFocus(force = true)
 
-        if (currentDestination == AppDestinations.FACTORS) {
-            leaveFactorsEditMode(shouldSave = true)
-        }
-
         if (currentDestination == AppDestinations.CALCULATE) {
             calculateDestination = CalculateDestination.Main
             editingTemplateId = null
@@ -210,46 +225,6 @@ fun BolusManagerMainWindow(
         }
 
         currentDestination = destination
-    }
-
-    val requestBackgroundSave by rememberUpdatedState {
-        if (activity?.isChangingConfigurations == true) {
-            return@rememberUpdatedState
-        }
-
-        if (currentDestination == AppDestinations.FACTORS) {
-            focusManager.clearFocus(force = true)
-            leaveFactorsEditMode(shouldSave = true)
-        }
-    }
-
-    LaunchedEffect(factorData, factorEditorState.isEditMode, factorEditorState.pendingSave) {
-        factorEditorViewModel.syncPersistedFactors(factorData)
-    }
-
-    LaunchedEffect(
-        factorEditorState.isEditMode,
-        factorEditorState.pendingSave,
-        factorEditorState.factors
-    ) {
-        if (!factorEditorState.isEditMode && factorEditorState.pendingSave) {
-            withFrameNanos { }
-            factorEditorViewModel.consumePendingSave()?.let(onFactorSaveRequested)
-        }
-    }
-
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_STOP) {
-                requestBackgroundSave()
-            }
-        }
-
-        lifecycleOwner.lifecycle.addObserver(observer)
-
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
     }
 
     val navigationLayoutType = NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(currentWindowAdaptiveInfo())
@@ -263,6 +238,12 @@ fun BolusManagerMainWindow(
                 .fillMaxSize()
                 .nestedScroll(scrollBehavior.nestedScrollConnection),
             contentWindowInsets = contentWindowInsets,
+            snackbarHost = {
+                SnackbarHost(
+                    hostState = snackbarHostState,
+                    modifier = Modifier.padding(bottom = bottomContentPadding)
+                )
+            },
             topBar = {
                 val topBarTitle = when (currentDestination) {
                     AppDestinations.SETTINGS if settingsDestination == SettingsDestination.Theme ->
@@ -333,23 +314,6 @@ fun BolusManagerMainWindow(
                                     contentDescription = translate(TranslationKey.ActionSchedule, currentLanguage)
                                 )
                             }
-
-                            IconButton(onClick = {
-                                if (factorEditorState.isEditMode) {
-                                    leaveFactorsEditMode(shouldSave = true)
-                                } else {
-                                    factorEditorViewModel.startEditing()
-                                }
-                            }) {
-                                Icon(
-                                    imageVector = if (factorEditorState.isEditMode) Icons.Filled.Check else Icons.Filled.Edit,
-                                    contentDescription = if (factorEditorState.isEditMode) {
-                                        translate(TranslationKey.ActionSave, currentLanguage)
-                                    } else {
-                                        translate(TranslationKey.ActionEdit, currentLanguage)
-                                    }
-                                )
-                            }
                         }
 
                         if (currentDestination == AppDestinations.CALCULATE && calculateDestination == CalculateDestination.Main) {
@@ -384,18 +348,17 @@ fun BolusManagerMainWindow(
                                 modifier = contentModifier,
                                 currentLanguage = currentLanguage,
                                 state = FactorScreenState(
-                                    factors = factorEditorState.factors,
-                                    isEditMode = factorEditorState.isEditMode,
+                                    factors = factorData,
                                     displayFormat = FactorDisplayFormat(therapyMode, breadUnits),
-                                    onFactorsChange = factorEditorViewModel::updateDraft
+                                    onFactorsChange = ::saveFactorsWithUndo
                                 )
                             )
 
                             FactorsDestination.EditSchedule -> ScheduleFactorScreen(
                                 modifier = contentModifier,
                                 currentLanguage = currentLanguage,
-                                factors = factorEditorState.factors,
-                                onFactorsChange = factorEditorViewModel::updateDraft
+                                factors = factorData,
+                                onFactorsChange = ::saveFactorsWithUndo
                             )
                         }
                     }
@@ -413,7 +376,7 @@ fun BolusManagerMainWindow(
                                 modifier = contentModifier,
                                 currentLanguage = currentLanguage,
                                 values = CalculateScreenValues(
-                                    factors = factorEditorState.factors,
+                                    factors = factorData,
                                     breadUnits = breadUnits,
                                     periodFactorPercent = periodFactorPercent,
                                     correctionSettings = correctionSettings,
@@ -426,7 +389,7 @@ fun BolusManagerMainWindow(
                                 ),
                                 callbacks = CalculateScreenCallbacks(
                                     onSelectedModeChange = { calculateBolusMode = it },
-                                    onPeriodEnabledChange = factorEditorViewModel::updatePeriodEnabled,
+                                    onPeriodEnabledChange = ::setPeriodEnabled,
                                     onTemplateSelected = ::selectTemplate,
                                     onAllTemplatesRequested = { isTemplateSheetOpen = true }
                                 )
@@ -553,15 +516,15 @@ fun BolusManagerMainWindow(
                             SettingsDestination.Notifications -> NotificationSettingsScreen(
                                 modifier = contentModifier,
                                 currentLanguage = currentLanguage,
-                                isBasalReminderEnabled = factorEditorState.factors.basalReminderEnabled,
-                                onBasalReminderEnabledChange = factorEditorViewModel::updateBasalReminderEnabled
+                                isBasalReminderEnabled = factorData.basalReminderEnabled,
+                                onBasalReminderEnabledChange = ::setBasalReminderEnabled
                             )
 
                             SettingsDestination.DataManagement -> ImportExportSettingsScreen(
                                 modifier = contentModifier,
                                 currentLanguage = currentLanguage,
                                 currentValues = FactorsExportBundle(
-                                    factors = factorEditorState.factors,
+                                    factors = factorData,
                                     breadUnits = breadUnits,
                                     periodFactorPercent = periodFactorPercent,
                                     correctionSettings = correctionSettings,
@@ -575,7 +538,7 @@ fun BolusManagerMainWindow(
                                 modifier = contentModifier,
                                 currentLanguage = currentLanguage,
                                 auditLog = auditLog,
-                                factors = factorEditorState.factors,
+                                factors = factorData,
                                 therapyMode = therapyMode
                             )
 
@@ -622,13 +585,5 @@ fun BolusManagerMainWindow(
         ) {
             mainContent(0.dp, ScaffoldDefaults.contentWindowInsets)
         }
-    }
-}
-
-private tailrec fun Context.findActivity(): Activity? {
-    return when (this) {
-        is Activity -> this
-        is ContextWrapper -> baseContext.findActivity()
-        else -> null
     }
 }
