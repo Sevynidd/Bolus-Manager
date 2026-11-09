@@ -149,6 +149,7 @@ enum class TranslationKey {
     DoseBlockedNoFactor,
     ResetInputs,
     ResetInputsHelp,
+    QuickEntryHelp,
     GlucoseUnitLabel,
     GlucoseUnitHelp,
     GenderSettingsTitle,
@@ -362,6 +363,9 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ResetInputsHelp ->
                 "Clears the amounts entered for this bolus type, so no old value is left behind before the " +
                     "next calculation."
+            TranslationKey.QuickEntryHelp ->
+                "Tap a template to fill in its carbs. The plus and minus chips change the carbs you have typed " +
+                    "in by 10 g, and Templates opens the full list to add, edit or delete templates."
             TranslationKey.TherapyModeTitle -> "Therapy"
             TranslationKey.TherapyModeHelp ->
                 "Choose how you take insulin. \"Pen\" shows factors as units of insulin per bread " +
@@ -689,6 +693,10 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ResetInputsHelp ->
                 "Leert die Eingaben dieses Bolus-Typs, damit vor der nächsten Berechnung kein alter Wert " +
                     "stehen bleibt."
+            TranslationKey.QuickEntryHelp ->
+                "Tippe auf eine Vorlage, um ihre Kohlenhydrate einzutragen. Die Plus- und Minus-Chips ändern die " +
+                    "eingegebenen Kohlenhydrate um 10 g, und Vorlagen öffnet die ganze Liste zum Hinzufügen, " +
+                    "Bearbeiten oder Löschen."
             TranslationKey.TherapyModeTitle -> "Therapie"
             TranslationKey.TherapyModeHelp ->
                 "Wähle, wie du Insulin verabreichst. \"Pen\" zeigt Faktoren als Einheiten Insulin pro " +
@@ -1032,6 +1040,10 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ResetInputsHelp ->
                 "Efface les valeurs saisies pour ce type de bolus afin qu'aucune ancienne valeur ne reste " +
                     "avant le prochain calcul."
+            TranslationKey.QuickEntryHelp ->
+                "Touchez un modèle pour saisir ses glucides. Les puces plus et moins modifient les glucides " +
+                    "saisis de 10 g, et Modèles ouvre la liste complète pour ajouter, modifier ou supprimer " +
+                    "des modèles."
             TranslationKey.TherapyModeTitle -> "Traitement"
             TranslationKey.TherapyModeHelp ->
                 "Choisissez comment vous administrez l'insuline. \"Stylo\" affiche les facteurs en " +
@@ -1376,6 +1388,9 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ResetInputsHelp ->
                 "Czyści wartości wpisane dla tego typu bolusa, aby przed kolejnym obliczeniem nie została " +
                     "żadna stara wartość."
+            TranslationKey.QuickEntryHelp ->
+                "Dotknij szablonu, aby wpisać jego węglowodany. Chipy plus i minus zmieniają wpisane węglowodany " +
+                    "o 10 g, a Szablony otwierają pełną listę do dodawania, edycji i usuwania szablonów."
             TranslationKey.TherapyModeTitle -> "Terapia"
             TranslationKey.TherapyModeHelp ->
                 "Wybierz, jak podajesz insulinę. \"Pen\" pokazuje czynniki jako jednostki insuliny " +

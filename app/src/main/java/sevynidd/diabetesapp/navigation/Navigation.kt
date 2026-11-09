@@ -51,7 +51,6 @@ enum class FactorsDestination {
 
 enum class CalculateDestination {
     Main,
-    Templates,
     TemplateEditor
 }
 

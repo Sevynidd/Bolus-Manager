@@ -76,7 +76,8 @@ import sevynidd.diabetesapp.screens.calculate.CalculateScreen
 import sevynidd.diabetesapp.screens.calculate.CalculateScreenCallbacks
 import sevynidd.diabetesapp.screens.calculate.CalculateScreenValues
 import sevynidd.diabetesapp.screens.calculate.TemplateEditorScreen
-import sevynidd.diabetesapp.screens.calculate.TemplateManagerScreen
+import sevynidd.diabetesapp.screens.calculate.TemplateSheet
+import sevynidd.diabetesapp.screens.calculate.TemplateSheetCallbacks
 import sevynidd.diabetesapp.screens.factors.FactorEditSessionViewModel
 import sevynidd.diabetesapp.screens.factors.FactorDisplayFormat
 import sevynidd.diabetesapp.screens.factors.FactorScreen
@@ -147,6 +148,25 @@ fun BolusManagerMainWindow(
     var templatePrefillToken by rememberSaveable { mutableIntStateOf(0) }
     var editingTemplateId by rememberSaveable { mutableStateOf<Long?>(null) }
     val editingTemplate = templates.firstOrNull { it.id == editingTemplateId }
+    var isTemplateSheetOpen by rememberSaveable { mutableStateOf(false) }
+
+    fun selectTemplate(template: BolusTemplateEntity) {
+        templatePrefillCarbohydrates = template.carbohydrates
+        templatePrefillToken += 1
+        onTemplateMarkUsedRequested(template.id)
+        isTemplateSheetOpen = false
+    }
+
+    fun openTemplateEditor(templateId: Long?) {
+        editingTemplateId = templateId
+        isTemplateSheetOpen = false
+        calculateDestination = CalculateDestination.TemplateEditor
+    }
+
+    fun closeTemplateEditor() {
+        calculateDestination = CalculateDestination.Main
+        isTemplateSheetOpen = true
+    }
 
     fun leaveFactorsEditMode(shouldSave: Boolean) {
         factorEditorViewModel.leaveEditMode(shouldSave)
@@ -162,12 +182,7 @@ fun BolusManagerMainWindow(
         when (currentDestination) {
             AppDestinations.SETTINGS -> settingsDestination = SettingsDestination.Main
             AppDestinations.FACTORS -> factorsDestination = FactorsDestination.Main
-            AppDestinations.CALCULATE -> {
-                calculateDestination = when (calculateDestination) {
-                    CalculateDestination.TemplateEditor -> CalculateDestination.Templates
-                    else -> CalculateDestination.Main
-                }
-            }
+            AppDestinations.CALCULATE -> closeTemplateEditor()
         }
     }
 
@@ -188,6 +203,7 @@ fun BolusManagerMainWindow(
         if (currentDestination == AppDestinations.CALCULATE) {
             calculateDestination = CalculateDestination.Main
             editingTemplateId = null
+            isTemplateSheetOpen = false
         }
 
         currentDestination = destination
@@ -276,9 +292,6 @@ fun BolusManagerMainWindow(
                     AppDestinations.FACTORS if factorsDestination == FactorsDestination.EditSchedule ->
                         translate(TranslationKey.ActionSchedule, currentLanguage)
 
-                    AppDestinations.CALCULATE if calculateDestination == CalculateDestination.Templates ->
-                        translate(TranslationKey.TemplatesTitle, currentLanguage)
-
                     AppDestinations.CALCULATE if calculateDestination == CalculateDestination.TemplateEditor ->
                         translate(
                             if (editingTemplate != null) TranslationKey.TemplateEdit else TranslationKey.TemplateAdd,
@@ -337,7 +350,7 @@ fun BolusManagerMainWindow(
                         }
 
                         if (currentDestination == AppDestinations.CALCULATE && calculateDestination == CalculateDestination.Main) {
-                            IconButton(onClick = { calculateDestination = CalculateDestination.Templates }) {
+                            IconButton(onClick = { isTemplateSheetOpen = true }) {
                                 Icon(
                                     imageVector = Icons.Filled.Bookmark,
                                     contentDescription = translate(TranslationKey.ActionTemplates, currentLanguage)
@@ -405,33 +418,15 @@ fun BolusManagerMainWindow(
                                     therapyMode = therapyMode,
                                     templatePrefillCarbohydrates = templatePrefillCarbohydrates,
                                     templatePrefillToken = templatePrefillToken,
-                                    selectedMode = calculateBolusMode
+                                    selectedMode = calculateBolusMode,
+                                    templates = templates
                                 ),
                                 callbacks = CalculateScreenCallbacks(
                                     onSelectedModeChange = { calculateBolusMode = it },
-                                    onPeriodEnabledChange = factorEditorViewModel::updatePeriodEnabled
+                                    onPeriodEnabledChange = factorEditorViewModel::updatePeriodEnabled,
+                                    onTemplateSelected = ::selectTemplate,
+                                    onAllTemplatesRequested = { isTemplateSheetOpen = true }
                                 )
-                            )
-
-                            CalculateDestination.Templates -> TemplateManagerScreen(
-                                modifier = contentModifier,
-                                currentLanguage = currentLanguage,
-                                templates = templates,
-                                onTemplateSelected = { selectedTemplate ->
-                                    templatePrefillCarbohydrates = selectedTemplate.carbohydrates
-                                    templatePrefillToken += 1
-                                    onTemplateMarkUsedRequested(selectedTemplate.id)
-                                    calculateDestination = CalculateDestination.Main
-                                },
-                                onAddTemplateRequested = {
-                                    editingTemplateId = null
-                                    calculateDestination = CalculateDestination.TemplateEditor
-                                },
-                                onEditTemplateRequested = { template ->
-                                    editingTemplateId = template.id
-                                    calculateDestination = CalculateDestination.TemplateEditor
-                                },
-                                onTemplateDeleteRequested = onTemplateDeleteRequested
                             )
 
                             CalculateDestination.TemplateEditor -> TemplateEditorScreen(
@@ -441,10 +436,24 @@ fun BolusManagerMainWindow(
                                 templates = templates,
                                 onAddRequested = onTemplateAddRequested,
                                 onUpdateRequested = onTemplateUpdateRequested,
-                                onSaved = { calculateDestination = CalculateDestination.Templates },
-                                onCancel = { calculateDestination = CalculateDestination.Templates }
+                                onSaved = ::closeTemplateEditor,
+                                onCancel = ::closeTemplateEditor
                             )
                         }
+                    }
+
+                    if (isTemplateSheetOpen && calculateDestination == CalculateDestination.Main) {
+                        TemplateSheet(
+                            currentLanguage = currentLanguage,
+                            templates = templates,
+                            callbacks = TemplateSheetCallbacks(
+                                onSelected = ::selectTemplate,
+                                onAddRequested = { openTemplateEditor(null) },
+                                onEditRequested = { openTemplateEditor(it.id) },
+                                onDeleteRequested = onTemplateDeleteRequested
+                            ),
+                            onDismiss = { isTemplateSheetOpen = false }
+                        )
                     }
                 }
                 AppDestinations.SETTINGS -> {

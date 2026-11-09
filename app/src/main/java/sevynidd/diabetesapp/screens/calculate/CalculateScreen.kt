@@ -30,6 +30,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import sevynidd.diabetesapp.data.database.BolusTemplateEntity
 import sevynidd.diabetesapp.data.model.FactorsData
 import sevynidd.diabetesapp.data.settings.correction.CorrectionSettings
 import sevynidd.diabetesapp.data.settings.correction.GlucoseUnit
@@ -67,13 +68,16 @@ data class CalculateScreenValues(
     val therapyMode: TherapyMode = TherapyMode.Pen,
     val templatePrefillCarbohydrates: Double? = null,
     val templatePrefillToken: Int = 0,
-    val selectedMode: BolusMode = BolusMode.Normal
+    val selectedMode: BolusMode = BolusMode.Normal,
+    val templates: List<BolusTemplateEntity> = emptyList()
 )
 
 /** Edit callbacks for [CalculateScreen], bundled to keep its parameter list short. */
 data class CalculateScreenCallbacks(
     val onSelectedModeChange: (BolusMode) -> Unit = {},
-    val onPeriodEnabledChange: (Boolean) -> Unit = {}
+    val onPeriodEnabledChange: (Boolean) -> Unit = {},
+    val onTemplateSelected: (BolusTemplateEntity) -> Unit = {},
+    val onAllTemplatesRequested: () -> Unit = {}
 )
 
 /** Everything [CalculateScreenBody] needs to render, bundled to keep its parameter list short. */
@@ -180,6 +184,26 @@ private fun CalculateScreenBody(
             currentLanguage = currentLanguage,
             state = state,
             focusManager = focusManager
+        )
+
+        QuickEntryBar(
+            templates = state.values.templates,
+            callbacks = QuickEntryCallbacks(
+                onTemplateSelected = state.callbacks.onTemplateSelected,
+                onAdjustCarbohydrates = { delta ->
+                    if (isSplit) {
+                        state.splitInputs.onCarbohydratesChange(
+                            adjustCarbohydrates(state.splitInputs.carbohydrates, delta)
+                        )
+                    } else {
+                        state.normalInputs.onCarbohydratesChange(
+                            adjustCarbohydrates(state.normalInputs.carbohydrates, delta)
+                        )
+                    }
+                },
+                onAllTemplatesRequested = state.callbacks.onAllTemplatesRequested
+            ),
+            currentLanguage = currentLanguage
         )
     }
 }

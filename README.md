@@ -56,7 +56,8 @@ and consult your doctor or diabetes care team before acting on them.
 - Typing mistakes are caught: a blood sugar or carb amount above limits you can adjust, or carbs without
   a factor for the time of day, show an explanation instead of a dose
 - Uses your configured bread-unit value
-- Save frequently used carb amounts as named, emoji-tagged **templates** for one-tap reuse
+- Save frequently used carb amounts as named, emoji-tagged **templates**; your latest ones sit as one-tap chips
+  under the entries (with +10 g and -10 g buttons), and the full list opens as a sheet over the calculator
 
 ### Settings
 

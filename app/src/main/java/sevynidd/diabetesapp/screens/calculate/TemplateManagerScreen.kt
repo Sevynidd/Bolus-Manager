@@ -56,6 +56,14 @@ import sevynidd.diabetesapp.localization.translate
 import sevynidd.diabetesapp.ui.HelpIconButton
 import java.util.Locale
 
+/** What the template list can do with a template, bundled to keep its parameter list short. */
+internal data class TemplateSheetCallbacks(
+    val onSelected: (BolusTemplateEntity) -> Unit = {},
+    val onAddRequested: () -> Unit = {},
+    val onEditRequested: (BolusTemplateEntity) -> Unit = {},
+    val onDeleteRequested: (BolusTemplateEntity) -> Unit = {}
+)
+
 enum class TemplateSortOrder {
     Alphabetical,
     RecentlyUsed
