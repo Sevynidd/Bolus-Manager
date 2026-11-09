@@ -19,6 +19,8 @@ enum class TranslationKey {
     ThemeModeHelp,
     ContrastLevel,
     ContrastLevelHelp,
+    DynamicColor,
+    DynamicColorHelp,
     Language,
     LanguageHelp,
     ThemeSystem,
@@ -253,6 +255,10 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ContrastLevelHelp ->
                 "Increases the contrast between text, icons, and their background for better " +
                     "readability. Higher contrast can help in bright light or with low vision."
+            TranslationKey.DynamicColor -> "Wallpaper colors"
+            TranslationKey.DynamicColorHelp ->
+                "Uses colors taken from your wallpaper instead of the app's own warm palette. Warnings for " +
+                    "a low blood sugar or a high dose always stay red or amber."
             TranslationKey.Language -> "Language"
             TranslationKey.LanguageHelp ->
                 "The language used throughout the app. Choose System to follow your device's " +
@@ -578,6 +584,10 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ContrastLevelHelp ->
                 "Erhöht den Kontrast zwischen Text, Symbolen und ihrem Hintergrund für bessere " +
                     "Lesbarkeit. Höherer Kontrast kann bei hellem Licht oder Sehschwäche helfen."
+            TranslationKey.DynamicColor -> "Farben vom Hintergrundbild"
+            TranslationKey.DynamicColorHelp ->
+                "Übernimmt Farben aus deinem Hintergrundbild statt der eigenen warmen Farbpalette der App. " +
+                    "Warnungen bei Unterzucker oder hoher Dosis bleiben immer rot oder bernsteinfarben."
             TranslationKey.Language -> "Sprache"
             TranslationKey.LanguageHelp ->
                 "Die in der gesamten App verwendete Sprache. Wähle System, um die " +
@@ -923,6 +933,10 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                 "Augmente le contraste entre le texte, les icônes et leur arrière-plan pour une " +
                     "meilleure lisibilité. Un contraste plus élevé peut aider en lumière vive ou " +
                     "en cas de basse vision."
+            TranslationKey.DynamicColor -> "Couleurs du fond d'écran"
+            TranslationKey.DynamicColorHelp ->
+                "Utilise les couleurs de votre fond d'écran au lieu de la palette chaude de l'application. " +
+                    "Les avertissements pour une hypoglycémie ou une dose élevée restent toujours rouges ou ambrés."
             TranslationKey.Language -> "Langue"
             TranslationKey.LanguageHelp ->
                 "La langue utilisée dans toute l'application. Choisissez Système pour suivre la " +
@@ -1274,6 +1288,10 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.ContrastLevelHelp ->
                 "Zwiększa kontrast między tekstem, ikonami a ich tłem dla lepszej czytelności. " +
                     "Wyższy kontrast może pomóc przy jasnym świetle lub słabym wzroku."
+            TranslationKey.DynamicColor -> "Kolory z tapety"
+            TranslationKey.DynamicColorHelp ->
+                "Używa kolorów z Twojej tapety zamiast własnej, ciepłej palety aplikacji. " +
+                    "Ostrzeżenia przy niskim cukrze lub wysokiej dawce zawsze pozostają czerwone lub bursztynowe."
             TranslationKey.Language -> "Język"
             TranslationKey.LanguageHelp ->
                 "Język używany w całej aplikacji. Wybierz System, aby podążać za ustawieniem " +

@@ -107,6 +107,7 @@ import sevynidd.diabetesapp.ui.theme.ContrastLevel
 fun BolusManagerMainWindow(
     themeMode: ThemeMode = ThemeMode.System,
     contrastLevel: ContrastLevel = ContrastLevel.Normal,
+    useDynamicColor: Boolean = false,
     currentLanguage: AppLanguage = AppLanguage.System,
     breadUnits: Double = 12.0,
     periodFactorPercent: Double = 0.0,
@@ -116,6 +117,7 @@ fun BolusManagerMainWindow(
     factorData: FactorsData = FactorsData(),
     onThemeModeChange: (ThemeMode) -> Unit = {},
     onContrastLevelChange: (ContrastLevel) -> Unit = {},
+    onDynamicColorChange: (Boolean) -> Unit = {},
     onLanguageChange: (AppLanguage) -> Unit = {},
     onBreadUnitsChange: (Double) -> Unit = {},
     onPeriodFactorPercentChange: (Double) -> Unit = {},
@@ -497,9 +499,11 @@ fun BolusManagerMainWindow(
                                 modifier = contentModifier,
                                 currentThemeMode = themeMode,
                                 currentContrastLevel = contrastLevel,
+                                currentUseDynamicColor = useDynamicColor,
                                 currentLanguage = currentLanguage,
                                 onThemeModeChange = onThemeModeChange,
                                 onContrastLevelChange = onContrastLevelChange,
+                                onUseDynamicColorChange = onDynamicColorChange,
                                 onBackClick = { settingsDestination = SettingsDestination.Main }
                             )
 

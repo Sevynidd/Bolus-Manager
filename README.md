@@ -61,7 +61,8 @@ and consult your doctor or diabetes care team before acting on them.
 
 ### Settings
 
-- Light, dark, or system theme, with adjustable contrast
+- Light, dark, or system theme with adjustable contrast, in the app's own warm colors or, optionally, your
+  wallpaper colors
 - Available in German, English, French, and Polish (or follow your system language)
 - Set your gender (Male, Female, or Prefer not to say), which determines whether Period is shown
 - Tune the bread-unit value, Period surcharge, and blood-sugar correction thresholds to your needs, in either mg/dl or mmol/l

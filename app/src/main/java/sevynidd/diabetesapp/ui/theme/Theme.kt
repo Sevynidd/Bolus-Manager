@@ -11,6 +11,7 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
@@ -292,7 +293,7 @@ private fun ColorScheme.withDynamicContrast(contrastLevel: ContrastLevel): Color
 @Composable
 fun BolusManagerTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     contrastLevel: ContrastLevel = ContrastLevel.Normal,
     content: @Composable () -> Unit
 ) {
@@ -327,11 +328,13 @@ fun BolusManagerTheme(
         }
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = AppTypography,
-        content = content
-    )
+    CompositionLocalProvider(LocalWarningColors provides if (darkTheme) warningColorsDark else warningColorsLight) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = AppTypography,
+            content = content
+        )
+    }
 }
 
 private tailrec fun Context.findActivity(): Activity? {

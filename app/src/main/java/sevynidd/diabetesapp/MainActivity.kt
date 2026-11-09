@@ -107,7 +107,7 @@ class MainActivity : ComponentActivity() {
 
             BolusManagerTheme(
                 darkTheme = darkTheme,
-                dynamicColor = true,
+                dynamicColor = settings.useDynamicColor,
                 contrastLevel = settings.contrastLevel
             ) {
                 when {
@@ -179,6 +179,7 @@ class MainActivity : ComponentActivity() {
                     else -> BolusManagerMainWindow(
                         themeMode = settings.themeMode,
                         contrastLevel = settings.contrastLevel,
+                        useDynamicColor = settings.useDynamicColor,
                         currentLanguage = settings.language,
                         breadUnits = settings.breadUnits,
                         periodFactorPercent = settings.periodFactorPercent,
@@ -190,6 +191,9 @@ class MainActivity : ComponentActivity() {
                         },
                         onContrastLevelChange = { contrastLevel ->
                             coroutineScope.launch { appSettingsStore.setContrastLevel(contrastLevel) }
+                        },
+                        onDynamicColorChange = { useDynamicColor ->
+                            coroutineScope.launch { appSettingsStore.setUseDynamicColor(useDynamicColor) }
                         },
                         onLanguageChange = { language ->
                             coroutineScope.launch { appSettingsStore.setLanguage(language) }

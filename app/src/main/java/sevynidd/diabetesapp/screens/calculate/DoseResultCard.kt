@@ -18,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import sevynidd.diabetesapp.calculation.DoseBreakdown
 import sevynidd.diabetesapp.calculation.mgDlToMmolL
@@ -29,6 +28,7 @@ import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
 import sevynidd.diabetesapp.ui.HelpIconButton
 import sevynidd.diabetesapp.ui.glucoseUnitLabel
+import sevynidd.diabetesapp.ui.theme.warningColors
 
 /**
  * The pinned result of the current bolus mode: warning banners (low blood sugar, dose above the
@@ -55,7 +55,8 @@ internal fun DoseResultArea(
                     correctionSettings.maxDoseUnits.toUiDecimalOrEmpty(),
                     translate(TranslationKey.DoseUnitSymbol, currentLanguage)
                 ),
-                body = null
+                body = null,
+                isCaution = true
             )
         }
         DoseResultCard(dose, activeFactorText, correctionSettings, currentLanguage)
@@ -86,11 +87,15 @@ private fun LowBloodSugarBanner(
 }
 
 @Composable
-private fun WarningBanner(title: String, body: String?) {
+private fun WarningBanner(title: String, body: String?, isCaution: Boolean = false) {
+    val caution = MaterialTheme.warningColors
+    val containerColor = if (isCaution) caution.container else MaterialTheme.colorScheme.errorContainer
+    val contentColor = if (isCaution) caution.onContainer else MaterialTheme.colorScheme.onErrorContainer
+
     Card(
         modifier = Modifier.fillMaxWidth().semantics { liveRegion = LiveRegionMode.Assertive },
         shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)
+        colors = CardDefaults.cardColors(containerColor = containerColor)
     ) {
         Row(
             modifier = Modifier.padding(12.dp),
@@ -100,19 +105,19 @@ private fun WarningBanner(title: String, body: String?) {
             Icon(
                 imageVector = Icons.Filled.WarningAmber,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onErrorContainer
+                tint = contentColor
             )
             Column {
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onErrorContainer
+                    color = contentColor
                 )
                 body?.let {
                     Text(
                         text = it,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onErrorContainer
+                        color = contentColor
                     )
                 }
             }
@@ -233,16 +238,3 @@ private fun Double.toDoseText(): String = toUiDecimalOrEmpty().ifBlank { "0" }
 
 private fun Double.toDisplayGlucose(unit: GlucoseUnit): String =
     (if (unit == GlucoseUnit.MmolL) mgDlToMmolL(this) else this).toUiDecimalOrEmpty()
-
-@Preview(showBackground = true)
-@Composable
-private fun DoseResultAreaPreview() {
-    val settings = CorrectionSettings()
-    DoseResultArea(
-        dose = resolveDose(mealUnits = 1.2, rawBloodSugar = "62", correctionSettings = settings),
-        rawBloodSugar = "62",
-        activeFactorText = "Breakfast · 1,5",
-        correctionSettings = settings,
-        currentLanguage = AppLanguage.System
-    )
-}

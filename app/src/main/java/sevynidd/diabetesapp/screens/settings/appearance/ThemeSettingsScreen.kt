@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -32,9 +33,11 @@ fun ThemeSettingsScreen(
     modifier: Modifier = Modifier,
     currentThemeMode: ThemeMode = ThemeMode.System,
     currentContrastLevel: ContrastLevel = ContrastLevel.Normal,
+    currentUseDynamicColor: Boolean = false,
     currentLanguage: AppLanguage = AppLanguage.System,
     onThemeModeChange: (ThemeMode) -> Unit = {},
     onContrastLevelChange: (ContrastLevel) -> Unit = {},
+    onUseDynamicColorChange: (Boolean) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
     Column(
@@ -52,6 +55,40 @@ fun ThemeSettingsScreen(
             currentLanguage = currentLanguage,
             onContrastLevelChange = onContrastLevelChange
         )
+
+        DynamicColorCard(
+            isEnabled = currentUseDynamicColor,
+            currentLanguage = currentLanguage,
+            onEnabledChange = onUseDynamicColorChange
+        )
+    }
+}
+
+@Composable
+private fun DynamicColorCard(
+    isEnabled: Boolean,
+    currentLanguage: AppLanguage,
+    onEnabledChange: (Boolean) -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        )
+    ) {
+        Row(
+            modifier = Modifier.padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = translate(TranslationKey.DynamicColor, currentLanguage),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.weight(1f)
+            )
+            HelpIconButton(helpTextKey = TranslationKey.DynamicColorHelp, currentLanguage = currentLanguage)
+            Switch(checked = isEnabled, onCheckedChange = onEnabledChange)
+        }
     }
 }
 

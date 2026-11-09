@@ -33,6 +33,7 @@ private val Context.appSettingsDataStore: DataStore<Preferences> by preferencesD
 data class AppSettings(
     val themeMode: ThemeMode = ThemeMode.System,
     val contrastLevel: ContrastLevel = ContrastLevel.Normal,
+    val useDynamicColor: Boolean = false,
     val language: AppLanguage = AppLanguage.System,
     val breadUnits: Double = DEFAULT_BREAD_UNITS,
     val periodFactorPercent: Double = DEFAULT_PERIOD_FACTOR_PERCENT,
@@ -55,6 +56,7 @@ class AppSettingsStore(private val context: Context) {
     private object Keys {
         val THEME_MODE = stringPreferencesKey("theme_mode")
         val CONTRAST_LEVEL = stringPreferencesKey("contrast_level")
+        val USE_DYNAMIC_COLOR = booleanPreferencesKey("use_dynamic_color")
         // Keep legacy key name so existing language value migrates seamlessly.
         val LANGUAGE = stringPreferencesKey(LEGACY_LANGUAGE_KEY)
         val BREAD_UNITS = stringPreferencesKey("bread_units")
@@ -79,6 +81,7 @@ class AppSettingsStore(private val context: Context) {
         AppSettings(
             themeMode = preferences[Keys.THEME_MODE].toEnumOrDefault(ThemeMode.System),
             contrastLevel = preferences[Keys.CONTRAST_LEVEL].toEnumOrDefault(ContrastLevel.Normal),
+            useDynamicColor = preferences[Keys.USE_DYNAMIC_COLOR] ?: false,
             language = preferences[Keys.LANGUAGE].toEnumOrDefault(AppLanguage.System),
             breadUnits = preferences[Keys.BREAD_UNITS].toDoubleOrDefault(DEFAULT_BREAD_UNITS),
             periodFactorPercent = preferences[Keys.PERIOD_FACTOR_PERCENT]
@@ -115,6 +118,13 @@ class AppSettingsStore(private val context: Context) {
     suspend fun setContrastLevel(contrastLevel: ContrastLevel) {
         context.appSettingsDataStore.edit { preferences ->
             preferences[Keys.CONTRAST_LEVEL] = contrastLevel.name
+        }
+    }
+
+    /** Persists whether the theme takes its colors from the wallpaper instead of the app's own palette. */
+    suspend fun setUseDynamicColor(useDynamicColor: Boolean) {
+        context.appSettingsDataStore.edit { preferences ->
+            preferences[Keys.USE_DYNAMIC_COLOR] = useDynamicColor
         }
     }
 
