@@ -46,6 +46,8 @@ import sevynidd.diabetesapp.localization.TranslationKey
 private val FooterIconSize = 18.dp
 private val FooterIconTextGap = 8.dp
 private val ChevronIconSize = 16.dp
+private val GroupHeadingGap = 8.dp
+private val GroupHeadingInset = 16.dp
 
 /** Navigation callbacks for [SettingsScreen], grouped to keep the screen's own parameter list short. */
 data class SettingsNavigationCallbacks(
@@ -61,47 +63,27 @@ data class SettingsNavigationCallbacks(
     val onReplayTutorial: () -> Unit = {}
 )
 
-/** One row's icon, title, and click target, used to build the settings list data-driven. */
+/** One row's icon, title, optional current-value subtitle, and click target. */
 private data class SettingsEntry(
     val icon: ImageVector,
     val titleKey: TranslationKey,
+    val summary: String?,
     val onClick: () -> Unit
 )
+
+/** A headed block of rows; rows are built data-driven so the order is easy to read at a glance. */
+private data class SettingsGroup(val titleKey: TranslationKey, val entries: List<SettingsEntry>)
 
 @Composable
 fun SettingsScreen(
     modifier: Modifier = Modifier,
     currentLanguage: AppLanguage = AppLanguage.System,
     navigation: SettingsNavigationCallbacks = SettingsNavigationCallbacks(),
+    summaryInputs: SettingsSummaryInputs = SettingsSummaryInputs(),
     showNotifications: Boolean = true
 ) {
-    val entries = listOfNotNull(
-        SettingsEntry(Icons.Filled.Palette, TranslationKey.Appearance, navigation.onNavigateToTheme),
-        SettingsEntry(Icons.Filled.Language, TranslationKey.Language, navigation.onNavigateToLanguage),
-        SettingsEntry(Icons.Filled.Wc, TranslationKey.GenderSettingsTitle, navigation.onNavigateToGender),
-        SettingsEntry(
-            Icons.Filled.ImportExport,
-            TranslationKey.DataManagementTitle,
-            navigation.onNavigateToDataManagement
-        ),
-        SettingsEntry(
-            Icons.Filled.Notifications,
-            TranslationKey.NotificationSettingsTitle,
-            navigation.onNavigateToNotifications
-        ).takeIf { showNotifications },
-        SettingsEntry(Icons.Filled.Tune, TranslationKey.FactorSettingsTitle, navigation.onNavigateToFactorSettings),
-        SettingsEntry(
-            Icons.Filled.Bloodtype,
-            TranslationKey.CorrectionSettingsTitle,
-            navigation.onNavigateToCorrection
-        ),
-        SettingsEntry(
-            Icons.Filled.Assessment,
-            TranslationKey.StatisticsSettingsTitle,
-            navigation.onNavigateToStatistics
-        ),
-        SettingsEntry(Icons.Filled.History, TranslationKey.ReplayTutorial, navigation.onReplayTutorial)
-    )
+    val summaries = buildSettingsSummaries(summaryInputs, currentLanguage)
+    val groups = buildSettingsGroups(navigation, summaries, showNotifications)
 
     Column(modifier = modifier) {
         Column(
@@ -110,17 +92,8 @@ fun SettingsScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            SettingsGroupCard {
-                entries.forEachIndexed { index, entry ->
-                    if (index != 0) {
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                    }
-                    SettingsNavigationItem(
-                        icon = entry.icon,
-                        title = translate(entry.titleKey, currentLanguage),
-                        onClick = entry.onClick
-                    )
-                }
+            groups.forEach { group ->
+                SettingsGroupSection(group, currentLanguage)
             }
         }
 
@@ -128,6 +101,111 @@ fun SettingsScreen(
             currentLanguage = currentLanguage,
             onClick = navigation.onNavigateToUpdates
         )
+    }
+}
+
+private fun buildSettingsGroups(
+    navigation: SettingsNavigationCallbacks,
+    summaries: SettingsSummaries,
+    showNotifications: Boolean
+): List<SettingsGroup> = listOf(
+    therapyGroup(navigation, summaries),
+    dataGroup(navigation, showNotifications),
+    appGroup(navigation, summaries)
+)
+
+private fun therapyGroup(navigation: SettingsNavigationCallbacks, summaries: SettingsSummaries) =
+    SettingsGroup(
+        TranslationKey.SettingsGroupTherapy,
+        listOf(
+            SettingsEntry(
+                Icons.Filled.Tune,
+                TranslationKey.FactorSettingsTitle,
+                summaries.factors,
+                navigation.onNavigateToFactorSettings
+            ),
+            SettingsEntry(
+                Icons.Filled.Bloodtype,
+                TranslationKey.CorrectionSettingsTitle,
+                summaries.correction,
+                navigation.onNavigateToCorrection
+            ),
+            SettingsEntry(
+                Icons.Filled.Wc,
+                TranslationKey.GenderSettingsTitle,
+                summaries.gender,
+                navigation.onNavigateToGender
+            )
+        )
+    )
+
+private fun dataGroup(navigation: SettingsNavigationCallbacks, showNotifications: Boolean) =
+    SettingsGroup(
+        TranslationKey.SettingsGroupData,
+        listOfNotNull(
+            SettingsEntry(
+                Icons.Filled.Assessment,
+                TranslationKey.StatisticsSettingsTitle,
+                null,
+                navigation.onNavigateToStatistics
+            ),
+            SettingsEntry(
+                Icons.Filled.ImportExport,
+                TranslationKey.DataManagementTitle,
+                null,
+                navigation.onNavigateToDataManagement
+            ),
+            SettingsEntry(
+                Icons.Filled.Notifications,
+                TranslationKey.NotificationSettingsTitle,
+                null,
+                navigation.onNavigateToNotifications
+            ).takeIf { showNotifications }
+        )
+    )
+
+private fun appGroup(navigation: SettingsNavigationCallbacks, summaries: SettingsSummaries) =
+    SettingsGroup(
+        TranslationKey.SettingsGroupApp,
+        listOf(
+            SettingsEntry(
+                Icons.Filled.Palette,
+                TranslationKey.Appearance,
+                summaries.appearance,
+                navigation.onNavigateToTheme
+            ),
+            SettingsEntry(
+                Icons.Filled.Language,
+                TranslationKey.Language,
+                summaries.language,
+                navigation.onNavigateToLanguage
+            ),
+            SettingsEntry(Icons.Filled.History, TranslationKey.ReplayTutorial, null, navigation.onReplayTutorial)
+        )
+    )
+
+@Composable
+private fun SettingsGroupSection(group: SettingsGroup, currentLanguage: AppLanguage) {
+    Column(verticalArrangement = Arrangement.spacedBy(GroupHeadingGap)) {
+        Text(
+            text = translate(group.titleKey, currentLanguage),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(horizontal = GroupHeadingInset)
+        )
+        SettingsGroupCard {
+            group.entries.forEachIndexed { index, entry ->
+                if (index != 0) {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                }
+                SettingsNavigationItem(
+                    icon = entry.icon,
+                    title = translate(entry.titleKey, currentLanguage),
+                    summary = entry.summary,
+                    onClick = entry.onClick
+                )
+            }
+        }
     }
 }
 
@@ -148,6 +226,7 @@ private fun SettingsGroupCard(content: @Composable ColumnScope.() -> Unit) {
 private fun SettingsNavigationItem(
     icon: ImageVector,
     title: String,
+    summary: String?,
     onClick: () -> Unit
 ) {
     ListItem(
@@ -163,6 +242,7 @@ private fun SettingsNavigationItem(
         headlineContent = {
             Text(text = title, style = MaterialTheme.typography.titleSmall)
         },
+        supportingContent = summary?.let { text -> { Text(text = text) } },
         trailingContent = {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,

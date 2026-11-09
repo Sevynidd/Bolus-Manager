@@ -60,7 +60,6 @@ internal fun ResetInputsRow(onReset: () -> Unit, currentLanguage: AppLanguage) {
                 modifier = Modifier.padding(start = 8.dp)
             )
         }
-        HelpIconButton(helpTextKey = TranslationKey.ResetInputsHelp, currentLanguage = currentLanguage)
     }
 }
 
@@ -79,9 +78,15 @@ internal fun BolusModeSelector(
                 SegmentedButton(
                     shape = SegmentedButtonDefaults.itemShape(index = index, count = bolusModes.size),
                     selected = mode == selectedMode,
+                    colors = SegmentedButtonDefaults.colors(
+                        activeContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                        activeContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    ),
+                    icon = {},
                     onClick = { onSelectedModeChange(mode) },
                     label = {
                         Text(
+                            maxLines = 1,
                             text = when (mode) {
                                 BolusMode.Normal -> translate(TranslationKey.BolusNormal, currentLanguage)
                                 BolusMode.Split -> translate(TranslationKey.BolusSplit, currentLanguage)

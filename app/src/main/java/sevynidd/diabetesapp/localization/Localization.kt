@@ -13,6 +13,11 @@ enum class AppLanguage {
 
 /** A user-facing string that [translate] resolves to localized text. */
 enum class TranslationKey {
+    // More screen groups
+    SettingsGroupTherapy,
+    SettingsGroupData,
+    SettingsGroupApp,
+
     // Appearance & theme
     Appearance,
     ThemeMode,
@@ -150,8 +155,6 @@ enum class TranslationKey {
     DoseBlockedCarbohydrates,
     DoseBlockedNoFactor,
     ResetInputs,
-    ResetInputsHelp,
-    QuickEntryHelp,
     GlucoseUnitLabel,
     GlucoseUnitHelp,
     GenderSettingsTitle,
@@ -263,6 +266,9 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.LanguageHelp ->
                 "The language used throughout the app. Choose System to follow your device's " +
                     "language setting."
+            TranslationKey.SettingsGroupTherapy -> "Therapy and dose"
+            TranslationKey.SettingsGroupData -> "Data and report"
+            TranslationKey.SettingsGroupApp -> "App"
             TranslationKey.ThemeSystem -> "System"
             TranslationKey.ThemeLight -> "Light"
             TranslationKey.ThemeDark -> "Dark"
@@ -366,12 +372,6 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                 $$"Carbohydrates are above %1$s %2$s. Check the value."
             TranslationKey.DoseBlockedNoFactor -> "No factor is set for this time of day. Add one under Factors."
             TranslationKey.ResetInputs -> "Reset"
-            TranslationKey.ResetInputsHelp ->
-                "Clears the amounts entered for this bolus type, so no old value is left behind before the " +
-                    "next calculation."
-            TranslationKey.QuickEntryHelp ->
-                "Tap a template to fill in its carbs. The plus and minus chips change the carbs you have typed " +
-                    "in by 10 g, and Templates opens the full list to add, edit or delete templates."
             TranslationKey.TherapyModeTitle -> "Therapy"
             TranslationKey.TherapyModeHelp ->
                 "Choose how you take insulin. \"Pen\" shows factors as units of insulin per bread " +
@@ -592,6 +592,9 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.LanguageHelp ->
                 "Die in der gesamten App verwendete Sprache. Wähle System, um die " +
                     "Spracheinstellung deines Geräts zu übernehmen."
+            TranslationKey.SettingsGroupTherapy -> "Therapie und Dosis"
+            TranslationKey.SettingsGroupData -> "Daten und Bericht"
+            TranslationKey.SettingsGroupApp -> "App"
             TranslationKey.ThemeSystem -> "System"
             TranslationKey.ThemeLight -> "Hell"
             TranslationKey.ThemeDark -> "Dunkel"
@@ -700,13 +703,6 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                 "Für diese Tageszeit ist kein Faktor eingetragen. " +
                     "Trage unter Faktoren einen ein."
             TranslationKey.ResetInputs -> "Zurücksetzen"
-            TranslationKey.ResetInputsHelp ->
-                "Leert die Eingaben dieses Bolus-Typs, damit vor der nächsten Berechnung kein alter Wert " +
-                    "stehen bleibt."
-            TranslationKey.QuickEntryHelp ->
-                "Tippe auf eine Vorlage, um ihre Kohlenhydrate einzutragen. Die Plus- und Minus-Chips ändern die " +
-                    "eingegebenen Kohlenhydrate um 10 g, und Vorlagen öffnet die ganze Liste zum Hinzufügen, " +
-                    "Bearbeiten oder Löschen."
             TranslationKey.TherapyModeTitle -> "Therapie"
             TranslationKey.TherapyModeHelp ->
                 "Wähle, wie du Insulin verabreichst. \"Pen\" zeigt Faktoren als Einheiten Insulin pro " +
@@ -750,7 +746,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                     "einen sofortigen Teil und einen späteren, erweiterten Teil auf — nützlich bei " +
                     "langsam verdaulichen Mahlzeiten."
             TranslationKey.BolusNormal -> "Normal"
-            TranslationKey.BolusSplit -> "Gesplitteter Bolus"
+            TranslationKey.BolusSplit -> "Gesplittet"
             TranslationKey.BolusUnits -> "Bolus-Einheiten"
             TranslationKey.BolusImmediatePercent -> "Sofortanteil (%)"
             TranslationKey.BolusImmediatePercentHelp ->
@@ -941,6 +937,9 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.LanguageHelp ->
                 "La langue utilisée dans toute l'application. Choisissez Système pour suivre la " +
                     "langue de votre appareil."
+            TranslationKey.SettingsGroupTherapy -> "Thérapie et dose"
+            TranslationKey.SettingsGroupData -> "Données et rapport"
+            TranslationKey.SettingsGroupApp -> "Application"
             TranslationKey.ThemeSystem -> "Système"
             TranslationKey.ThemeLight -> "Lumière"
             TranslationKey.ThemeDark -> "Sombre"
@@ -1051,13 +1050,6 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                 "Aucun facteur n'est défini pour cette heure. " +
                     "Ajoutez-en un sous Facteurs."
             TranslationKey.ResetInputs -> "Réinitialiser"
-            TranslationKey.ResetInputsHelp ->
-                "Efface les valeurs saisies pour ce type de bolus afin qu'aucune ancienne valeur ne reste " +
-                    "avant le prochain calcul."
-            TranslationKey.QuickEntryHelp ->
-                "Touchez un modèle pour saisir ses glucides. Les puces plus et moins modifient les glucides " +
-                    "saisis de 10 g, et Modèles ouvre la liste complète pour ajouter, modifier ou supprimer " +
-                    "des modèles."
             TranslationKey.TherapyModeTitle -> "Traitement"
             TranslationKey.TherapyModeHelp ->
                 "Choisissez comment vous administrez l'insuline. \"Stylo\" affiche les facteurs en " +
@@ -1103,7 +1095,7 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                     "dose en une part immédiate et une part différée, utile pour les repas à " +
                     "digestion lente."
             TranslationKey.BolusNormal -> "Normal"
-            TranslationKey.BolusSplit -> "Bolus fractionné"
+            TranslationKey.BolusSplit -> "Fractionné"
             TranslationKey.BolusUnits -> "Unités de bolus"
             TranslationKey.BolusImmediatePercent -> "Part immédiate (%)"
             TranslationKey.BolusImmediatePercentHelp ->
@@ -1296,6 +1288,9 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
             TranslationKey.LanguageHelp ->
                 "Język używany w całej aplikacji. Wybierz System, aby podążać za ustawieniem " +
                     "języka urządzenia."
+            TranslationKey.SettingsGroupTherapy -> "Terapia i dawka"
+            TranslationKey.SettingsGroupData -> "Dane i raport"
+            TranslationKey.SettingsGroupApp -> "Aplikacja"
             TranslationKey.ThemeSystem -> "System"
             TranslationKey.ThemeLight -> "Światło"
             TranslationKey.ThemeDark -> "Ciemny"
@@ -1403,12 +1398,6 @@ fun translate(key: TranslationKey, language: AppLanguage): String {
                 "Brak współczynnika dla tej pory dnia. " +
                     "Dodaj go w zakładce Współczynniki."
             TranslationKey.ResetInputs -> "Wyczyść"
-            TranslationKey.ResetInputsHelp ->
-                "Czyści wartości wpisane dla tego typu bolusa, aby przed kolejnym obliczeniem nie została " +
-                    "żadna stara wartość."
-            TranslationKey.QuickEntryHelp ->
-                "Dotknij szablonu, aby wpisać jego węglowodany. Chipy plus i minus zmieniają wpisane węglowodany " +
-                    "o 10 g, a Szablony otwierają pełną listę do dodawania, edycji i usuwania szablonów."
             TranslationKey.TherapyModeTitle -> "Terapia"
             TranslationKey.TherapyModeHelp ->
                 "Wybierz, jak podajesz insulinę. \"Pen\" pokazuje czynniki jako jednostki insuliny " +

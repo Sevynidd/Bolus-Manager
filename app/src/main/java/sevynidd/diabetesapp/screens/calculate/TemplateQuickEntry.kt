@@ -18,7 +18,6 @@ import sevynidd.diabetesapp.data.database.BolusTemplateEntity
 import sevynidd.diabetesapp.localization.AppLanguage
 import sevynidd.diabetesapp.localization.TranslationKey
 import sevynidd.diabetesapp.localization.translate
-import sevynidd.diabetesapp.ui.HelpIconButton
 
 internal const val QUICK_TEMPLATE_COUNT = 5
 internal const val CARBOHYDRATES_ADJUST_STEP_GRAMS = 10.0
@@ -95,6 +94,5 @@ internal fun QuickEntryBar(
                 leadingIcon = { Icon(imageVector = Icons.Filled.Bookmark, contentDescription = null) }
             )
         }
-        HelpIconButton(helpTextKey = TranslationKey.QuickEntryHelp, currentLanguage = currentLanguage)
     }
 }

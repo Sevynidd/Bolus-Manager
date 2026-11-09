@@ -61,6 +61,8 @@ and consult your doctor or diabetes care team before acting on them.
 
 ### Settings
 
+- The More tab groups everything into **Therapy and dose**, **Data and report**, and **App**, and each entry shows its
+  current value (e.g. "Pen · mg/dl") so you rarely need to open it just to check
 - Light, dark, or system theme with adjustable contrast, in the app's own warm colors or, optionally, your
   wallpaper colors
 - Available in German, English, French, and Polish (or follow your system language)

@@ -85,6 +85,7 @@ import sevynidd.diabetesapp.screens.factors.FactorScreenState
 import sevynidd.diabetesapp.screens.factors.ScheduleFactorScreen
 import sevynidd.diabetesapp.screens.settings.SettingsNavigationCallbacks
 import sevynidd.diabetesapp.screens.settings.SettingsScreen
+import sevynidd.diabetesapp.screens.settings.SettingsSummaryInputs
 import sevynidd.diabetesapp.screens.settings.appearance.ThemeSettingsScreen
 import sevynidd.diabetesapp.screens.settings.correction.CorrectionSettingsCallbacks
 import sevynidd.diabetesapp.screens.settings.correction.CorrectionSettingsScreen
@@ -491,6 +492,9 @@ fun BolusManagerMainWindow(
                                     },
                                     onNavigateToUpdates = { settingsDestination = SettingsDestination.Updates },
                                     onReplayTutorial = onReplayTutorialRequested
+                                ),
+                                summaryInputs = SettingsSummaryInputs(
+                                    therapyMode, correctionSettings, gender, themeMode
                                 ),
                                 showNotifications = isBasalReminderApplicable(therapyMode)
                             )
